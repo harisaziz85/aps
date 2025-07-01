@@ -236,3 +236,5 @@ export class ApprovaldocumentsComponent implements OnInit {
     console.log(`Opened document in new tab: ${doc.name}, URL: ${doc.fileUrl}`);
   }
 }
+
+// 
