@@ -1,0 +1,233 @@
+.main{
+    background-color: rgba(238, 240, 241, 1);
+    min-height: 130vh;
+    padding: 24px !important;
+}
+.txt{
+    font-size: 14px;
+    margin-top: 16px;
+}
+.txt2{
+  font-size: 14px;
+}
+.head{
+    font-size: 21px;
+}
+.righrc{
+    /* margin-top: -13px !important; */
+    margin-top: 10px;
+}
+.rig{
+    border-radius: 20px !important;
+    padding:16px !important ;
+
+}
+.back{
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+}
+.card1{
+   
+   
+    /* padding-top: 2%; */
+    padding: 16px !important;
+    border-radius: 20px !important;
+}
+.card3{
+ border: 2px dashed #ccc !important;
+ /* padding: 20px; */
+ text-align: center;
+ height: 150px;
+ width: 150px;
+ cursor: pointer;
+ transition: all 0.3s ease;
+}
+.card3.dragging {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+.card3:hover {
+  border-color: #007bff;
+}
+.file-input {
+  display: none;
+}
+.btn-outline-primary {
+  border-color: #0F0F0F;
+  color: #0F0F0F;
+}
+.btn-outline-primary:hover {
+  background-color: #0F0F0F;
+  color: white;
+}
+.text-success {
+  color: #28a745;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+.nav-link:hover{
+  border: 0px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+input{
+    height: 48px;
+    border-radius: 15px;
+}
+.card2{
+    padding: 16px !important;
+    margin-top: 8px;
+    border-radius: 20px !important;
+}
+.tpmgn{
+    margin-top: 24px !important;
+}
+
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  animation: slideIn 0.5s ease-out;
+}
+
+.alert-success1 {
+  background-color: #d4edda;
+  color: black !important;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.tab-container {
+    width: 300px;
+    margin: auto;
+    background: #bdb5b500;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .tabs {
+    display: flex;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 15px 0;
+    color: black; /* Default color for inactive tabs */
+    z-index: 2;
+    transition: color 0.3s;
+  }
+  
+  .tab.active {
+    color: white !important; /* Active tab's text color */
+  }
+  
+  .slider {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: black;
+    z-index: 1;
+    transition: left 0.3s ease;
+    border-radius: 8px;
+  }
+  
+  .tab-container[data-active="left"] .slider {
+    left: 0%;
+  }
+  
+  .tab-container[data-active="right"] .slider {
+    left: 50%;
+  }
+  
+  .tab-container .tab {
+    position: relative;
+    z-index: 2;
+  }
+  
+  
+  
+  .text-black {
+  color: #000000 !important;
+}
+.btn-primary12{
+  background-color: #000000 !important;
+  color: white;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 10px !important;
+}
+.card3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px; /* Ensures enough height for centering */
+}
+
+.card3 {
+  border: 2px dashed #ccc !important;
+  /* padding: 20px; */
+  text-align: center;
+  height: 150px;
+  width: 150px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative; /* Ensure positioning context for image */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card3.dragging {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.card3:hover {
+  border-color: #007bff;
+}
+
+.image-preview-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Ensures image fits without distortion */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

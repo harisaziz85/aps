@@ -1,0 +1,126 @@
+/* Existing Styles */
+.head {
+    font-size: 105px;
+    color: black;
+    line-height: 70px !important;
+}
+.head1 {
+    font-size: 27px;
+}
+.text {
+    font-size: 21px;
+    color: rgba(164, 163, 162, 1) !important;
+    margin-top: 65px !important;
+}
+.card {
+    border: 0px;
+    border-radius: 20px;
+}
+.btn-dark {
+    background-color: black !important;
+    font-size: 16px;
+    height: 48px;
+    border-radius: 15px;
+}
+
+/* Shimmer Effect Styles */
+.shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+}
+.shimmer-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+}
+.shimmer-line {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    border-radius: 4px;
+}
+.shimmer-line.head {
+    width: 100px;
+    height: 70px;
+}
+.shimmer-line.head1 {
+    width: 120px;
+    height: 20px;
+}
+.shimmer-line.text {
+    width: 150px;
+    height: 15px;
+}
+.shimmer-button {
+    width: 130px;
+    height: 48px;
+    border-radius: 15px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 1280px) {
+    .head {
+        font-size: 72px;
+    }
+    .head1 {
+        font-size: 20px;
+    }
+    .text {
+        font-size: 15px;
+        margin-top: 45px !important;
+    }
+    .btn-dark {
+        font-size: 12px;
+        height: 38px;
+        width: 90px !important;
+    }
+    /* Shimmer Responsive Adjustments */
+    .shimmer-line.head {
+        width: 80px;
+        height: 50px;
+    }
+    .shimmer-line.head1 {
+        width: 100px;
+        height: 16px;
+    }
+    .shimmer-line.text {
+        width: 120px;
+        height: 12px;
+    }
+    .shimmer-button {
+        width: 90px;
+        height: 38px;
+    }
+}
+
+@media (min-width: 1281px) and (max-width: 1680px) {
+    .head {
+        font-size: 95px;
+    }
+    .head1 {
+        font-size: 20px;
+    }
+    .text {
+        font-size: 15px;
+        margin-top: 45px !important;
+    }
+    /* Shimmer Responsive Adjustments */
+    .shimmer-line.head {
+        width: 90px;
+        height: 60px;
+    }
+ 
+}

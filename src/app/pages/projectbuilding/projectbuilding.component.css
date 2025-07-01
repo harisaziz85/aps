@@ -1,0 +1,848 @@
+.projects-container {
+  padding: 24px;
+  background: rgba(238, 240, 241, 1);
+  min-height: 100vh;
+  padding-bottom: 250px;
+}
+
+.btn-outline-secondary {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid black !important;
+  font-size: 14px !important;
+  border-radius: 0px !important;
+}
+
+thead th {
+  padding: 0px 10px !important;
+}
+
+table tbody tr td {
+  background-color: rgb(255, 255, 255);
+  height: 80px;
+}
+
+.search-sort {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.head {
+  font-size: 21px;
+}
+
+.btn {
+  background-color: black;
+  color: white;
+}
+
+.search-input {
+  flex: 1;
+  height: 48px;
+  width: 500px !important;
+  padding: 8px;
+  border: 1px solid rgba(164, 163, 162, 1) !important;
+  border-radius: 15px;
+}
+app-svg-icons{
+    margin-right: 5px;
+}
+.chk {
+  height: 17px;
+  width: 17px;
+}
+.chk:checked{
+  accent-color: black;
+}
+
+.dropdown {
+  width: fit-content;
+}
+
+.txt12 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.search-sort input {
+  height: 48px;
+  font-size: 16px !important;
+}
+
+tbody, td, tfoot, th, thead, tr {
+  border: 0px !important;
+}
+
+.arch {
+  width: 165px;
+  background-color: transparent !important;
+}
+
+.sort {
+  width: 155px !important;
+  border: 1px solid rgba(164, 163, 162, 1) !important;
+  background-color: transparent !important;
+}
+
+.btn {
+  border-radius: 15px !important;
+}
+
+.project-table {
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.project-table th {
+  background: #f0f0f0;
+}
+
+.project-table td {
+  vertical-align: middle;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 15px;
+}
+
+
+
+.profile-img {
+  border-radius: 50%;
+  margin-right: 5px;
+  height: 36px;
+  width: 36px;
+}
+.bad{
+  height: 37px;
+  font-size: 14px;
+  color: black;
+}
+.instance-badge {
+  display: inline-block;
+  border: 1px solid rgba(205, 204, 203, 1);
+  padding: 7px 10px;
+  border-radius: 10px;
+  margin-right: 5px;
+}
+
+.txt11 {
+  font-size: 14px;
+}
+
+.instance-badge a {
+  text-decoration: none;
+  color: black;
+}
+
+.job-notes-modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 600px;
+  border-radius: 20px 0px 0px 20px;
+  height: 100%;
+  background: #f8f8f8;
+  box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.dp {
+  border: 0px !important;
+  background-color: transparent;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 0px 13px 10px 13px;
+  background-color: white;
+}
+
+.project-name {
+  font-weight: bold;
+  background: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.projbtn {
+  height: 56px;
+  width: 147px;
+}
+
+.note-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.note-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .job-notes-modal {
+    width: 100%;
+  }
+}
+
+.head {
+  font-size: 21px;
+  color: black;
+  margin-bottom: 0px !important;
+}
+
+.head3 {
+  font-size: 21px;
+  margin-bottom: 24px;
+}
+
+.txt3 {
+  font-size: 14px;
+}
+
+.head1 {
+  background-color: #f8f9fa !important;
+  color: #333 !important;
+}
+
+table thead tr th {
+  background-color: rgba(238, 240, 241, 1) !important;
+  font-size: 16px !important;
+}
+
+.text {
+  font-size: 16px;
+}
+
+.notes {
+  background-color: rgba(252, 235, 232, 1);
+  width: fit-content;
+  padding: 5px;
+  border-radius: 10px;
+  height: 37px;
+  width: 124px;
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgb(236, 90, 64);
+}
+
+.notes svg {
+  margin-right: 4px !important;
+}
+
+.notes a {
+  text-decoration: none;
+  color: black;
+}
+
+.badge1 {
+  width: fit-content;
+  height: 46px !important;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.dropdown-menu {
+  position: fixed;
+  left: auto;
+  right: 5px;
+  border-radius: 10px;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.cnclbtn {
+  background-color: transparent;
+  border: 1px solid black !important;
+  color: black;
+  font-size: 16px;
+}
+
+.yesbtn {
+  background-color: rgba(236, 25, 25, 1) !important;
+  font-size: 16px;
+}
+
+.modal-content1 {
+  background: white;
+  width: 40% !important;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.inp1 {
+  width: 100%;
+  border-radius: 15px;
+  border: 1px solid black;
+  height: 40px;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.search-input {
+  font-size: 15px;
+  border: 1px solid rgba(164, 163, 162, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+table thead tr th {
+  background-color: transparent;
+  font-size: 16px;
+}
+
+table tbody tr td {
+  background-color: rgb(255, 255, 255);
+}
+
+.table {
+  border-spacing: 0 10px;
+  border-collapse: separate;
+  background-color: transparent;
+}
+
+svg {
+  margin-right: 8px !important;
+}
+
+tbody tr td {
+  border: none;
+  position: relative;
+  align-items: center;
+}
+
+tbody tr td:first-child {
+  border-top-left-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+}
+
+tbody tr td:last-child {
+  border-top-right-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+}
+
+td:first-child {
+  width: 50px !important;
+  text-align: center;
+}
+
+th:first-child {
+  width: 50px !important;
+  text-align: center;
+}
+
+.btn12 {
+  font-size: 14px !important;
+  color: black;
+  border-radius: 10px !important;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 15px;
+  padding: 10px 15px;
+  width: 500px;
+  height: 48px;
+  border: 1px solid rgba(164, 163, 162, 1);
+}
+
+.input-container svg {
+  color: white;
+  margin-right: 10px;
+}
+
+.input-container input {
+  background: none;
+  border: none;
+  outline: none;
+  color: rgb(39, 39, 39);
+  width: 100%;
+  margin-top: -3px;
+  font-size: 16px;
+}
+
+.profile-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-group img {
+  position: absolute;
+  border: 2px solid white;
+  transition: transform 0.3s ease-in-out;
+}
+
+.profile-group img:hover {
+  transform: scale(1.1);
+}
+
+.custom-bg-success {
+  background-color: rgba(115, 242, 181, 1) !important;
+  color: black !important;
+}
+
+.custom-bg-danger {
+  background-color: rgba(255, 102, 102, 1) !important;
+  color: black !important;
+}
+
+.custom-bg-warning {
+  background-color: rgba(255, 224, 102, 1) !important;
+  color: black !important;
+}
+
+.btn12 {
+  font-size: 14px !important;
+  color: black !important;
+  border: none !important;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background-color: transparent;
+}
+.btn-danger12{
+height: 56px;
+width: 148px;
+font-size: 16px;
+background-color: rgba(236, 25, 25, 1);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.btn-primary12{
+height: 56px;
+width: 148px;
+font-size: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.btn-secondary12{
+  height: 56px;
+  width: 148px;
+  background-color: rgba(255, 255, 255, 0);
+  color: black;
+  border: 1px solid black;
+  font-size: 16px;
+  display: flex;
+align-items: center;
+justify-content: center;
+}
+
+
+.table-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.shimmer-row td {
+  background: white;
+  height: 80px;
+}
+
+.shimmer {
+  width: 80%;
+  height: 20px;
+  background: #f6f7f8;
+  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+  background-size: 800px 104px;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+/* Action Dropdown Styles */
+.action-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dropdown-content{
+  position: absolute !important;
+  z-index: 199;
+  background-color: white !important;
+  border: 1px solid grey;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 16px !important;
+}
+.text-danger{
+  color: black !important;
+  text-decoration: none !important;
+}
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: #e9ecef;
+}
+
+.action-btn svg {
+  vertical-align: middle;
+}
+
+.action-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #ffffff;
+  min-width: 140px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1002;
+  overflow: hidden;
+  margin-top: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.action-dropdown-item {
+  display: block;
+  padding: 10px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.action-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.action-dropdown-item-danger {
+  color: #dc3545;
+}
+
+.action-dropdown-item-danger:hover {
+  background-color: #f8d7da;
+}
+
+/* Confirm Action Modal Styles */
+.confirm-action-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: white !important; */
+  z-index: 1000;
+}
+
+.confirm-action-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+.h2{
+  font-size: 21px !important;
+  color: black !important;
+}
+.fp{
+  font-size: 14px !important;
+  color: black !important;
+}
+.confirm-action-content {
+  background-color: #ffffff !important;
+  color: black !important;
+  border-radius: 8px;
+  width: 420px;
+  max-width: 90%;
+  padding: 24px;
+  position: relative;
+  z-index: 1001;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+.confirm-action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.confirm-action-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.confirm-action-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-action-close:hover {
+  background-color: #e9ecef;
+}
+
+.confirm-action-body {
+  margin-bottom: 24px;
+}
+
+.confirm-action-body p {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.confirm-action-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f8f9fa !important;
+  transition: border-color 0.2s ease;
+  border-radius: 15px;
+}
+
+.confirm-action-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.confirm-action-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.confirm-action-cancel {
+  background-color: #e9ecef;
+  color: #333;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-action-cancel:hover {
+  background-color: #dee2e6;
+}
+
+.confirm-action-proceed {
+  background-color: #dc3545;
+  color: #ffffff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-action-proceed:hover {
+  background-color: #c82333;
+}
+
+/* Animation for Modal */
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .action-dropdown-menu {
+    background-color: #2c2c2c;
+    border-color: #444;
+  }
+
+  .action-dropdown-item {
+    color: #e9ecef;
+  }
+
+  .action-dropdown-item:hover {
+    background-color: #3a3a3a;
+  }
+
+  .action-dropdown-item-danger:hover {
+    background-color: #5c2a2f;
+  }
+
+  .confirm-action-content {
+    background-color: #2c2c2c;
+  }
+
+  .confirm-action-header h3,
+  .confirm-action-body p {
+    color: #e9ecef;
+  }
+
+  .confirm-action-input {
+    background-color: #3a3a3a;
+    border-color: #555;
+    color: black;
+  }
+
+  .confirm-action-cancel {
+    background-color: #444;
+    color: #e9ecef;
+  }
+
+  .confirm-action-cancel:hover {
+    background-color: #555;
+  }
+}
+.inbr{
+  padding: 10px;
+  color: rgba(15, 15, 15, 1) !important;
+  border:  1px solid rgba(205, 204, 203, 1);
+  border-radius: 10px;
+}
+.custom-dropdown {
+  position: relative; /* Ensures dropdown positions relative to this container */
+  display: inline-block;
+}
+
+.dropdown-content1{
+  height: 82px !important;
+  position: absolute;
+  top: 100%; /* Positions dropdown below the button */
+  right: 0; /* Aligns to the right of the button */
+  transform: translateX(-30px); /* Shifts 30px to the left */
+  background-color: #fff; /* Example background */
+  border: 1px solid #ccc; /* Example border */
+  border-radius: 4px; /* Optional: rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional: shadow for depth */
+  z-index: 1000; /* Ensures dropdown appears above other elements */
+  overflow: visible; /* Prevents clipping */
+  width: 120px !important;
+  padding-left: 14px;
+
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 0px !important;
+  text-decoration: none;
+  color: #333; /* Default link color */
+}
+
+.dropdown-content a.text-danger {
+  color: #dc3545; /* Bootstrap danger color for Delete */
+}
+
+.dropdown-content a:hover {
+  background-color: #f8f9fa; /* Hover effect */
+}
+
+/* Ensure parent table doesn't clip the dropdown */
+td.text-center {
+  overflow: visible; /* Prevents table cell from clipping dropdown */
+}
+.custom-bg-yellow {
+  background-color: rgba(255, 224, 102, 1) !important;
+  color: black;
+}

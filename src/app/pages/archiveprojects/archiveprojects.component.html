@@ -1,0 +1,310 @@
+<div class="projects-container" style="padding: 20px; background: #f8f9fa; min-height: 100vh;">
+  <app-topbar heading="Projects and Buildings"></app-topbar>
+  <!-- Search and Sort -->
+  <div class="search-sort d-flex mb-4">
+    <div class="input-container">
+      <app-svg-icons icon="search" size="16"></app-svg-icons>
+      <input type="text" class="inp12" placeholder="Search projects" [(ngModel)]="searchQuery" (input)="searchProjects()">
+    </div>
+  </div>
+
+  <!-- Bulk Action Buttons -->
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Total Projects with Shimmer Effect -->
+    @if (isLoading) {
+      <div class="shimmer" style="width: 200px; height: 40px; margin: 30px 0;"></div>
+    } @else {
+      <p style="font-size: 27px; color: black; margin: 30px 0;" class="onestbold head mt-2">Total Projects: {{ filteredProjects.length }}</p>
+    }
+    @if (selectedProjectIds.length > 0) {
+      <div class="bulk-actions mb-3" style="display: flex; gap: 10px;">
+        <button
+          class="btn btn-secondary123 robotosemibold"
+          (click)="cancelSelection()"
+          style="padding: 8px 16px; border-radius: 4px;"
+        >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M14 4L4 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4 4L14 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+          Cancel
+        </button>
+        <button
+          class="btn btn-primary12 robotosemibold"
+          (click)="openBulkModal('Restore')"
+          style="padding: 8px 16px; border-radius: 4px;"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.5 5.75L9 8.25L6.5 5.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 8.25V2.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2.75H13.25C14.355 2.75 15.25 3.645 15.25 4.75V13.25C15.25 14.355 14.355 15.25 13.25 15.25H4.75C3.645 15.25 2.75 14.355 2.75 13.25V4.75C2.75 3.645 3.645 2.75 4.75 2.75H6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15.25 10.25H11.25V11.25C11.25 11.802 10.802 12.25 10.25 12.25H7.75C7.198 12.25 6.75 11.802 6.75 11.25V10.25H2.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Restore
+        </button>
+        <button
+          class="btn btn-danger12 robotosemibold"
+          (click)="openBulkModal('Delete')"
+          style="padding: 8px 16px; border-radius: 4px;"
+        >
+          Delete
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Loading State with Shimmer Effect -->
+  @if (isLoading) {
+    <table class="table project-table w-100" style="width: 100%; border-radius: 10px; border-spacing: 0 10px; border-collapse: separate;">
+      <thead class="head1" style="color: #333;">
+        <tr class="onestsemibold" style="font-size: 16px;">
+          <th style="padding: 15px; vertical-align: middle; text-align: center; width: 50px;"></th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="project1" size="16"></app-svg-icons>
+            Project Name
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="building" size="16"></app-svg-icons>
+            Building
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="status" size="16"></app-svg-icons>
+            Status
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="assignee" size="16"></app-svg-icons>
+            Assignee
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="instance" size="16"></app-svg-icons>
+            Instance
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: center;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <tr style="margin-bottom: 10px;">
+            <td style="padding: 15px; vertical-align: middle; text-align: center; background: white; border-top-left-radius: 20px; border-bottom-left-radius: 20px; width: 50px;">
+              <div class="shimmer" style="width: 20px; height: 20px;"></div>
+            </td>
+            <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+              <div class="shimmer" style="width: 150px; height: 20px;"></div>
+            </td>
+            <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+              <div class="shimmer" style="width: 120px; height: 20px;"></div>
+            </td>
+            <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+              <div class="shimmer" style="width: 100px; height: 20px;"></div>
+            </td>
+            <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+              <div class="shimmer" style="width: 80px; height: 20px;"></div>
+            </td>
+            <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+              <div class="shimmer" style="width: 140px; height: 20px;"></div>
+            </td>
+            <td style="padding: 15px; vertical-align: middle; text-align: center; background: white; border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
+              <div class="shimmer" style="width: 18px; height: 18px;"></div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <!-- Error State -->
+  @if (errorMessage) {
+    <div style="text-align: center; padding: 20px; font-size: 1rem;">{{ errorMessage }}</div>
+  }
+
+  <!-- Projects Table -->
+  @if (!isLoading && !errorMessage) {
+    <table class="table project-table w-100" style="width: 100%; border-radius: 10px; border-spacing: 0 10px; border-collapse: separate;">
+      <thead class="head1" style="color: #333;">
+        <tr class="onestsemibold" style="font-size: 16px;">
+          <th style="padding: 15px; vertical-align: middle; text-align: center; width: 50px;">
+            <input type="checkbox" class="cbox" style="height: 20px; width: 20px;" [checked]="isAllSelected()" (change)="toggleSelectAll()">
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="project1" size="16"></app-svg-icons>
+            Project Name
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="building" size="16"></app-svg-icons>
+            Building
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="status" size="16"></app-svg-icons>
+            Status
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="assignee" size="16"></app-svg-icons>
+            Assignee
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: left;">
+            <app-svg-icons icon="instance" size="16"></app-svg-icons>
+            Instance
+          </th>
+          <th style="padding: 15px; vertical-align: middle; text-align: center;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredProjects.length === 0) {
+          <tr>
+            <td colspan="7" class="text robotoregular" style="text-align: center; padding: 20px; background: white; border-radius: 10px;">No archived projects found.</td>
+          </tr>
+        } @else {
+          @for (project of filteredProjects; track project.projectId; let i = $index) {
+            <tr style="margin-bottom: 10px; cursor: pointer;" (click)="navigateToPresentation(project.projectId)">
+              <td style="padding: 15px; vertical-align: middle; text-align: center; background: white; border-top-left-radius: 20px; border-bottom-left-radius: 20px; width: 50px;" (click)="$event.stopPropagation()">
+                <input type="checkbox" class="cbox" style="height: 20px; width: 20px;" [checked]="isProjectSelected(project.projectId)" (change)="toggleProjectSelection(project.projectId, $event)">
+              </td>
+              <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular mb-0">
+                <app-svg-icons icon="project1" size="16"></app-svg-icons>
+                {{ project.projectName }}
+              </td>
+              <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+                <app-svg-icons icon="building" size="16"></app-svg-icons>
+                {{ project.buildingName }}
+              </td>
+              <td style="padding: 15px; vertical-align: middle; background: white; display: flex; align-items: center;" class="text robotoregular" (click)="$event.stopPropagation()">
+                <app-svg-icons icon="status" size="16"></app-svg-icons>
+                <div class="dropdown ms-1" style="width: 70%;">
+                  <button
+                    class="btn dropdown-toggle status-btn"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    [ngClass]="getStatusStyle(project.status).class"
+                    [style]="getStatusStyle(project.status).style"
+                    style="width: fit-content; text-align: left; border: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between;"
+                  >
+                    {{ project.status || 'Active' }}
+                  </button>
+                  <ul class="dropdown-menu" style="width: 100%; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000;">
+                    <li><a class="dropdown-item" (click)="changeStatus(project, 'Active', $event)" style="padding: 8px 12px; color: #333; cursor: pointer;">Active</a></li>
+                    <li><a class="dropdown-item" (click)="changeStatus(project, 'Completed', $event)" style="padding: 8px 12px; color: #333; cursor: pointer;">Completed</a></li>
+                  </ul>
+                </div>
+              </td>
+              <td class="assignee-images">
+                <div class="image-stack">
+                  <ng-container *ngIf="getAssigneeImages(project.assignedEmployees).length > 0; else noAssigneeTemplate">
+                    <ng-container *ngFor="let image of getAssigneeImages(project.assignedEmployees); let j = index">
+                      <img [src]="image" class="rounded-circle assignee-img" [style.zIndex]="10 - j" alt="Assignee"
+                        width="40" height="40">
+                    </ng-container>
+                  </ng-container>
+                  <ng-template #noAssigneeTemplate>
+                    <img src="/images/pf4.png" class="rounded-circle assignee-img" alt="Default Assignee" width="40" height="40">
+                  </ng-template>
+                </div>
+              </td>
+              <td style="padding: 15px; vertical-align: middle; background: white;" class="text robotoregular">
+                <app-svg-icons icon="instance" class="me-2" size="16"></app-svg-icons>
+                @for (instance of getInstanceBadges(project.subProjects); track instance) {
+                  <span class="instance-badge" style="display: inline-block; padding: 8px 12px; border-radius: 4px; margin-right: 5px; background: #f0f0f0; border: 1px solid #ccc;">
+                    {{ instance }}
+                  </span>
+                }
+                @if (!getInstanceBadges(project.subProjects).length) {
+                  <span class="instance-badge" style="display: inline-block; padding: 8px 12px; border-radius: 4px; margin-right: 5px; background: #f0f0f0; border: 1px solid #ccc;">
+                    No instances
+                  </span>
+                }
+              </td>
+              <td style="padding: 15px; vertical-align: middle; text-align: center; background: white; border-top-right-radius: 20px; border-bottom-right-radius: 20px;" (click)="$event.stopPropagation()">
+                <div class="custom-dropdown" style="position: relative; display: inline-block;">
+                  <button class="btn" (click)="toggleDropdown(i, $event)" style="background: none; border: none; cursor: pointer; padding: 5px; font-size: 16px;">
+                    ⋮
+                  </button>
+                  @if (showDropdownIndex === i) {
+                    <div class="custom-dropdown-menu" style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px;">
+                      <a class="dropdown-item" (click)="openModal('Restore', project, $event)" style="display: block; padding: 8px 12px; color: black; text-decoration: none; cursor: pointer;">Restore</a>
+                      <a class="dropdown-item" (click)="openModal('Delete', project, $event)" style="display: block; padding: 8px 12px; color: black; text-decoration: none; cursor: pointer;">Delete</a>
+                    </div>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  }
+
+  <!-- Pagination Controls -->
+  @if (!isLoading && !errorMessage && filteredProjects.length > 0 && totalPages > 1) {
+    <div class="pagination-controls" style="display: flex; justify-content: center; margin-top: 20px;">
+      <button
+        class="btn btn-outline-secondary me-2"
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)"
+        style="padding: 8px 16px; border-radius: 4px;"
+      >
+        Previous
+      </button>
+      <span style="align-self: center;">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-outline-secondary ms-2"
+        [disabled]="currentPage === totalPages"
+        (click)="changePage(currentPage + 1)"
+        style="padding: 8px 16px; border-radius: 4px;"
+      >
+        Next
+      </button>
+    </div>
+  }
+
+  <!-- Custom Confirmation Modal for Single Project -->
+  @if (modalProject) {
+    <div class="modal" [ngClass]="{ 'show': modalProject }" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 1000;">
+      <div class="modal-overlay" (click)="closeModal()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
+      <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 600px; z-index: 1001;">
+        <h2 class="onestbold" style="font-size: 21px; margin-bottom: 10px;">{{ modalAction }} Project</h2>
+        <p style="margin-bottom: 15px;">
+          You’re about to {{ modalAction.toLowerCase() }} the project: <strong>{{ modalProject.projectName }}</strong>
+        </p>
+        <p style="margin-bottom: 10px;">Please type "<strong>{{ modalAction }}</strong>" to confirm:</p>
+        <input
+          type="text"
+          [(ngModel)]="actionInput"
+          placeholder="Type action here"
+          (keyup.enter)="confirmAction()"
+          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 15px;"
+        />
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn btn-secondary" (click)="closeModal()" style="padding: 8px 16px; border-radius: 4px;">Cancel</button>
+          <button class="btn btn-danger" (click)="confirmAction()" style="padding: 8px 16px; border-radius: 4px;">Confirm</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Custom Confirmation Modal for Bulk Actions -->
+  @if (showBulkModal) {
+    <div class="modal" [ngClass]="{ 'show': showBulkModal }" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 1000;">
+      <div class="modal-overlay" (click)="closeBulkModal()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
+      <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 600px; z-index: 1001;">
+        <h2 class="onestbold" style="font-size: 21px; margin-bottom: 10px;">{{ modalAction }} Selected Projects</h2>
+        <p style="margin-bottom: 15px;">
+          You’re about to {{ modalAction.toLowerCase() }} {{ selectedProjectIds.length }} selected project(s).
+        </p>
+        <p style="margin-bottom: 10px;">Please type "<strong>{{ modalAction }}</strong>" to confirm:</p>
+        <input
+          type="text"
+          [(ngModel)]="actionInput"
+          placeholder="Type action here"
+          (keyup.enter)="confirmBulkAction()"
+          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 15px;"
+        />
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn btn-secondary" (click)="closeBulkModal()" style="padding: 8px 16px; border-radius: 4px;">Cancel</button>
+          <button class="btn btn-danger" (click)="confirmBulkAction()" style="padding: 8px 16px; border-radius: 4px;">Confirm</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <app-foot></app-foot>
+</div>

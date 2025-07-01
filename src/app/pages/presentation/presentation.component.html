@@ -1,0 +1,421 @@
+<div class="container-fluid main">
+  <p class="back">
+    <a routerLink="/pages/project-building">
+      <app-svg-icons icon="back" size="16"></app-svg-icons>
+    </a>
+  </p>
+
+  <!-- Main Section -->
+  <div class="row">
+    <!-- Left Section -->
+    <div class="col-md-8 p-0">
+      <div class="card p-3">
+        <p class="onestbold">Attributes</p>
+        <p class="robotoregular txt4">Project Status</p>
+        <div class="d-flex align-items-center bb" [ngClass]="{
+  'bg-active': dropdown1.selected === 'Active',
+  'bg-completed': dropdown1.selected === 'Completed'
+}">
+  <span class="icon me-2 px-3">
+    <app-svg-icons icon="status" size="16"></app-svg-icons>
+  </span>
+  <span class="robotoregular txt4 mt-2">{{ dropdown1.selected }}</span>
+</div>
+        <!-- <button class="btn btn-dark1 mt-3" (click)="openFullProjReportModal()">Open Full Project Report</button> -->
+      </div>
+
+      <div class="mt-4">
+        <div class="row">
+          <div *ngFor="let subProject of project?.subProjects; let i = index" class="col-6">
+  <div class="parking-card txt robotoregular" (click)="toggleExpand(subProject.hierarchyLevelId)">
+    <div class="row">
+      <div class="col-2 d-flex align-items-center">
+        <span class="me-3" [class.expanded]="expandedSection === subProject.hierarchyLevelId">
+          <app-svg-icons icon="down" size="16"></app-svg-icons>
+        </span>
+      </div>
+      <div class="col-9 ">{{ subProject.hierarchyName }} ({{ subProject.totalInstances }})</div>
+    </div>
+  </div>
+  <div *ngIf="expandedSection === subProject.hierarchyLevelId" class="sub-items card">
+    <div class="d-flex">
+      <div class="d"></div> <!-- Empty col to align with the arrow -->
+      <div class="ms-4">
+        <div *ngFor="let instance of subProject.instances" class="robotoregular txt"
+          (click)="openCarparkModal(subProject, instance.instanceId)">
+          {{ instance.subProjectCategory }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-3">
+        <p class="onestbold head1">Assignee</p>
+        <div class="d-flex gap-1 w-100">
+          <div *ngFor="let employee of project?.assignedEmployees"
+            class="d-flex align-items-center border p-2 assignee robotoregular w-50">
+            <img [src]="employee?.image || 'images/pi.png'" height="36px" width="36px" class="rounded-circle me-2"
+              alt="User">
+            {{ employee?.name || 'Unknown' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hierarchy Modal -->
+ <div class="modal-overlay" *ngIf="isModalOpen">
+    <div class="modal-content">
+      <div class="modal-header pre">
+        <h2>{{ selectedHierarchy?.hierarchyName || 'Hierarchy' }}</h2>
+        <button class="close-btn" (click)="closeCarparkModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="side-list card">
+          <button *ngFor="let instance of selectedHierarchy?.instances"
+            class="side-item d-flex align-items-center justify-content-between"
+            (click)="openCarparkModal(selectedHierarchy, instance.instanceId)">
+            {{ instance.instanceName || 'Instance ' + instance.instanceId }}
+            <app-svg-icons icon="down" size="16"></app-svg-icons>
+          </button>
+        </div>
+        <div class="details card card11 card123">
+          <div class="main3">
+            <div class="tab-container position-relative">
+              <div class="active-tab-bg" [ngStyle]="{
+                left: activeTab === 'attributes' ? '0%' :
+                      activeTab === 'pictures' ? '25%' :
+                      activeTab === 'markers' ? '50%' : '75%'
+              }"></div>
+              <div class="nav nav-tabs d-flex w-100 justify-content-between">
+                <button class="nav-item nav-btn text-center" [class.active]="activeTab === 'attributes'"
+                  (click)="activeTab = 'attributes'">Attributes</button>
+                <button class="nav-item nav-btn text-center" [class.active]="activeTab === 'pictures'"
+                  (click)="activeTab = 'pictures'">Pictures</button>
+                <button class="nav-item nav-btn text-center" [class.active]="activeTab === 'markers'"
+                  (click)="activeTab = 'markers'">Markers</button>
+                <button class="nav-item nav-btn text-center" [class.active]="activeTab === 'reports'"
+                  (click)="activeTab = 'reports'">Reports</button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="activeTab === 'attributes'" class="attributes">
+            <div *ngIf="selectedInstance; else noInstance">
+              <p class="txt robotoregular mb-3"><span class="txt1">Instance Name:</span> {{
+                selectedInstance.instanceName || selectedInstance.instanceNumber || 'N/A' }}</p>
+              <p class="txt robotoregular mb-3"><span class="txt1">Sub Project Category:</span> {{
+                selectedInstance.subProjectCategory || 'N/A' }}</p>
+              <p class="txt robotoregular mb-3"><span class="txt1">Instance Number:</span> {{
+                selectedInstance.instanceNumber || 'N/A' }}</p>
+              <div *ngFor="let attr of selectedInstance.attributes">
+                <p class="txt robotoregular mb-3">
+                  <span class="txt1">{{ attr.name }}:</span>
+                  {{ attr.selectedValue || (attr.value | json) || 'N/A' }}
+                </p>
+              </div>
+            </div>
+            <ng-template #noInstance>
+              <p class="txt robotoregular mb-3">Select an instance to view details.</p>
+            </ng-template>
+          </div>
+
+          <div *ngIf="activeTab === 'pictures'" class="pictures">
+            <div *ngIf="activeTab === 'pictures'" class="pictures">
+  <!-- Pre-installation Section -->
+  <div class="section">
+    <p class="onestsemibold txt3">Pre-installation</p>
+    <div *ngIf="preInstallPhotos && preInstallPhotos.length > 0; else noPreInstall">
+      <div class="image-row">
+        <img *ngFor="let photo of preInstallPhotos"
+             [src]="photo.url"
+             width="250"
+             height="auto"
+             [alt]="photo.category"
+             class="pic"
+             (click)="openImageModal(photo.url)" />
+      </div>
+    </div>
+    <ng-template #noPreInstall>
+      <p class="robotoregular txt">No Image</p>
+    </ng-template>
+  </div>
+
+  <!-- Post-installation Section -->
+  <div class="section">
+    <p class="onestsemibold txt3">Post-installation</p>
+    <div *ngIf="postInstallPhotos && postInstallPhotos.length > 0; else noPostInstall">
+      <div class="image-row">
+        <img *ngFor="let photo of postInstallPhotos"
+             [src]="photo.url"
+             width="250"
+             height="auto"
+             [alt]="photo.category"
+             class="pic"
+             (click)="openImageModal(photo.url)" />
+      </div>
+    </div>
+    <ng-template #noPostInstall>
+      <p class="robotoregular txt">No Image</p>
+    </ng-template>
+  </div>
+</div>
+          </div>
+
+          <div *ngIf="activeTab === 'markers'" class="markers card" style="padding: 16px;">
+  <p class="txt onestsemibold">Floor Plan</p>
+  <div class="marker-container" style="position: relative; width: 100%; max-width: 600px;">
+    <img [src]="floorPlanImage || 'https://via.placeholder.com/600x400?text=No+Image'"
+         class="img-fluid clickable-image" (click)="openMarkerModal()" alt="Floor Plan">
+    <div *ngFor="let marker of markers" class="marker" [ngStyle]="{
+           position: 'absolute',
+           left: (marker.position.x * 100) + '%',
+           top: (marker.position.y * 100) + '%',
+           transform: 'translate(-50%, -100%)',
+           width: '32px',
+           height: '32px'
+         }" [title]="marker.title">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z"
+              fill="#0000FF" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+          <div *ngIf="activeTab === 'reports'" class="reports">
+  <div class="d-flex align-items-center justify-content-between">
+    <p class="onestbold fs-5 mt-2">Reports</p>
+    <button class="btn btn-dark1 mb-2" (click)="openReportModal()">+ Report</button>
+  </div>
+  <div *ngIf="isLoadingReports" class="text-center">Loading reports...</div>
+  <div *ngIf="!isLoadingReports && reports.length === 0" class="text-center">No reports available.</div>
+  <div *ngIf="!isLoadingReports && reports.length > 0" class="report-list d-flex flex-wrap">
+    <div *ngFor="let report of reports" class="report-item card m-2" style="width: 33%; height: 200px; flex: 1 1 calc(33.33% - 1rem);">
+      <div class="card-body d-flex flex-column align-items-center justify-content-center">
+        <svg width="37" height="42" viewBox="0 0 37 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 15H15.3333" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 23H27.3333" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 31H27.3333" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 35.0001V7.00008C2 4.05341 4.38667 1.66675 7.33333 1.66675H22.2293C22.936 1.66675 23.616 1.94675 24.1147 2.44808L34.552 12.8854C35.0533 13.3867 35.3333 14.0641 35.3333 14.7707V35.0001C35.3333 37.9467 32.9467 40.3334 30 40.3334H7.33333C4.38667 40.3334 2 37.9467 2 35.0001Z" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M35.094 13.6667H26.0007C24.5287 13.6667 23.334 12.4721 23.334 11.0001V1.93872" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <a (click)="downloadReport(report.fileUrl)" class="report-link mt-2 text-center cursor-pointer">
+          {{ project?.projectName || 'Unnamed Project' }}
+          <ng-container *ngIf="getReportCount(report.projectId) > 1">
+            ({{ getReportIndex(report) + 1 }})
+          </ng-container>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+<div class="modal-overlay" *ngIf="isReportModalOpen">
+    <div class="modal-content4 modal-content">
+      <div class="modal-header d-flex justify-content-between">
+        <p class="head1 onestbold">Report</p>
+        <button class="close-btn" (click)="closeReportModal()">×</button>
+      </div>
+      <div class="modal-body4 d-flex flex-column">
+        <!-- Report Type Dropdown -->
+        <div class="card card1" style="margin-bottom: 16px;">
+          <label for="" class="robotoregular tst1">Report Type</label>
+          <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
+            <span class="icon">
+              <app-svg-icons icon="rep" size="16"></app-svg-icons>
+            </span>
+            <input type="text" [value]="selectedOption" readonly />
+            <span class="arrow">
+              <app-svg-icons icon="down" size="16"></app-svg-icons>
+            </span>
+            <div class="dropdown-menu" *ngIf="isDropdownOpen">
+              <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Select All Checkbox -->
+        <div class="col-6 d-flex align-items-center gap-2 mt-3"
+          style="margin-top: 24px; padding-left:16px; margin-bottom:8px">
+          <input type="checkbox" class="check1" id="selectAll" (change)="toggleSelectAll($event)">
+          <p class="robotoregular txt2 mb-0">Select All</p>
+        </div>
+
+        <!-- Loading indicator -->
+        <div *ngIf="isLoadingAttributes" class="text-center my-3">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <p class="mt-2 text-muted">Loading attributes...</p>
+        </div>
+
+        <!-- Dynamic Attributes Section -->
+        <div
+          *ngIf="!isLoadingAttributes && standardAttributes && standardAttributes.attributes && standardAttributes.attributes.length > 0">
+          <div *ngFor="let attr of standardAttributes.attributes" class="card1 card cd1" style="margin-bottom: 8px;">
+            <input type="checkbox" class="check1 mt-4" [(ngModel)]="selectedFields[attr.name]"
+              (change)="updateSelectAll()">
+            <div class="form-group w-100">
+              <label [for]="attr.name" class="robotoregular" style="font-size: 14px;">{{ attr.name }}</label>
+              <ng-container [ngSwitch]="attr.type">
+                <select *ngSwitchCase="'list'" class="form-control sle1" [id]="attr.name">
+                  <option value="">Select</option>
+                  <option *ngFor="let val of (Array.isArray(attr.value) ? attr.value : [attr.value])" [value]="val">
+                    {{val}}</option>
+                </select>
+                <input *ngSwitchCase="'string'" type="text" class="form-control sle1" [id]="attr.name"
+                  [value]="attr.value" readonly>
+                <input *ngSwitchCase="'number'" type="number" class="form-control sle1" [id]="attr.name"
+                  [value]="attr.value" readonly>
+                <input *ngSwitchCase="'date'" type="date" class="form-control sle1" [id]="attr.name"
+                  [value]="attr.value" readonly>
+                <input *ngSwitchDefault type="text" class="form-control sle1" [id]="attr.name" [value]="attr.value"
+                  readonly>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <!-- No attributes message -->
+        <div
+          *ngIf="!isLoadingAttributes && (!standardAttributes || !standardAttributes.attributes || standardAttributes.attributes.length === 0)"
+          class="alert alert-info mt-3">
+          <p class="mb-0">No dynamic attributes available for this project.</p>
+        </div>
+
+        <!-- Report Data Options -->
+        <div class="card card1" style="margin-top: 16px; margin-bottom: 16px;">
+          <label for="" class="robotoregular tst1">Report Data</label>
+          <div class="d-flex flex-column gap-2 mt-2">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="check1" id="excludeBlankFields">
+              <p class="robotoregular txt2 mb-0">Exclude blank fields from report</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Attachment Options -->
+        <div class="card card1" style="margin-bottom: 16px;">
+          <label for="" class="robotoregular tst1">Report Attachment</label>
+          <div class="d-flex flex-column gap-2 mt-2">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="check1" id="includeTechnicalDocs">
+              <p class="robotoregular txt2 mb-0">Include Technical Documents</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="check1" id="includeFloorPlans">
+              <p class="robotoregular txt2 mb-0">Include Floor Plans</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="check1" id="includeAdditionalDocs">
+              <p class="robotoregular txt2 mb-0">Include Additional Documents</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer mb">
+        <button class="my-2 btn1 robotoregular w-100" [routerLink]="['/pages/coverletter']" [queryParams]="{
+            returnTo: 'presentation',
+            projectId: projectId || project?.projectId,
+            instanceId: instanceId,
+            from: 'reports'
+          }">
+          Cover Letter
+        </button>
+        <button class="btn2 robotoregular w-100" (click)="generateReport()">
+          <span class="me-2">
+            <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span>Generate Report</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div class="modal-overlay3" *ngIf="isImageModalOpen">
+    <div class="modal-content3">
+      <div class="modal-header3 text-end">
+        <button class="close-btn3" (click)="closeImageModal()">×</button>
+      </div>
+      <div class="modal-body3">
+        <img [src]="selectedImage" alt="Selected Image" class="modal-img3" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Marker Modal -->
+ <div class="modalmarker marker" [class.show]="isMarkerModalOpen">
+  <span class="closemarker" (click)="closeMarkerModal()">×</span>
+  <div class="modal-contentmarker" style="position: relative; width: 80%; ">
+    <img [src]="floorPlanImage || 'https://via.placeholder.com/600x400?text=No+Image'"
+         width="100%" alt="Modal Image">
+    <div *ngFor="let marker of markers" class="marker" [ngStyle]="{
+           position: 'absolute',
+           left: (marker.position.x * 100) + '%',
+           top: (marker.position.y * 100) + '%',
+           transform: 'translate(-50%, -100%)',
+           width: '32px',
+           height: '32px'
+         }" [title]="marker.title">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z"
+              fill="#0000FF" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+
+<!-- <div class="fullprojreport-modal-overlay" *ngIf="isFullProjReportModalOpen">
+  <div class="fullprojreport-modal-content">
+    <div class="fullprojreport-modal-header">
+      <h2 class="onestbold">Full Project Report</h2>
+      <button class="fullprojreport-close-btn" (click)="closeFullProjReportModal()">×</button>
+    </div>
+    <div class="fullprojreport-modal-body">
+      <p class="robotoregular">Select the standard attributes to include in the Full Project Report:</p>
+      <form>
+        <div class="form-group">
+          <label class="robotoregular">
+            <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" [indeterminate]="isSelectAllIndeterminate()">
+            Select All
+          </label>
+        </div>
+        <div class="form-group" *ngIf="isLoadingAttributes">
+          <p>Loading attributes...</p>
+        </div>
+        <div class="form-group" *ngIf="!isLoadingAttributes && standardAttributes?.attributes?.length === 0">
+          <p>No attributes available for this project.</p>
+        </div>
+        <div class="form-group" *ngFor="let attr of standardAttributes?.attributes">
+          <label class="robotoregular">
+            <input type="checkbox" [(ngModel)]="selectedFields[attr.name]" [ngModelOptions]="{standalone: true}" (change)="updateSelectAll()">
+            {{ attr.name }}
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="fullprojreport-modal-footer">
+      <button class="btn btn-primary" (click)="generateFullProjectReport()">Generate Report</button>
+      <button class="btn btn-dark1" (click)="closeFullProjReportModal()">Close</button>
+    </div>
+  </div>
+</div> -->
+</div>
+<app-foot />

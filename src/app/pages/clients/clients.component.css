@@ -1,0 +1,549 @@
+.client-modal {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 600px !important;
+  min-height: 100vh;
+  border-radius: 20px 0px 0px 20px !important;
+  overflow-y: scroll;
+  background: rgba(238, 240, 241, 1) !important;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  transition: right 0.3s ease-in-out;
+}
+
+.client-modal.show {
+  right: 0;
+}
+/* Image container styling */
+.image-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  border: 2px dashed rgba(205, 204, 203, 1);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.content-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.tst2 {
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  margin: 5px 0 0 0;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.image-container svg {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 5px;
+}
+
+/* Error message styling */
+.text-danger {
+  font-size: 12px;
+  color: #dc3545; /* Bootstrap's default red for errors */
+  margin-top: 5px;
+}
+
+/* Form field spacing */
+.margn {
+  margin-bottom: 15px;
+}
+
+/* Input container with icons */
+.input-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.input-container svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input-container input {
+  padding-left: 35px; /* Space for the icon */
+}
+
+/* Ensure modal content is responsive */
+.modal-right .modal-dialog {
+  margin-left: auto;
+  margin-right: 0;
+  max-width: 600px; /* Adjust as needed */
+}
+
+/* Status dropdown colors */
+.red-bg {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.yellow-bg {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.green-bg {
+  background-color: #d4edda;
+  color: #155724;
+}
+.project-card{
+  border-radius: 15px !important;
+  width: 100% !important;
+}
+.projcard {
+  border-radius: 15px;
+  height: 60px;
+  padding-bottom: 11px ;
+}
+
+.serch {
+  width: 580px;
+  height: 48px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.btn-dark1 {
+  border-radius: 15px;
+  height: 48px;
+}
+
+.modal-dialog {
+  background-color: rgba(238, 240, 241, 1);
+}
+
+.head {
+  font-size: 21px;
+}
+
+.btn1 {
+  font-size: 16px;
+  height: 56px;
+  width: 138px;
+  border-radius: 20px;
+  background-color: black !important;
+}
+
+.btn-close {
+  background-color: white;
+  height: 20px;
+  width: 20px;
+  opacity: 1 !important;
+  font-size: 15px;
+  margin-right: 3px;
+}
+
+.modal.modal-right .modal-dialog {
+  position: fixed;
+  right: 0;
+  margin: 0;
+  height: 100%;
+  width: 600px;
+  display: flex;
+  overflow-y: scroll !important;
+   scrollbar-width: none;
+  align-items: center;
+  justify-content: flex-end;
+  border-radius: 20px 0px 0px 20px;
+}
+
+.modal.modal-right .modal-content {
+  height: 100%;
+  border-radius: 20px 0px 0px 20px;
+  background-color: rgba(238, 240, 241, 1);
+}
+
+td:first-child,
+th:first-child {
+  width: 50px !important;
+  text-align: center;
+}
+
+.custom-checkbox {
+  height: 17px;
+  width: 17px;
+}
+
+.btn-dark1 svg {
+  margin-left: 8px;
+}
+
+.text1 {
+  font-size: 14px;
+}
+
+table thead tr th {
+  background-color: #28a74600;
+  font-size: 16px;
+}
+
+table tbody tr td {
+  background-color: #28a74600;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  background-color: rgb(255, 255, 255);
+}
+
+th {
+  font-size: 16px;
+}
+
+.th1 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  margin-top: 24px;
+}
+
+.tbtxt {
+  font-size: 16px;
+}
+
+.table {
+  border-spacing: 0 8px;
+  border-collapse: separate;
+}
+
+tbody tr td:first-child {
+  border-top-left-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+}
+
+tbody tr td:last-child {
+  border-top-right-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+}
+
+.sort {
+  height: 48px;
+  width: 149px !important;
+}
+
+.modal-title {
+  font-size: 27px;
+}
+
+tbody, td, tfoot, th, thead, tr {
+  border: 0px !important;
+}
+
+.main {
+  background-color: rgba(238, 240, 241, 1);
+  min-height: 100vh;
+  padding: 24px;
+  padding-bottom: 250px !important;
+}
+
+.btn-white {
+  background-color: rgba(255, 255, 255, 0);
+  border-radius: 15px;
+  border: 1px solid rgba(164, 163, 162, 1);
+}
+
+input {
+  border-radius: 15px;
+  border: 1px solid rgba(164, 163, 162, 1);
+  background-color: #28a74600;
+  height: 48px;
+}
+
+.topimg {
+  border: 2px dashed #CDCCCB;
+  height: 135px;
+  width: 130px;
+  border-radius: 8px;
+}
+
+.tst2 {
+  font-size: 12px;
+}
+
+.topimg img {
+  height: 100px;
+  width: 100px;
+}
+
+tbody tr {
+  height: 60px !important;
+  vertical-align: middle;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 15px;
+  padding: 10px 15px;
+  width: 100%;
+  height: 48px;
+  border: 1px solid rgba(164, 163, 162, 1);
+}
+
+.margn {
+  margin-top: 16px;
+}
+
+.input-container svg {
+  margin-right: 10px;
+}
+
+.input-container input {
+  background: none;
+  border: none;
+  outline: none;
+  color: rgb(39, 39, 39);
+  width: 100%;
+  margin-top: -3px;
+  font-size: 16px;
+}
+
+.search {
+  width: 580px !important;
+}
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.main3 {
+  padding: 2px !important;
+  border: 1px solid grey;
+  border-radius: 15px;
+}
+
+.tab-container {
+  border-radius: 15px;
+  position: relative;
+  width: 100%;
+  overflow: hidden !important;
+  height: 48px;
+}
+
+.nav-tabs .nav-link {
+  z-index: 2;
+  height: 48px;
+  display: flex;
+  align-items: center !important;
+  justify-content: center;
+  position: relative;
+  background-color: transparent;
+  color: #000;
+  font-size: 14px !important;
+  border-radius: 15px !important;
+  overflow: hidden !important;
+  transition: color 0.3s ease;
+  border: 0px !important;
+  margin-bottom: 0px;
+}
+
+.nav-tabs .nav-link.active {
+  color: #fff;
+  font-size: 14px;
+  border: 0px !important;
+  
+}
+
+.active-tab-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  width: 33.3%;
+  background: #000000;
+  z-index: 1;
+  transition: left 0.4s ease;
+  border-radius: 15px;
+}
+
+.modal-body {
+  height: 70vh;
+  overflow-y: scroll;
+}
+
+.nav-link:hover {
+  border: 0px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Shimmer Effect */
+.shimmer-row {
+  background-color: #fff;
+  height: 60px;
+  border-radius: 20px;
+}
+
+.shimmer {
+  background: #f6f7f8;
+  background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-repeat: no-repeat;
+  background-size: 800px 104px;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 4px;
+}
+
+.shimmer-checkbox {
+  width: 17px;
+  height: 17px;
+  margin: 0 auto;
+}
+
+.shimmer-profile {
+  width: 150px;
+  height: 40px;
+  border-radius: 20px;
+}
+
+.shimmer-text {
+  width: 200px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+/* Card styling */
+.project-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+/* 
+.project-card:hover {
+  transform: translateY(-2px);
+} */
+
+.project-card .card-body {
+  padding: 15px;
+}
+
+.project-card span {
+  font-size: 16px;
+  flex: 1;
+}
+
+/* Status dropdown styling */
+.status-dropdown {
+  width: 126px;
+  height: 48px;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 1000000 !important;
+}
+
+.red-bg {
+  background-color: rgba(247, 161, 161, 1); /* Red for To-do */
+  color: black;
+  border: none;
+}
+
+.red-bg:hover {
+  background-color: rgba(247, 161, 161, 1);
+  color: black;
+}
+
+.yellow-bg {
+  background-color: rgba(255, 224, 102, 1); /* Yellow for In progress */
+  color: #000;
+  border: none;
+}
+
+.yellow-bg:hover {
+  background-color:rgba(255, 224, 102, 1);
+  color: #000;
+}
+
+.green-bg {
+  background-color:rgba(115, 242, 181, 1); /* Green for Completed */
+  color: black;
+  border: none;
+}
+
+.green-bg:hover {
+  background-color: rgba(115, 242, 181, 1);
+  color: black;
+}
+
+/* Responsive grid */
+.row {
+  margin: 0 -10px;
+}
+
+.col-md-6 {
+  padding: 0 10px;
+}
+
+/* Projcard container */
+.projcard {
+  /* padding: 15px; */
+  border-radius: 10px;
+}
+
+/* Other existing styles */
+.main {
+  padding: 20px;
+}
+
+.input-container.search input {
+  padding: 8px;
+  border-radius: 5px;
+  /* border: 1px solid #ccc; */
+}
+
+.btn-dark1 {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.table th, .table td {
+  padding: 12px;
+}
+
+.dropdown-menu{
+  z-index: 100000;
+}

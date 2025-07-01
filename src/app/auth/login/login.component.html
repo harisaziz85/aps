@@ -1,0 +1,91 @@
+<div class="logincon">
+  <img src="images/logo.png" height="62" width="190" class="m-2" alt="">
+  <div class="container d-flex justify-content-center align-items-center main1">
+    <div class="card rounded-3" style="max-width: 700px; width: 100%;">
+      <div class="text-center">
+        <p class="head onestbold">Sign In</p>
+      </div>
+
+      <form (ngSubmit)="onLogin()">
+        <div class="mb-4">
+          <label class="form-label robotoregular">User Name</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 7.25C10.5188 7.25 11.75 6.01878 11.75 4.5C11.75 2.98122 10.5188 1.75 9 1.75C7.48122 1.75 6.25 2.98122 6.25 4.5C6.25 6.01878 7.48122 7.25 9 7.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13.7624 15.516C14.6224 15.245 15.0744 14.295 14.7094 13.471C13.7394 11.28 11.5504 9.75 9.00035 9.75C6.45035 9.75 4.26135 11.28 3.29135 13.471C2.92635 14.296 3.37835 15.245 4.23835 15.516C5.46335 15.902 7.08435 16.25 9.00035 16.25C10.9164 16.25 12.5374 15.902 13.7624 15.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <input type="text" [(ngModel)]="username" name="username" class="form-control" placeholder="Enter username" required>
+          </div>
+        </div>
+
+        <div class="my-4">
+          <label class="form-label robotoregular">Password</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.75 6.75V4C4.75 2.205 6.205 0.75 8 0.75C9.795 0.75 11.25 2.205 11.25 4V6.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12.25 6.75H3.75C3.19772 6.75 2.75 7.19772 2.75 7.75V12.25C2.75 12.8023 3.19772 13.25 3.75 13.25H12.25C12.8023 13.25 13.25 12.8023 13.25 12.25V7.75C13.25 7.19772 12.8023 6.75 12.25 6.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1.25 18C1.94036 18 2.5 17.4404 2.5 16.75C2.5 16.0596 1.94036 15.5 1.25 15.5C0.559644 15.5 0 16.0596 0 16.75C0 17.4404 0.559644 18 1.25 18Z" fill="#0F0F0F"/>
+                <path d="M5.75 18C6.44036 18 7 17.4404 7 16.75C7 16.0596 6.44036 15.5 5.75 15.5C5.05964 15.5 4.5 16.0596 4.5 16.75C4.5 17.4404 5.05964 18 5.75 18Z" fill="#0F0F0F"/>
+                <path d="M10.25 18C10.9404 18 11.5 17.4404 11.5 16.75C11.5 16.0596 10.9404 15.5 10.25 15.5C9.55964 15.5 9 16.0596 9 16.75C9 17.4404 9.55964 18 10.25 18Z" fill="#0F0F0F"/>
+                <path d="M14.75 18C15.4404 18 16 17.4404 16 16.75C16 16.0596 15.4404 15.5 14.75 15.5C14.0596 15.5 13.5 16.0596 13.5 16.75C13.5 17.4404 14.0596 18 14.75 18Z" fill="#0F0F0F"/>
+                <path d="M8 9.5V10.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <input [type]="passwordVisible ? 'text' : 'password'" [(ngModel)]="password" name="password" class="form-control form-control1" placeholder="Enter password" required>
+            <span class="input-group-text" (click)="togglePasswordVisibility()" style="cursor: pointer;">
+              <fa-icon [icon]="passwordVisible ? faEye : faEyeSlash"></fa-icon>
+            </span>
+          </div>
+        </div>
+
+        <div class="cbox">
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="staySignedIn" class="chk1">
+            <label for="staySignedIn" class="ms-2 robotomedium sign">Stay signed in</label>
+          </div>
+          
+          <a (click)="goToForgetPassword()" class="text-danger robotobold text-decoration-none forgot-link">
+            <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.5 6.5C5.05228 6.5 5.5 6.05228 5.5 5.5C5.5 4.94772 5.05228 4.5 4.5 4.5C3.94772 4.5 3.5 4.94772 3.5 5.5C3.5 6.05228 3.94772 6.5 4.5 6.5Z" fill="#EC1919"/>
+              <path d="M8 6.5C8.55228 6.5 9 6.05228 9 5.5C9 4.94772 8.55228 4.5 8 4.5C7.44772 4.5 7 4.94772 7 5.5C7 6.05228 7.44772 6.5 8 6.5Z" fill="#EC1919"/>
+              <path d="M15.25 5.709V3.25C15.25 2.146 14.355 1.25 13.25 1.25H2.75C1.645 1.25 0.75 2.146 0.75 3.25V7.75C0.75 8.854  Up1.645 9.75 2.75 9.75H6.191" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14.4993 12.7501H14.9323C15.7203 12.7501 16.1993 11.8811 15.7773 11.2151L12.8443 6.58414C12.4513 5.96414 11.5473 5.96414 11.1543 6.58414L8.22134 11.2151C7.79934 11.8811 8.27834 12.7501 9.06634 12.7501H9.49934" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 9.25V11.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 14C12.4142 14 12.75 13.6642 12.75 13.25C12.75 12.8358 12.4142 12.5 12 12.5C11.5858 12.5 11.25 12.8358 11.25 13.25C11.25 13.6642 11.5858 14 12 14Z" fill="#EC1919"/>
+            </svg>
+            Forgot Password?
+          </a>
+        </div>
+
+        <!-- Error Message Above Sign In Button -->
+
+        <button type="submit" class="btn btn-dark w-100 onestsemibold" [ngClass]="{'shimmer': isLoading}" style="border-radius: 15px;" [disabled]="isLoading">
+          <span class="me-1"><svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_12219_7237)">
+<path d="M7.75 5.75V3.25C7.75 2.698 8.198 2.25 8.75 2.25H15.25C15.802 2.25 16.25 2.698 16.25 3.25V14.75C16.25 15.302 15.802 15.75 15.25 15.75H8.75C8.198 15.75 7.75 15.302 7.75 14.75V12.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.5 11.75L7.25 9L4.5 6.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.25 9H1.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16.042 2.64795L12.721 4.70695C12.427 4.88895 12.248 5.21095 12.248 5.55695V12.4439C12.248 12.7899 12.427 13.1109 12.721 13.2939L16.043 15.3539" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_12219_7237">
+<rect width="18" height="18" fill="white" transform="translate(0.5)"/>
+</clipPath>
+</defs>
+</svg>
+</span> {{ isLoading ? 'Signing In...' : 'Sign In' }}
+        </button>
+        <div *ngIf="errorMsg" class="error-text text-center ">{{ errorMsg }}</div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+

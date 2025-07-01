@@ -1,0 +1,177 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+.intersemibold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+.onestthin {
+  font-family: "Onest", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.onestextralight {
+  font-family: "Onest", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.onestlight {
+  font-family: "Onest", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.onestregular {
+  font-family: "Onest", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.onestmedium {
+  font-family: "Onest", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.onestsemibold {
+  font-family: "Onest", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.onestbold {
+  font-family: "Onest", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.onestextrabold {
+  font-family: "Onest", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.onestblack {
+  font-family: "Onest", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.robotothin {
+  font-family: "Roboto", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.robotoextralight {
+  font-family: "Roboto", sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.robotolight {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.robotoregular {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.robotomedium {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.robotosemibold {
+  font-family: "Roboto", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.robotobold {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.robotoextrabold {
+  font-family: "Roboto", sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.robotoblack {
+  font-family: "Roboto", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+
+
+
+
+
+
+
+/* .tab-container {
+    width: 300px;
+    margin: auto;
+    background: #bdb5b500;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .tabs {
+    display: flex;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 15px 0;
+    color: black; 
+    z-index: 2;
+    transition: color 0.3s;
+  }
+  
+  .tab.active {
+    color: white !important; 
+  }
+  
+  .slider {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: black;
+    z-index: 1;
+    transition: left 0.3s ease;
+    border-radius: 8px;
+  }
+  
+  .tab-container[data-active="left"] .slider {
+    left: 0%;
+  }
+  
+  .tab-container[data-active="right"] .slider {
+    left: 50%;
+  }
+  
+  .tab-container .tab {
+    position: relative;
+    z-index: 2;
+  } */

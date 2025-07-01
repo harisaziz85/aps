@@ -1,0 +1,287 @@
+<!-- Navbar -->
+<nav class="navbar navbar-light align-items-center">
+  <div class="welcome-text d-flex align-items-center">
+    <p class="head onestbold mt-2">{{ heading }}</p>
+  </div>
+
+  <div class="d-flex align-items-center p-0">
+    <button class="btn" (click)="openModal()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.33333 12.6667L3 8.33333L7.33333 4" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3 8.33325H13.6667" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16.666 19.9999L20.9993 15.6666L16.666 11.3333" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M21.0007 15.6667H10.334" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+    </button>
+    <div class="notification-wrapper" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
+      <button class="btna">
+        <app-svg-icons icon="not" size="16"></app-svg-icons>
+
+      </button>
+      <div class="dropdown" *ngIf="showDropdown">
+        <div class="item">
+          <span class="d-flex">
+            <span style="margin-right: 8px;">
+              <!-- <fa-icon [icon]="faBell"></fa-icon> -->
+            </span>
+            <div class="p-0">
+              <p class="robotoregular txt2">New client is added</p>
+              <p style="margin-top: 8px; color:rgba(164, 163, 162, 1); font-size: 12px;">14 hours ago</p>
+            </div>
+          </span>
+        </div>
+        <div class="item">
+          <span class="d-flex">
+            <span style="margin-right: 8px;">
+              <!-- <fa-icon [icon]="faBell"></fa-icon> -->
+            </span>
+            <div class="p-0">
+              <p class="robotoregular txt2">New client is added</p>
+              <p style="margin-top: 8px; color:rgba(164, 163, 162, 1); font-size: 12px;">14 hours ago</p>
+            </div>
+          </span>
+        </div>
+      </div>
+    </div>
+    <button class="btna" (click)="openSettings($event)">
+      <app-svg-icons icon="setting" size="16"></app-svg-icons>
+    </button>
+    <div class="ms-3 d-flex align-items-center" role="button">
+      <img src="images/pi.png" height="48" width="48" alt="">
+      <span class="user-name ms-2 onestmedium">{{ userName }}</span>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-right">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title onestbold">Settings</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- General Info Section -->
+        <div class="bg-white infsec rounded">
+          <p class="robotobold head2">General Info</p>
+          <p class="robotoregular txt pic">Pic (Optional)</p>
+          <div class="d-flex align-items-center gap-3">
+            <div class="position-relative d-inline-block topimg">
+              <img [src]="imageUrl || 'images/pi1.png'" alt="User Image" class="img-fluid1">
+              <button class="btn bton btn-dark btn-sm position-absolute top-0 end-1" (click)="triggerFileInput()">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.25 8.25H1.25V11.25" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path
+                    d="M1.28125 8.30593C2.13525 10.0489 3.92725 11.2499 5.99925 11.2499C8.83125 11.2499 11.1403 9.00693 11.2453 6.20093"
+                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M7.75 3.75H10.75V0.75" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path
+                    d="M10.7179 3.694C9.86391 1.951 8.07191 0.75 5.99991 0.75C3.16791 0.75 0.858906 2.993 0.753906 5.799"
+                    stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+
+              </button>
+              <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" class="d-none">
+            </div>
+          </div>
+          <div class="w-100">
+            <div class="form-group mb-3">
+              <label class="txt robotoregular">User Name</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <app-svg-icons icon="user1" size="16"></app-svg-icons>
+                </span>
+                <input type="text" class="form-control" [(ngModel)]="userName">
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <label class="txt robotoregular">Email</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <app-svg-icons icon="email" size="16"></app-svg-icons>
+                </span>
+                <input type="text" class="form-control" [(ngModel)]="email">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Change Password Section -->
+        <div class="card card1" style="margin-top: 24px;">
+          <p class="robotobold head2">Change Password</p>
+          <div class="form-group mb-3">
+            <label class="txt robotoregular">Password</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <app-svg-icons icon="lock" size="16"></app-svg-icons>
+
+              </span>
+              <input type="password" class="form-control" [(ngModel)]="currentPassword">
+            </div>
+          </div>
+          <div class="form-group mb-3">
+            <label class="txt robotoregular">New Password</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <app-svg-icons icon="lock" size="16"></app-svg-icons>
+              </span>
+              <input type="password" class="form-control" [(ngModel)]="newPassword">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="txt robotoregular">Confirm Password</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <app-svg-icons icon="lock" size="16"></app-svg-icons>
+              </span>
+              <input type="password" class="form-control" [(ngModel)]="confirmPassword">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div style="margin-bottom: 24px; padding-right: 16px;">
+        <button type="button" class="btn btn2 onestsemibold btn-dark w-100 btn1" (click)="saveSettings()">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="setting-modal-overlay zi" *ngIf="isModalOpen" (click)="closeModalIfOutside($event)">
+  <div class="setting-modal-container" (click)="$event.stopPropagation()">
+    <div class="setting-modal-header d-flex align-items-center">
+      <p class="onestbold modal-title">Data Exchange</p>
+      <button class="setting-close-button" (click)="closeModal()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="setting-modal-body">
+      <div class="main3">
+        <div class="tab-wrapper w-100 position-relative">
+          <div class="active-tab-bg" [ngStyle]="{'left': activeTab === 'tab1' ? '0%' : '50%'}"></div>
+          <ul class="nav nav-tabs w-100 d-flex align-items-center">
+            <li class="nav-item w-50">
+              <a class="nav-link robotobold" [class.active]="activeTab === 'tab1'" (click)="setActiveTab('tab1')"
+                href="javascript:void(0)">
+                Import Projects
+              </a>
+            </li>
+            <li class="nav-item w-50">
+              <a class="nav-link robotobold" [class.active]="activeTab === 'ongoingProjects'"
+                (click)="setActiveTab('ongoingProjects')" href="javascript:void(0)">
+                Export Projects
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="tab-content mt-3">
+        <div class="tab-pane fade show" [class.active]="activeTab === 'tab1'" id="tab1">
+          <div class="checkbox-container d-flex">
+            <label class="txt robotoregular d-flex align-items-center w-50">
+              <input type="checkbox" class="cbox" [checked]="selectedOption === 'new'" (change)="selectOption('new')" />
+              Import as a new project
+            </label>
+            <label class="txt robotoregular d-flex align-items-center">
+              <input type="checkbox" class="cbox" [checked]="selectedOption === 'existing'"
+                (change)="selectOption('existing')" />
+              Import into an existing project
+            </label>
+          </div>
+          <div *ngIf="selectedOption === 'new'">
+            <div class="checkbox-container">
+              <p class="onestsemibold head2">Document Info</p>
+              <div class="imgbr">
+                <div class="w-100 text-center" (click)="importFileInput.click()">
+                  <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;">
+                  <div *ngIf="!selectedFileName" class="w-100 text-center">
+                    <div></div>
+                    <p class="txt3 robotoregular">Drag and Drop or <br> Browse</p>
+                  </div>
+                  <div *ngIf="selectedFileName" class="w-100 text-center">
+                    <p class="txt3 robotoregular">{{ selectedFileName }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
+              <div>
+                <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span>
+              </div>
+              <span>{{ selectedFileName }}</span>
+            </div>
+          </div>
+          <div *ngIf="selectedOption === 'existing'">
+            <div class="checkbox-container">
+              <p class="onestsemibold head2">Document Info</p>
+              <div class="imgbr d-flex">
+                <div class="w-100 text-center" (click)="importFileInput.click()">
+                  <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;">
+                  <div *ngIf="!selectedFileName" class="w-100 text-center">
+                    <div></div>
+                    <p class="txt3 robotoregular">Drag and Drop or <br> Browse</p>
+                  </div>
+                  <div *ngIf="selectedFileName" class="w-100 text-center">
+                    <p class="txt3 robotoregular">{{ selectedFileName }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
+              <div>
+                <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span>
+              </div>
+              <span>{{ selectedFileName }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" [class.active]="activeTab === 'ongoingProjects'" id="ongoingProjects">
+          <div>
+            <div class="input-group" style="margin-bottom: 18px;">
+              <span class="input-group-text" style="border:1px solid #A4A3A2">
+                <!-- <fa-icon [icon]="faSearch"></fa-icon> -->
+              </span>
+              <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearchChange()" style="background-color: rgba(0, 255, 255, 0);">
+            </div>
+          </div>
+          <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects">
+            <div class="project-header">
+              <input
+                type="checkbox"
+                class="cb1"
+                [checked]="selectedProjects.includes(project.projectId)"
+                (change)="toggleProjectSelection(project.projectId)"
+              />
+              <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
+              <span class="dropdown-icon" (click)="toggleDropdown1()">
+                <ng-container *ngIf="isOpen; else downArrow">
+                  <!-- <fa-icon [icon]="faAngleUp"></fa-icon> -->
+                </ng-container>
+                <ng-template #downArrow>
+                  <!-- <fa-icon [icon]="faAngleDown"></fa-icon> -->
+                </ng-template>
+              </span>
+            </div>
+            <div class="instance-list" *ngIf="isOpen">
+              <div class="instance-item" *ngFor="let subProject of project.subProjects || []">
+                <input type="checkbox" class="cbb1" />
+                <span class="robotoregular txt">{{ subProject || 'Unnamed Subproject' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer w-100 mmm1" style="margin-top:24px;">
+      <button type="button" class="w-100 btonn robotosemibold"
+        (click)="activeTab === 'tab1' ? importProject() : exportSelectedProjects()">
+        {{ activeTab === 'tab1' ? 'Import' : 'Export' }}
+      </button>
+    </div>
+  </div>
+</div>

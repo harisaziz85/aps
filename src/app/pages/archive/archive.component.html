@@ -1,0 +1,54 @@
+<div class="projects-container">
+  
+    <h2>Projects and Buildings</h2>
+  
+    <div class="search-sort">
+      <input type="text" placeholder="Search" class="search-input">
+      <button class="btn btn-outline-secondary">Sort by ⟳</button>
+      <button class="btn btn-outline-secondary">📂 Archives</button>
+    </div>
+  
+    <p>Total Projects: {{ projects.length }}</p>
+  
+    <table class="table project-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox"></th>
+          <th><i class="fas fa-briefcase"></i> Project Name</th>
+          <th><i class="fas fa-building"></i> Building</th>
+          <th><i class="fas fa-cogs"></i> Status</th>
+          <th><i class="fas fa-user"></i> Assignee</th>
+          <th><i class="fas fa-list"></i> Instances</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of projects">
+          <td><input type="checkbox"></td>
+          <td>{{ project.name }}</td>
+          <td>{{ project.building }}</td>
+          <td>
+            <span class="badge"
+              [ngClass]="{
+                'status-completed': project.status === 'Completed',
+                'status-todo': project.status === 'To Do',
+                'status-progress': project.status === 'In Progress'
+              }">
+              {{ project.status }}
+            </span>
+          </td>
+          <td>
+            <img *ngFor="let assignee of project.assignees" 
+                 [src]="assignee.image" 
+                 class="profile-img" 
+                 width="30">
+          </td>
+          <td>
+            <span *ngFor="let instance of project.instances" class="instance-badge">
+              {{ instance }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

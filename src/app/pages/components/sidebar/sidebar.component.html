@@ -1,0 +1,70 @@
+<div class="sidebarbg">
+  <p class="head onestbold">Recent Activity</p>
+  <div class="main2">
+    <div class="tab-container position-relative">
+      <ul class="nav nav-tabs d-flex w-100 justify-content-between" id="activityTabs">
+        <li class="nav-item w-50 text-center">
+          <a class="nav-link robotobold" [ngClass]="{'active': activeTab === 'admin'}" (click)="setActiveTab('admin')">
+            Admin Panel
+          </a>
+        </li>
+        <li class="nav-item w-50 text-center">
+          <a class="nav-link robotobold" [ngClass]="{'active': activeTab === 'mobile'}" (click)="setActiveTab('mobile')">
+            Mobile User Activity
+          </a>
+        </li>
+      </ul>
+      <div class="active-tab-bg" [ngStyle]="{'left': activeTab === 'admin' ? '0%' : '50%'}"></div>
+    </div>
+  </div>
+
+  <div class="main3">
+    <!-- Admin Activities -->
+    <div *ngIf="activeTab === 'admin' && adminActivities?.length" class="tab-content mt-3 p-0">
+      <div *ngFor="let activity of adminActivities; let i = index" class="activity-item align-items-center mb-2" [ngClass]="{'with-line': i < adminActivities.length - 1}">
+        <div class="row w-100">
+          <div class="col-2">
+            <div class="bgcm">
+              <app-svg-icons class="color1" [icon]="activity.icon" size="16"></app-svg-icons>
+            </div>
+          </div>
+          <div class="col-10">
+            <div class="activity-content d-flex justify-content-between align-items-center">
+              <h6 class="robotoregular txt flex-grow-1 text-start">{{ activity.title }}</h6>
+              <span class="robotoregular text text-end">{{ activity.time }}</span>
+            </div>
+            <p class="robotoregular txt">A {{activity.type}} added by Admin {{ activity.title }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Activities -->
+    <div *ngIf="activeTab === 'mobile' && mobileActivities?.length" class="tab-content mt-3 p-0">
+      <div *ngFor="let activity of mobileActivities; let i = index" class="activity-item align-items-center mb-3" [ngClass]="{'with-line': i < mobileActivities.length - 1}">
+        <div class="row w-100">
+          <div class="col-2">
+            <div class="bgcm">
+              <app-svg-icons class="color1" [icon]="activity.icon" size="16"></app-svg-icons>
+            </div>
+          </div>
+          <div class="col-10">
+            <div class="activity-content d-flex justify-content-between align-items-center">
+              <h6 class="robotoregular txt flex-grow-1 text-start">{{ activity.title }}</h6>
+              <span class="robotoregular text text-end">{{ activity.time }}</span>
+            </div>
+            <p class="robotoregular txt">{{ activity.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Activities Message -->
+    <div *ngIf="activeTab === 'admin' && !adminActivities?.length" class="tab-content mt-3 p-0">
+      <p class="robotoregular txt text-center">No admin activities found.</p>
+    </div>
+    <div *ngIf="activeTab === 'mobile' && !mobileActivities?.length" class="tab-content mt-3 p-0">
+      <p class="robotoregular txt text-center">No mobile activities found.</p>
+    </div>
+  </div>
+</div>

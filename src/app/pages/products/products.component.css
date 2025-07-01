@@ -1,0 +1,520 @@
+/* Shimmer Effect */
+.shimmer {
+  background: #f6f7f8;
+  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+  background-size: 800px 104px;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+.remove-btn{
+  background-color: red;
+}
+.shimmer-checkbox {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+}
+
+.shimmer-icon {
+  width: 49px;
+  height: 49px;
+  border-radius: 8px;
+}
+
+.shimmer-name {
+  width: 80px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.shimmer-documents {
+  width: 120px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+/* Remove Spinner and Old Shimmer Styles */
+.spinner-overlay, .spinner, .shimmer-card {
+  display: none;
+}
+
+/* Existing Styles */
+option {
+  width: 10% !important;
+}
+.btn4 {
+  height: 56px;
+  width: 154px;
+  border-radius: 20px !important;
+}
+.input-container {
+  display: flex;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 15px;
+  padding-left: 10px;
+  width: 100%;
+  height: 48px;
+  margin-top: 4px !important;
+  border: 1px solid rgba(205, 204, 203, 1);
+}
+
+.input-container span {
+  color: white;
+  margin-right: 10px;
+}
+
+.input-container input {
+  background: none;
+  border: none;
+  outline: none;
+  color: rgb(39, 39, 39);
+  width: 100%;
+  font-size: 16px;
+}
+
+.head2 a {
+  text-decoration: none !important;
+  color: #000 !important;
+}
+
+.crossmd {
+  opacity: 1;
+  background-color: white !important;
+  padding: 5px 10px 7px 10px !important;
+  border-radius: 100%;
+  border: 0px;
+}
+
+.head {
+  font-size: 21px;
+}
+
+.head3 {
+  font-size: 27px;
+}
+.sortbtn {
+  width: 145px;
+  height: 48px !important;
+}
+.sortbtn:hover {
+  background-color: rgba(255, 255, 255, 0);
+  color: black;
+}
+
+.form-control {
+  border-radius: 15px;
+  border: 1px solid rgba(164, 163, 162, 1);
+  padding: 10px;
+  height: 48px !important;
+  background-color: #00000000;
+  width: 580px !important;
+}
+.cbox {
+  height: 20px !important;
+  width: 20px !important;
+  accent-color: black;
+}
+.prodbtn {
+  background-color: white !important;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.form-control1 {
+  width: 100% !important;
+  border: 1px solid rgba(205, 204, 203, 1) !important;
+  outline: none !important;
+}
+.btn-outline-dark {
+  border-radius: 15px;
+  outline: none !important;
+  border: 1px solid rgba(164, 163, 162, 1);
+  height: 48px !important;
+}
+.main1 {
+  margin-bottom: 24px;
+  margin-top: 24px !important;
+}
+.btn-dark {
+  border-radius: 15px;
+}
+.form-select {
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.document-tags .badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  border-radius: 8px;
+  background: #e9ecef00 !important;
+  padding: 8px 12px;
+  margin-right: 5px;
+  border: 1px solid rgba(205, 204, 203, 1);
+}
+.main {
+  background-color: rgba(238, 240, 241, 1);
+  padding: 24px;
+  overflow-x: hidden !important;
+  min-height: 100vh;
+  padding-bottom: 200px;
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari, and other Webkit browsers */
+.main::-webkit-scrollbar {
+  display: none;
+}
+.sidebar {
+      display: none; /* Hide sidebar */
+    }
+.document-tags .btn-close {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.name {
+  font-size: 14px !important;
+}
+
+.buttons {
+  border: 0px;
+  width: fit-content;
+  border-radius: 15px;
+  background-color: white;
+  height: 56px;
+}
+.btn1 {
+  border: 0px;
+  border-radius: 15px;
+}
+.btn1:hover {
+  background-color: rgba(255, 0, 0, 0) !important;
+  color: black !important;
+  border: 0px !important;
+}
+.btn4 {
+  font-size: 16px !important;
+  padding: 10px 20px;
+  background-color: black !important;
+}
+.head {
+  font-size: 27px;
+}
+
+.card {
+  background-color: white;
+  padding: 16px 16px;
+  border-radius: 15px;
+}
+.card1 {
+  margin-top: 24px;
+}
+.head1 {
+  font-size: 16px;
+}
+.txt {
+  color: black;
+  font-size: 14px;
+}
+.txt1 {
+  font-size: 12px;
+  color: rgba(164, 163, 162, 1);
+}
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  cursor: pointer;
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+  transition: border-radius 0.2s ease;
+}
+
+/* When dropdown is open, remove bottom border and adjust border-radius */
+.custom-dropdown.active {
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+}
+
+.custom-dropdown input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.icon {
+  padding: 5px;
+  font-size: 18px;
+}
+
+.arrow {
+  margin-left: auto;
+  font-size: 16px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  width: 100%; 
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none; 
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  margin-top: 0; 
+  box-sizing: border-box; 
+  padding: 0; 
+}
+
+.dropdown-menu div {
+  padding: 10px; 
+  cursor: pointer;
+}
+
+.cancelbtn1{
+  background-color: #00000000 !important;
+  height: 56px;
+  border: 2px solid black;
+  border-radius: 20px;
+  font-size: 16px;
+  width: 146px;
+}
+.delbtn1{
+  
+  background-color: rgba(236, 25, 25, 1) !important;
+  border: 0px !important;
+  color: white;
+  height: 56px;
+  border-radius: 20px;
+  font-size: 16px;
+  width: 146px;
+
+}
+.dropdown-menu div:hover {
+  background: #f0f0f0;
+}
+
+.inpt1 {
+  width: 100%;
+}
+
+.input-container {
+  margin-right: 8px !important;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 15px;
+  width: 500px;
+  height: 48px;
+  border: 1px solid rgba(164, 163, 162, 1);
+  width: 100%;
+}
+
+.input-container svg {
+  color: white;
+  margin-right: 10px !important;
+}
+.input-container input {
+  background: none;
+  border: none;
+  outline: none;
+  color: rgb(39, 39, 39);
+  width: 100%;
+  /* margin-top: -3px; */
+  font-size: 16px;
+}
+
+.search {
+  width: 580px !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+.product-modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 600px;
+  background-color: rgba(238, 240, 241, 1);
+  z-index: 1050;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px 0px 0px 20px;
+}
+
+.modal-header {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+body.modal-open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1049;
+}
+.btn2 {
+  background-color: black !important;
+  height: 56px;
+  border-radius: 20px !important;
+  font-size: 16px;
+}
+
+.document-tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.document-badge-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.document-badge {
+  border-radius: 10px !important;
+  height: 40px;
+  background-color: #f8f9fa;
+  color: #0f0f0f;
+  border: 1px solid #CDCCCB;
+  border-radius: 999px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.remove-btn {
+  position: absolute;
+  top: -5px;          
+  right: -6px;         
+  border-radius: 50%;  
+  padding: 0px 4px 4px 4px !important;        
+  cursor: pointer;
+  display: flex;     
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(236, 25, 25, 1);  
+  width: 20px;        
+  height: 20px;        
+}
+
+
+.confirmation-modal{
+  background-color: white !important;
+  z-index: 100000000;
+  position: absolute;
+  
+}
+.confirmation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.confirmation-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  background-color: white;
+  z-index: 1001;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.comodal-header {
+  padding: 16px 16px 0px 16px;
+  font-size: 21px !important;
+  margin-bottom: 0px !important;
+  
+}
+.cll12{
+  height: 40px;
+  width: 88px;
+  border-radius: 10px;
+  border: 1px solid black !important;
+  margin-right: 8px;
+  background-color: #00000000;
+}
+.del12{
+  height: 40px;
+  width: 88px;
+  border-radius: 10px;
+  border:0px !important;
+  margin-right: 8px;
+  background-color: rgba(236, 25, 25, 1);
+  color: white;
+}
+
+.modal-header .btn-close {
+  font-size: 5px !important;
+  height: 100px;
+  cursor: pointer;
+}
+
+.confirmation-modal-body {
+  padding: 16px;
+  font-size: 14px;
+}
+
+.confirmation-modal-footer {
+  padding: 16px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.btn-outline-dark {
+  border-color: #343a40;
+  color: #343a40;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}

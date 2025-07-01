@@ -1,0 +1,10 @@
+{
+  "/api/images": {
+    "target": "https://firebasestorage.googleapis.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/images": ""
+    }
+  }
+}

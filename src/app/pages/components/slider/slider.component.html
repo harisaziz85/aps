@@ -1,0 +1,25 @@
+<div class="button-container text-center">
+  <button
+    class="btn  text-center robotobold"
+    [class.active]="activeButton === 'button1'"
+    (click)="setActive('button1')"
+    [routerLink]="['/pages/products']"
+    #button1
+  >
+    Product
+  </button>
+  <button
+    class="btn robotobold"
+    [class.active]="activeButton === 'button2'"
+    (click)="setActive('button2')"
+    [routerLink]="['/pages/approval-documents']"
+    #button2
+  >
+    Approval Documents
+  </button>
+  <div
+    class="bg-slide"
+    [style.width.px]="bgSlideWidth"
+    [style.transform]="bgSlideTransform"
+  ></div>
+</div>

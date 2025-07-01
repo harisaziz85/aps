@@ -1,0 +1,195 @@
+.sidebarbg {
+    background-color: white;
+    border-radius: 20px !important;
+    padding: 14px;
+    height: 614px;
+}
+
+.main3 {
+    background-color: white;
+    border-radius: 20px !important;
+    padding: 14px;
+    padding-right: 0px !important;
+    height: 480px;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: black transparent;
+}
+
+.bgcm {
+    background-color: rgba(238, 240, 241, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    border-radius: 10px;
+    position: relative;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    margin: 0 auto;
+}
+
+.bgcm::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 36px;
+    width: 0;
+    height: calc(100% - 36px); /* Adjust to stop at the next icon's top */
+    border-left: 2px dashed rgba(205, 204, 203, 1);
+    z-index: 1;
+}
+
+.color1 {
+    padding: 10px !important;
+    margin: 0 !important;
+    z-index: 3 !important;
+    opacity: 1 !important;
+}
+
+.sidebarbg::-webkit-scrollbar {
+    width: 5px;
+    border-radius: 20px;
+}
+
+.sidebarbg::-webkit-scrollbar-thumb {
+    background-color: black;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.sidebarbg::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 20px;
+}
+
+.head {
+    font-size: 27px;
+}
+
+.nav-tabs {
+    border: 0px !important;
+    font-size: 14px;
+}
+
+.txt {
+    font-size: 16px;
+}
+
+.text {
+    font-size: 14px;
+}
+
+.icon {
+    background-color: rgba(238, 240, 241, 1);
+    padding: 10px;
+    opacity: 1 !important;
+    z-index: 100000000000 !important;
+    border-radius: 10px;
+    padding-right: 5px;
+}
+
+.topimg {
+    height: 120px !important;
+    width: 120px !important;
+}
+
+@media (max-width: 1680px) {
+    .head {
+        font-size: 20px;
+    }
+    .sidebarbg {
+        height: 554px;
+    }
+    .main3 {
+        height: 420px;
+    }
+}
+
+.main2 {
+    padding: 2px !important;
+    border: 1px solid grey;
+    border-radius: 15px;
+}
+
+.tab-container {
+    border-radius: 15px;
+    position: relative;
+    width: 100%;
+    overflow: hidden !important;
+    height: 48px;
+}
+
+.nav-tabs .nav-link {
+    z-index: 2;
+    height: 48px;
+    display: flex;
+    align-items: center !important;
+    justify-content: center;
+    position: relative;
+    background-color: transparent;
+    color: #000;
+    border-radius: 15px !important;
+    transition: color 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+    color: #fff;
+    font-size: 14px;
+    border: 0px !important;
+}
+
+.active-tab-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 50%;
+    background: #000000;
+    z-index: 1;
+    transition: left 0.4s ease;
+    border-radius: 15px;
+    border: 0px !important;
+}
+
+.nav-link:hover {
+    border: 0px !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.activity-item {
+    position: relative;
+}
+
+.activity-item.with-line {
+    position: relative;
+}
+
+.activity-item.with-line:last-child .bgcm::before {
+    display: none; /* Hide line for last item */
+}
+
+.activity-item.with-line .bgcm::before {
+    height: calc(100% + 28px); /* Restore original height for items except last */
+}
+
+.activity-item.with-line:first-child .bgcm::before {
+    top: 36px;
+}
+
+@media (min-width: 768px) {
+    .activity-item.with-line:first-child .bgcm::before {
+        top: 36px;
+    }
+}
+
+.col-2 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex;
+    justify-content: center;
+}

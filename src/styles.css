@@ -1,1 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+.no-scroll {
+    overflow: hidden !important;
+    height: 100% !important;
+    position: fixed;
+    width: 100%;
+  }
+  

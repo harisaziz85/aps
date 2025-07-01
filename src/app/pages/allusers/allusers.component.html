@@ -1,0 +1,276 @@
+<div class="main">
+  <app-topbar heading="Users"></app-topbar>
+  <div class="d-flex align-items-center mb-3 main1">
+    <div class="input-container search">
+      <app-svg-icons icon="search" size="16"></app-svg-icons>
+      <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="filterUsers()">
+    </div>
+    <button class="btn topbtn btn-light border ms-2 d-flex align-items-center justify-content-between" style="width: 155px;">
+      <span class="d-flex align-items-center">
+        <span class="ms-2"></span>
+      </span>
+      <span>
+        <select [(ngModel)]="selectedUserType" (ngModelChange)="filterUsers()" class="topselect">
+          <option value="">All</	option>
+          <option value="admin panel">Admin Panel</option>
+          <option value="mobile user">Mobile User</option>
+        </select>
+      </span>
+    </button>
+  </div>
+  <div class="d-flex justify-content-between align-items-center top">
+    <h5 class="onestbold" style="margin-bottom: 0px;">Total Users: {{ filteredUsers.length }}</h5>
+    <button class="btn btn-dark userbtn intersemibold" data-bs-toggle="modal" data-bs-target="#userModal">
+      <fa-icon [icon]="faPlus" class="me-1"></fa-icon> User
+    </button>
+  </div>
+  <div class="position-relative">
+    <div class="row" *ngIf="isLoading">
+      <div class="col-md-2 col-lg-3 col-xxl-2 mb-4" *ngFor="let _ of [1, 2, 3, 4]">
+        <div class="card card3 shadow-sm">
+          <div class="card-header d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+              <span class="shimmer shimmer-user-type"></span>
+            </div>
+            <button class="btn btn-sm"></button>
+          </div>
+          <div class="card-body text-center">
+            <div class="shimmer shimmer-profile-pic mb-2"></div>
+            <div class="shimmer shimmer-name mx-auto mb-4"></div>
+            <div class="card card1">
+              <div class="input-group">
+                <span class="input-group-text"></span>
+                <div class="shimmer shimmer-username"></div>
+                <button class="btn btn-outline-secondary"></button>
+              </div>
+              <div class="input-group mt-2">
+                <span class="input-group-text"></span>
+                <div class="shimmer shimmer-username"></div>
+                <button class="btn btn-outline-secondary"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" *ngIf="!isLoading">
+      <div class="col-md-2 col-lg-3 col-xxl-2 mb-4" *ngFor="let user of filteredUsers; let i = index">
+        <div class="card card3 shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center w-100">
+              <span class="badge badge1 robotoregular bg-light text-dark d-flex align-items-center justify-content-center me-auto">
+                <span class="me-1">
+                  <ng-container *ngIf="user.userType.toLowerCase() === 'mobile user'; else adminIcon">
+                    <app-svg-icons icon="mobile" size="16"></app-svg-icons>
+                  </ng-container>
+                  <ng-template #adminIcon>
+                    <app-svg-icons icon="user" size="16"></app-svg-icons>
+                  </ng-template>
+                </span>
+                {{ user.userType }}
+              </span>
+              <button class="btn btn-sm" (click)="deleteUser(user._id)" title="Delete User">
+                <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.75 4.75H15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6.75 4.75V3.25C6.75 2.698 7.198 2.25 7.75 2.25H10.25C10.802 2.25 11.25 2.698 11.25 3.25V4.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M13.75 7.25V14.75C13.75 15.855 12.855 16.75 11.75 16.75H6.25C5.145 16.75 4.25 15.855 4.25 14.75V7.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7.25 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.75 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="card-body text-center">
+            <ng-container *ngIf="user.profilePic && user.profilePic.trim(); else defaultImage">
+              <img [src]="user.profilePic" class="rounded-circle mb-2" width="80" height="80" alt="User Profile" />
+            </ng-container>
+            <ng-template #defaultImage>
+              <img class="rounded-circle mb-2" src="/images/pf4.png" alt="Default Profile Image" width="80" height="80">
+            </ng-template>
+            <h6 class="onestsemibold name1">{{ user.name || 'Unnamed User' }}</h6>
+            <div class="card card1">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <app-svg-icons icon="user1" size="16"></app-svg-icons>
+                </span>
+                <input type="text" class="form-control input1 brobotoregular" [value]="user.username" disabled />
+                <button class="btn btn-outline mile" (click)="copyToClipboard(user.username)">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 1.75L12.5 1.75C13.605 1.75 14.5 2.645 14.5 3.75L14.5 12.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.5 6.75L11.5 14.25C11.5 15.3546 10.6046 16.25 9.5 16.25L4 16.25C2.89543 16.25 2 15.3546 2 14.25L2 6.75C2 5.64543 2.89543 4.75 4 4.75L9.5 4.75C10.6046 4.75 11.5 5.64543 11.5 6.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="input-group mt-2">
+                <span class="input-group-text">
+                  <app-svg-icons icon="lock" size="16"></app-svg-icons>
+                </span>
+                <input [type]="showPassword[i] ? 'text' : 'password'" class="form-control input1" [value]="user.password" disabled />
+                <button class="btn btn-outline mile" (click)="copyToClipboard(user.password)">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 1.75L12.5 1.75C13.605 1.75 14.5 2.645 14.5 3.75L14.5 12.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.5 6.75L11.5 14.25C11.5 15.3546 10.6046 16.25 9.5 16.25L4 16.25C2.89543 16.25 2 15.3546 2 14.25L2 6.75C2 5.64543 2.89543 4.75 4 4.75L9.5 4.75C10.6046 4.75 11.5 5.64543 11.5 6.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <button class="btn btn-outline-secondary" (click)="togglePassword(i)">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.9373 6.59766C15.3383 7.04766 15.6623 7.48866 15.9113 7.86766C16.3613 8.55066 16.3613 9.44966 15.9113 10.1327C14.8933 11.6757 12.6493 14.2507 8.99927 14.2507C8.45027 14.2507 7.93327 14.1927 7.44727 14.0887" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.9555 13.043C3.5995 12.167 2.6535 10.99 2.0875 10.131C1.6375 9.44805 1.6375 8.54905 2.0875 7.86605C3.1055 6.32305 5.3495 3.74805 8.9995 3.74805C10.6195 3.74805 11.9625 4.25505 13.0435 4.95405" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.5781 9.95508C11.3001 10.7051 10.7051 11.3001 9.95508 11.5781" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7.055 10.945C6.557 10.447 6.25 9.76 6.25 9C6.25 7.481 7.481 6.25 9 6.25C9.759 6.25 10.447 6.558 10.945 7.055" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path *ngIf="!showPassword[i]" d="M2 16L16 2" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade modal-right" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="main2">
+          <h5 class="modal-title onestbold" id="userModalLabel">User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="main3">
+            <div class="tab-wrapper w-100 position-relative">
+              <div class="active-tab-bg" [ngStyle]="{'left': activeTab === 'tab1' ? '0%' : '50%'}"></div>
+              <ul class="nav nav-tabs w-100">
+                <li class="nav-item w-50">
+                  <a class="nav-link robotobold" [class.active]="activeTab === 'tab1'" (click)="setActiveTab('tab1')" href="javascript:void(0)">
+                    User Info
+                  </a>
+                </li>
+                <li class="nav-item w-50">
+                  <a class="nav-link robotobold" [class.active]="activeTab === 'tab2'" (click)="setActiveTab('tab2')" href="javascript:void(0)">
+                    Login Info
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tab-content">
+            <div *ngIf="activeTab === 'tab1'" class="tab-pane fade show active">
+              <div class="card card2 w-100">
+                <p class="onestbold fs1">User Info</p>
+                <div class="error" *ngIf="errors['userType']">{{ errors['userType'] }}</div>
+                <div class="attribute-row my-1">
+                  <div class="d-flex gap-2">
+                    <button class="btn robotoregular" [ngClass]="{'btn-danger': userType === 'mobile user', 'btn-dark1': userType !== 'mobile user'}" (click)="setUserType('mobile user')">
+                      <svg width="18" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.75 17H6.25C4.733 17 3.5 15.767 3.5 14.25V3.75C3.5 2.233 4.733 1 6.25 1H12.75C14.267 1 15.5 2.233 15.5 3.75V14.25C15.5 15.767 14.267 17 12.75 17ZM6.25 2.5C5.561 2.5 5 3.061 5 3.75V14.25C5 14.939 5.561 15.5 6.25 15.5H12.75C13.439 15.5 14 14.939 14 14.25V3.75C14 3.061 13.439 2.5 12.75 2.5H6.25Z" fill="#0F0F0F" />
+                        <path d="M10.75 5H8.25C7.836 5 7.5 4.664 7.5 4.25C7.5 3.836 7.836 3.5 8.25 3.5H10.75C11.164 3.5 11.5 3.836 11.5 4.25C11.5 4.664 11.164 5 10.75 5Z" fill="#0F0F0F" />
+                      </svg>
+                      Mobile User
+                    </button>
+                    <button class="btn robotoregular" [ngClass]="{'btn-danger': userType === 'admin panel', 'btn-dark1': userType !== 'admin panel'}" (click)="setUserType('admin panel')">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 7.25C10.5188 7.25 11.75 6.01878 11.75 4.5C11.75 2.98122 10.5188 1.75 9 1.75C7.48122 1.75 6.25 2.98122 6.25 4.5C6.25 6.01878 7.48122 7.25 9 7.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M13.7624 15.516C14.6224 15.245 15.0744 14.295 14.7094 13.471C13.7394 11.28 11.5504 9.75 9.00035 9.75C6.45035 9.75 4.26135 11.28 3.29135 13.471C2.92635 14.296 3.37835 15.245 4.23835 15.516C5.46335 15.902 7.08435 16.25 9.00035 16.25C10.9164 16.25 12.5374 15.902 13.7624 15.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      Admin Panel
+                    </button>
+                  </div>
+                </div>
+                <div class="mgy">
+                  <p class="robotoregular txt" style="line-height: 0px;">Pic (Optional)</p>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="image-upload-box" (click)="triggerFileInput()">
+                      <div class="upload-content" *ngIf="!profilePicPreview">
+                        <span class="upload-icon">
+                          <app-svg-icons icon="pic" size="16"></app-svg-icons>
+                        </span>
+                        <p class="robotoregular text">Drag and Drop Image</p>
+                      </div>
+                      <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" class="form-control" style="display: none;">
+                      <img *ngIf="profilePicPreview" [src]="profilePicPreview" alt="Profile Preview" class="preview-image" />
+                    </div>
+                  </div>
+                </div>
+                <div class="attribute-row mt-3">
+                  <label class="robotoregular txt">Name</label>
+                  <div class="input-container">
+                    <span class="me-1">
+                      <app-svg-icons icon="user1" size="16"></app-svg-icons>
+                    </span>
+                    <input type="text" class="mt-1" [(ngModel)]="name" placeholder="Enter name">
+                  </div>
+                  <div class="error" *ngIf="errors['name']">{{ errors['name'] }}</div>
+                </div>
+                <div class="attribute-row my-1">
+                  <label class="robotoregular txt">Email</label>
+                  <div class="input-container">
+                    <span class="me-1">
+                      <app-svg-icons icon="email" size="16"></app-svg-icons>
+                    </span>
+                    <input type="email" class="mt-1" [(ngModel)]="email" placeholder="Enter email">
+                  </div>
+                  <div class="error" *ngIf="errors['email']">{{ errors['email'] }}</div>
+                </div>
+                <div class="attribute-row my-1">
+                  <label class="robotoregular txt">Phone</label>
+                  <div class="input-container">
+                    <span class="me-1">
+                      <app-svg-icons icon="phone" size="16"></app-svg-icons>
+                    </span>
+                    <input type="text" class="mt-1" [(ngModel)]="phone" placeholder="Enter phone">
+                  </div>
+                  <div class="error" *ngIf="errors['phone']">{{ errors['phone'] }}</div>
+                </div>
+                <div class="attribute-row my-1">
+                  <label class="robotoregular txt">ID</label>
+                  <div class="input-container">
+                    <span class="me-1">
+                      <app-svg-icons icon="id" size="16"></app-svg-icons>
+                    </span>
+                    <input type="text" class="mt-1" [(ngModel)]="employeeId" placeholder="Enter employee ID">
+                  </div>
+                  <div class="error" *ngIf="errors['employeeId']">{{ errors['employeeId'] }}</div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="activeTab === 'tab2'" class="tab-pane fade show active">
+              <div class="card p-3">
+                <h5 class="onestbold">Login Info</h5>
+                <div class="mb-3">
+                  <label>User Name</label>
+                  <div class="input-group inp123">
+                    <span class="input-group-text">
+                      <app-svg-icons icon="user1" size="16"></app-svg-icons>
+                    </span>
+                    <input type="text" class="form-control fm12" [(ngModel)]="username" placeholder="Enter username">
+                  </div>
+                  <div class="error" *ngIf="errors['username']">{{ errors['username'] }}</div>
+                </div>
+                <div class="mb-3">
+                  <label>Password</label>
+                  <div class="input-group inp123">
+                    <span class="input-group-text">
+                      <app-svg-icons icon="lock" size="16"></app-svg-icons>
+                    </span>
+                    <input type="password" class="form-control fm12" [(ngModel)]="password" placeholder="Enter password">
+                  </div>
+                  <div class="error" *ngIf="errors['password']">{{ errors['password'] }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="backend-error robotomedium" *ngIf="backendError">{{ backendError }}</div>
+        </div>
+        <div class="mgn">
+          <button type="button" class="btn topbtn1 w-100 robotosemibold" (click)="activeTab === 'tab1' ? setActiveTab('tab2') : createUser()">
+            <app-svg-icons icon="save" size="16"></app-svg-icons>
+            {{ activeTab === 'tab1' ? 'Next' : 'Save' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="position: fixed; margin:auto; " class="foot12">
+<app-foot></app-foot>
+</div>

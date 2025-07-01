@@ -1,0 +1,126 @@
+<div class="container-fluid bg-light main">
+  <app-topbar heading="Approval Documents"></app-topbar>
+  <app-slider />
+  <div class="d-flex align-items-center" style="margin-top: 24px; margin-bottom: 24px">
+    <div class="input-container">
+      <app-svg-icons class="me-2" icon="search"></app-svg-icons>
+      <input type="text" placeholder="Search" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()">
+    </div>
+    <div class="dropdown ms-2">
+      <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+        <li><a class="dropdown-item" href="#" (click)="setFilter('All')">All</a></li>
+        <li><a class="dropdown-item" href="#" (click)="setFilter('New')">New</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="d-flex align-items-center justify-content-between doc">
+    <p class="onestbold head mb-0">Total Documents: {{ filteredDocuments.length }}</p>
+    <div>
+      <ng-container *ngIf="selectedDocumentIds.length === 0">
+        <button class="btn btn-dark robotomedium btn2 head1" (click)="openModal()">
+          <app-svg-icons icon="plus"></app-svg-icons>
+          Documents
+        </button>
+      </ng-container>
+      <ng-container *ngIf="selectedDocumentIds.length > 0">
+        <button class="cbtn robotomedium" (click)="clearSelection()">
+          <app-svg-icons icon="cr123" class="me-2"></app-svg-icons>
+          Cancel
+        </button>
+        <button class="dbtn robotomedium" (click)="openConfirmationModal()">
+          <app-svg-icons icon="del123" class="me-2"></app-svg-icons>
+          <span class="mt-1">Delete</span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+  <div class="position-relative">
+    <!-- Shimmer Effect -->
+    <div *ngIf="isLoading" class="shimmer-container">
+      <div class="row">
+        <div class="col-md-2 col-sm-6 mb-3" *ngFor="let _ of [1, 2, 3, 4, 5, 6]">
+          <div class="card p-3 shimmer-card">
+            <div class="shimmer shimmer-icon"></div>
+            <div class="shimmer shimmer-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Document Cards -->
+    <div class="row" *ngIf="!isLoading">
+      <div class="col-md-2 col-sm-6 mb-3" *ngFor="let doc of filteredDocuments">
+        <div class="card p-3 text-center card1 justify-content-center align-center" (click)="openDocument(doc)" style="cursor: pointer;">
+          <input type="checkbox" class="position-absolute namebox top-0 start-0 m-2"
+                 [checked]="selectedDocumentIds.includes(doc._id)"
+                 (change)="toggleDocumentSelection(doc._id, $event)" (click)="$event.stopPropagation()">
+          <app-svg-icons icon="file1"></app-svg-icons>
+          <p class="robotobold name" style="margin-top: 16px;">{{ doc.name }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Upload Modal -->
+  <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
+  <div class="document-modal" *ngIf="isModalOpen">
+    <div class="modal-header doc d-flex align-items-center justify-content-between">
+      <p class="onestbold head2 mb-0">Document</p>
+      <button class="btn crossmd" (click)="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 4L4 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 4L14 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="card card2">
+        <p class="onestbold head1">Document Info</p>
+        <div class="document-upload">
+          <div class="upload-box" (click)="fileInput.click()">
+            <app-svg-icons icon="file1"></app-svg-icons>
+            <p *ngIf="!selectedFile">Drag and Drop or <br> Browse</p>
+            <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
+            <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" accept=".pdf">
+          </div>
+        </div>
+      </div>
+      <div class="document-list">
+        <div class="document-item d-flex align-items-center" *ngIf="selectedFile">
+          <app-svg-icons icon="doc"></app-svg-icons>
+          <input type="text" [(ngModel)]="documentName" placeholder="Document Name" class="inp">
+          <button class="delete-btn" (click)="deleteUploadedDocument()" *ngIf="selectedFile && !isUploading">
+            <app-svg-icons icon="del"></app-svg-icons>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer upload-container">
+      <button class="upload-btn robotosemibold" (click)="uploadDocument()" [disabled]="isUploading">
+        <span class="me-2">
+          <app-svg-icons icon="upload"></app-svg-icons>
+        </span> {{ isUploading ? 'Uploading...' : 'Upload' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal for Deletion -->
+  <div class="cfmodal-overlay" *ngIf="isConfirmationModalOpen" (click)="closeConfirmationModal()"></div>
+  <div class="cfdocument-modal confirmation-modal" *ngIf="isConfirmationModalOpen">
+    <div class="cfmodal-header doc d-flex align-items-center justify-content-between">
+      <p class="onestbold head2 mb-0">Confirm Deletion</p>
+      <button class="btn cross" (click)="closeConfirmationModal()">
+        <app-svg-icons icon="cross"></app-svg-icons>
+      </button>
+    </div>
+    <div class="cfmodal-body">
+      <p class="onestbold">Are you sure you want to delete the selected document(s)? This action cannot be undone.</p>
+    </div>
+    <div class="cfmodal-footer d-flex justify-content-end">
+      <button class="clbtn onestsemibold" (click)="closeConfirmationModal()">Cancel</button>
+      <button class="dlbtn onestsemibold" (click)="deleteDocuments()">Delete</button>
+    </div>
+  </div>
+</div>
+<div style="position: fixed; margin:auto; ">
+<app-foot></app-foot>
+</div>

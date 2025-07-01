@@ -1,0 +1,37 @@
+<div class="container mt-4">
+    <h4 class="fw-bold">Recent Projects</h4>
+  
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th><input type="checkbox"></th>
+          <th><i class="fas fa-briefcase"></i> Project Name</th>
+          <th><i class="fas fa-building"></i> Building</th>
+          <th><i class="fas fa-clock"></i> Status</th>
+          <th><i class="fas fa-user"></i> Assignee</th>
+          <th><i class="fas fa-list"></i> Description</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of projects" class="align-middle">
+          <td class="d-flex align-items-center"><input type="checkbox"></td>
+          <td> <i class="fas fa-briefcase me-2"></i>{{ project.name }}</td>
+          <td><i class="fas fa-building me-2"></i> {{ project.building }}</td>
+          <td>
+            <span [class]="project.statusClass">{{ project.status }}</span>
+          </td>
+          <td>
+            <div class="assignee-images">
+              <img *ngFor="let img of project.assignees" [src]="img" class="assignee-img" alt="User">
+            </div>
+          </td>
+          <td>
+            <span *ngFor="let desc of project.description" class="badge bg-light text-dark me-1">{{ desc }}</span>
+          </td>
+          <td><i class="fas fa-ellipsis-v"></i></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

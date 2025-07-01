@@ -1,0 +1,103 @@
+body {
+  background-color: #f1f3f4;
+  min-height: 100vh !important;
+}
+.main1 {
+  height: 80vh; /* Full viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.chk1{
+  width: 20px;
+  height: 20px;
+}
+.cbox{
+  display: flex;
+  align-items: center !important;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+.card {
+  background: rgba(255, 255, 255, 1);
+  border-radius: 30px !important; 
+  padding: 36px 36px 36px 36px !important;
+}
+
+.input-group-text {
+  background-color: #fff;
+  border-right: 0;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  border-color: rgba(205, 204, 203, 1);
+
+}.checkbox-wrapper {
+  display: flex;
+  align-items: center; /* Center checkbox and label */
+}
+
+
+.form-control1{
+  border-right: 0px;
+}
+
+.form-control {
+  border-left: 0;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  border-color: rgba(205, 204, 203, 1);
+
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-radius: 15px;
+  border-color: rgba(205, 204, 203, 1);
+  
+}
+
+.logincon{
+  background-color: rgba(238, 240, 241, 1);
+  min-height: 100vh;
+}
+.head{
+  font-size: 60px;
+  color: black;
+}
+label{
+  font-size: 14px;
+}
+#staySignedIn:checked {
+  background-color: black;
+  accent-color: black; /* For modern browsers */
+}
+.text-danger{
+  font-size: 14px;
+  color: black !important;
+}
+.sign{
+  font-size: 14px;
+}
+.error-text {
+  color: #dc3545;
+  font-size: 14px;
+  margin-bottom: 20px;
+  margin-top:10px;
+}
+
+.btn-dark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #343a40 25%, #4b545c 50%, #343a40 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
