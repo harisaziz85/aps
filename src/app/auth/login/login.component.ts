@@ -7,7 +7,6 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -28,6 +27,7 @@ export class LoginComponent {
   isLoading: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
+
   togglePasswordVisibility() {
     this.passwordVisible = !this.passwordVisible;
   }
@@ -39,11 +39,11 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).subscribe({
       next: (res: LoginResponse) => {
         if (!res.error) {
-          console.log('LoginComponent: Login successful, navigating to dashboard in 3 seconds');
+          console.log('LoginComponent: Login successful, navigating to dashboard');
           setTimeout(() => {
             this.isLoading = false;
             this.router.navigate(['/pages/dashboard']);
-          }, 3000);
+          }, 0); // Delay set to 0 milliseconds
         } else {
           this.isLoading = false;
           this.errorMsg = res.message || 'Invalid username or password.';
