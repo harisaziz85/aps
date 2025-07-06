@@ -10,6 +10,8 @@ import { AuthService, ProfileResponse } from '../../../core/services/auth.servic
 import { ProjectService } from '../../../core/services/project.service';
 import { HttpClient } from '@angular/common/http';
 import { SvgIconsComponent } from "../../../shared/svg-icons/svg-icons.component";
+import { ActivityService } from '../../../core/services/activity.service';
+import { Activity } from '../../../core/models/activity';
 
 export interface ProjectExport {
   projectId: string;
@@ -52,6 +54,8 @@ export class TopbarComponent {
   importApiUrl = 'https://aspbackend-production.up.railway.app/api/exchangeData/import';
   exportApiUrl = 'https://aspbackend-production.up.railway.app/api/exchangeData/export';
 
+  activities: Activity[] = [];
+
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
@@ -60,7 +64,8 @@ export class TopbarComponent {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private projectService: ProjectService,
-    private http: HttpClient
+    private http: HttpClient,
+    private activityService: ActivityService
   ) {}
 
   ngOnInit(): void {
@@ -94,6 +99,17 @@ export class TopbarComponent {
     });
 
     this.loadProjects();
+
+    this.activityService.getActivities().subscribe({
+      next: (response: { activities: Activity[] }) => {
+        this.activities = response.activities || [];
+        console.log('TopbarComponent: Activities fetched:', this.activities);
+      },
+      error: (err) => {
+        console.error('TopbarComponent: Error fetching activities:', err);
+        this.activities = [];
+      }
+    });
   }
 
   getDeepestChild(route: ActivatedRoute): string {

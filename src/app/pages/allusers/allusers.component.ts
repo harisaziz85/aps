@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FootComponent } from '../components/foot/foot.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
-import { SvgIconsComponent } from "../../shared/svg-icons/svg-icons.component";
+import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
 
 @Component({
   selector: 'app-allusers',
@@ -148,6 +148,15 @@ export class AllUsersComponent implements OnInit {
   createUser(): void {
     if (!this.validateForm()) {
       console.log('Form validation failed:', this.errors);
+      if (
+        this.errors['name'] ||
+        this.errors['email'] ||
+        this.errors['phone'] ||
+        this.errors['employeeId'] ||
+        this.errors['userType']
+      ) {
+        this.setActiveTab('tab1');
+      }
       return;
     }
 
@@ -202,15 +211,24 @@ export class AllUsersComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('API error:', error);
-        this.backendError = error.message || 'Failed to create user. Please try again.';
         if (error.error && error.error.errors) {
           console.log('Backend validation errors:', error.error.errors);
-          Object.keys(error.error.errors).forEach((key) => {
-            this.errors[key] = error.error.errors[key];
+          const errorMessages = Object.entries(error.error.errors).map(([key, value]) => {
+            return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
           });
+          this.backendError = errorMessages.join('; ');
+          if (
+            error.error.errors['name'] ||
+            error.error.errors['email'] ||
+            error.error.errors['phone'] ||
+            error.error.errors['employeeId'] ||
+            error.error.errors['userType']
+          ) {
+            this.setActiveTab('tab1');
+          }
         } else {
           console.log('Unexpected error:', error.status, error.statusText);
-          this.backendError = `Error ${error.status || 'Unknown'}: ${error.statusText || 'Server error. Please check the API.'}`;
+          this.backendError = error.message || `Error ${error.status || 'Unknown'}: Server error. Please check the API.`;
         }
       },
       complete: () => {
@@ -236,8 +254,8 @@ export class AllUsersComponent implements OnInit {
     this.userService.deleteUser(_id).subscribe({
       next: () => {
         console.log('User deleted successfully:', _id);
-        this.users = this.users.filter(user => user._id !== _id);
-        this.filteredUsers = this.filteredUsers.filter(user => user._id !== _id);
+        this.users = this.users.filter((user) => user._id !== _id);
+        this.filteredUsers = this.filteredUsers.filter((user) => user._id !== _id);
         this.showPassword = new Array(this.filteredUsers.length).fill(false);
         this.isLoading = false;
         alert('User deleted successfully!');
@@ -274,7 +292,7 @@ export class AllUsersComponent implements OnInit {
   }
 
   copyToClipboard(text: string | undefined): void {
-    const textToCopy = text || ''; // Fallback to empty string if undefined
+    const textToCopy = text || '';
     navigator.clipboard.writeText(textToCopy).then(() => {
       alert('Copied to clipboard!');
     }).catch((err) => {

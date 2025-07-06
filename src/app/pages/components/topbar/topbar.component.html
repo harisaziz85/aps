@@ -12,33 +12,20 @@
 <path d="M16.666 19.9999L20.9993 15.6666L16.666 11.3333" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M21.0007 15.6667H10.334" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-
     </button>
     <div class="notification-wrapper" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
       <button class="btna">
         <app-svg-icons icon="not" size="16"></app-svg-icons>
-
       </button>
       <div class="dropdown" *ngIf="showDropdown">
-        <div class="item">
+        <div class="item" *ngFor="let activity of activities | slice:-4">
           <span class="d-flex">
             <span style="margin-right: 8px;">
               <!-- <fa-icon [icon]="faBell"></fa-icon> -->
             </span>
             <div class="p-0">
-              <p class="robotoregular txt2">New client is added</p>
-              <p style="margin-top: 8px; color:rgba(164, 163, 162, 1); font-size: 12px;">14 hours ago</p>
-            </div>
-          </span>
-        </div>
-        <div class="item">
-          <span class="d-flex">
-            <span style="margin-right: 8px;">
-              <!-- <fa-icon [icon]="faBell"></fa-icon> -->
-            </span>
-            <div class="p-0">
-              <p class="robotoregular txt2">New client is added</p>
-              <p style="margin-top: 8px; color:rgba(164, 163, 162, 1); font-size: 12px;">14 hours ago</p>
+              <p class="robotoregular txt2">A New {{activity.type}} Added By Admin {{ activity.title }}</p>
+              <p style="margin-top: 8px; color:rgba(164, 163, 162, 1); font-size: 12px;">{{ activity.date }}</p>
             </div>
           </span>
         </div>
@@ -82,7 +69,6 @@
                     d="M10.7179 3.694C9.86391 1.951 8.07191 0.75 5.99991 0.75C3.16791 0.75 0.858906 2.993 0.753906 5.799"
                     stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-
               </button>
               <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" class="d-none">
             </div>
@@ -116,7 +102,6 @@
             <div class="input-group">
               <span class="input-group-text">
                 <app-svg-icons icon="lock" size="16"></app-svg-icons>
-
               </span>
               <input type="password" class="form-control" [(ngModel)]="currentPassword">
             </div>
