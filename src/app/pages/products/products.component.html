@@ -49,10 +49,11 @@
     <!-- Actual Products when not loading -->
     <ng-container *ngIf="!isLoading">
       <div class="col-md-2" *ngFor="let product of filteredProducts">
-        <div class="card text-center p-3">
+        <div class="card text-center p-3" (click)="downloadProductAsPDF(product)" style="cursor: pointer;">
           <input type="checkbox" class="position-absolute cbox top-0 start-0 m-2"
                  [checked]="selectedProductIds.includes(product._id)"
-                 (change)="toggleProductSelection(product._id, $event)">
+                 (change)="toggleProductSelection(product._id, $event)"
+                 (click)="$event.stopPropagation()">
           <div class="display-4">
             <app-svg-icons icon="file2"></app-svg-icons>
           </div>
@@ -130,7 +131,7 @@
   </div>
 
   <!-- Confirmation Modal for Deletion -->
-  <div class="confirmation-modal-overlay" *ngIf="isConfirmationModalOpen" (click)="closeConfirmationModal()"></div>
+  <div class="confirmation-modal-overlay" *ngIf=" isConfirmationModalOpen" (click)="closeConfirmationModal()"></div>
   <div class="confirmation-modal" *ngIf="isConfirmationModalOpen">
     <div class="comodal-header d-flex justify-content-between align-items-center">
       <p class="onestbold mb-0">Confirm Deletion</p>
@@ -146,5 +147,5 @@
   </div>
 </div>
 <div style="position: fixed; margin:auto;">
-<app-foot></app-foot>
+  <app-foot></app-foot>
 </div>

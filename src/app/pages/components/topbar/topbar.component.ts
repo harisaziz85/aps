@@ -190,14 +190,12 @@ export class TopbarComponent {
     const formData = new FormData();
     formData.append('username', this.userName);
     formData.append('email', this.email);
-    if (this.currentPassword) {
-      formData.append('currentPassword', this.currentPassword);
-    }
-    if (this.newPassword) {
+    if (this.currentPassword && this.newPassword) {
+      formData.append('oldPassword', this.currentPassword);
       formData.append('newPassword', this.newPassword);
-    }
-    if (this.confirmPassword) {
-      formData.append('confirmPassword', this.confirmPassword);
+      if (this.confirmPassword) {
+        formData.append('confirmPassword', this.confirmPassword);
+      }
     }
     if (this.fileInput.nativeElement.files[0]) {
       formData.append('profilePic', this.fileInput.nativeElement.files[0]);

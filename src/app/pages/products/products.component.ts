@@ -10,7 +10,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FootComponent } from '../components/foot/foot.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { SliderComponent } from '../components/slider/slider.component';
-import { SvgIconsComponent } from "../../shared/svg-icons/svg-icons.component";
+import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-products',
@@ -132,8 +133,38 @@ export class ProductsComponent implements OnInit {
   }
 
   getDocumentName(docId: string): string {
+    if (!this.documents || this.documents.length === 0) {
+      console.warn('Documents array is empty or undefined');
+      return 'No Documents Available';
+    }
     const doc = this.documents.find(d => d._id === docId);
-    return doc ? doc.name : 'Unknown Document';
+    return doc ? doc.name : 'Document Not Found';
+  }
+
+  getDocumentUrl(docId: string): string {
+    if (!this.documents || this.documents.length === 0) {
+      console.warn('Documents array is empty or undefined');
+      return '';
+    }
+    const doc = this.documents.find(d => d._id === docId);
+    return doc ? doc.fileUrl : '';
+  }
+
+  downloadDocument(docId: string) {
+    const doc = this.documents.find(d => d._id === docId);
+    if (!doc) {
+      console.warn(`Document with ID ${docId} not found`);
+      alert('Document not found');
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = doc.fileUrl;
+    link.download = doc.name; // Set the download attribute to the document name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Corrected from removeGrokChild to removeChild
+    console.log(`Initiated download for document: ${doc.name}`);
   }
 
   createProduct() {
@@ -225,5 +256,36 @@ export class ProductsComponent implements OnInit {
         this.closeConfirmationModal();
       }
     });
+  }
+
+  downloadProductAsPDF(product: Product) {
+    console.log('Generating PDF for product:', { name: product.name, approvalDocuments: product.approvalDocuments });
+    console.log('Documents available:', this.documents.length, this.documents);
+    if (!this.documents || this.documents.length === 0) {
+      console.warn('No documents loaded');
+      alert('No documents available. Please ensure documents are loaded.');
+      return;
+    }
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Product Details', 10, 10);
+    doc.setFontSize(12);
+    doc.text(`Product Name: ${product.name}`, 10, 20);
+    doc.text('Approval Documents:', 10, 30);
+
+    let yPosition = 40;
+    if (!product.approvalDocuments || product.approvalDocuments.length === 0) {
+      console.warn(`No approval documents for product: ${product.name}`);
+      doc.text('No approval documents associated.', 10, yPosition);
+    } else {
+      product.approvalDocuments.forEach((docId, index) => {
+        const docName = this.getDocumentName(docId);
+        doc.text(`${index + 1}. ${docName}`, 10, yPosition);
+        yPosition += 10;
+      });
+    }
+
+    doc.save(`${product.name}_details.pdf`);
+    console.log(`Downloaded PDF for product: ${product.name}`);
   }
 }
