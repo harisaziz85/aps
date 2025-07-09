@@ -22,6 +22,7 @@ export class AllUsersComponent implements OnInit {
   filteredUsers: User[] = [];
   searchTerm: string = '';
   selectedUserType: string = '';
+  isDropdownOpen: boolean = false; // Added for custom dropdown
   activeTab: string = 'tab1';
   userType: string = 'mobile user';
   name: string = '';
@@ -299,5 +300,16 @@ export class AllUsersComponent implements OnInit {
       console.error('Failed to copy:', err);
       alert('Failed to copy to clipboard.');
     });
+  }
+
+  // Custom dropdown methods
+  toggleDropdown(): void {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  selectUserType(type: string): void {
+    this.selectedUserType = type;
+    this.isDropdownOpen = false;
+    this.filterUsers();
   }
 }

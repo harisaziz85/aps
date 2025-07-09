@@ -13,8 +13,13 @@
 <path d="M21.0007 15.6667H10.334" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
     </button>
-    <div class="notification-wrapper" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
-      <button class="btna">
+    <div class="notification-wrapper" (click)="toggleNotificationDropdown()">
+      <button
+        class="btna robotoregular"
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="Notifications"
+      >
         <app-svg-icons icon="not" size="16"></app-svg-icons>
       </button>
       <div class="dropdown" *ngIf="showDropdown">

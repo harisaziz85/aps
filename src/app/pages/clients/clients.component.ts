@@ -1,3 +1,4 @@
+// clients.component.ts
 import { Component, ViewChild, ElementRef, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as bootstrap from 'bootstrap';
@@ -331,5 +332,9 @@ export class ClientsComponent implements OnInit {
 
   trackByProjectId(index: number, project: Project): string {
     return project._id;
+  }
+
+  stopPropagation(event: Event): void {
+    event.stopPropagation();
   }
 }

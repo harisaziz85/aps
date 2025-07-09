@@ -5,18 +5,17 @@
       <app-svg-icons icon="search" size="16"></app-svg-icons>
       <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="filterUsers()">
     </div>
-    <button class="btn topbtn btn-light border ms-2 d-flex align-items-center justify-content-between" style="width: 155px;">
-      <span class="d-flex align-items-center">
-        <span class="ms-2"></span>
-      </span>
-      <span>
-        <select [(ngModel)]="selectedUserType" (ngModelChange)="filterUsers()" class="topselect">
-          <option value="">All</	option>
-          <option value="admin panel">Admin Panel</option>
-          <option value="mobile user">Mobile User</option>
-        </select>
-      </span>
-    </button>
+    <div class="custom-dropdown-container ms-2">
+      <button class="custom-dropdown-btn" (click)="toggleDropdown()">
+        {{ selectedUserType || 'All' }}
+        <span class="dropdown-arrow"></span>
+      </button>
+      <div class="custom-dropdown-menu" *ngIf="isDropdownOpen">
+        <div class="dropdown-item" (click)="selectUserType('')">All</div>
+        <div class="dropdown-item" (click)="selectUserType('admin panel')">Admin Panel</div>
+        <div class="dropdown-item" (click)="selectUserType('mobile user')">Mobile User</div>
+      </div>
+    </div>
   </div>
   <div class="d-flex justify-content-between align-items-center top">
     <h5 class="onestbold" style="margin-bottom: 0px;">Total Users: {{ filteredUsers.length }}</h5>
@@ -271,6 +270,6 @@
     </div>
   </div>
 </div>
-<div style="position: fixed; margin:auto; " class="foot12">
-<app-foot></app-foot>
+<div style="position: fixed; margin:auto;" class="foot12">
+  <app-foot></app-foot>
 </div>

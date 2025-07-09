@@ -6,5 +6,6 @@
 
 .ft{
     position: absolute !important;
-    z-index: ;
+    z-index:10;
+    opacity: 1000 !important;
 }

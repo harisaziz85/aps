@@ -1660,3 +1660,9 @@ input:focus{
   height: 48px !important;
   padding: 11px 15px !important;
 }
+.attribute-field:active {
+  border: none !important;
+}
+.attribute-field:focus {
+  border: 1px solid #CDCCCB !important;
+}

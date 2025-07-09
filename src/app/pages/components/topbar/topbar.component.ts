@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, AfterViewInit } from '@angular/core';
 import { faRightLeft, faBell, faGear, faUser, faEnvelope, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import * as bootstrap from 'bootstrap';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { filter, map } from 'rxjs/operators';
 import { AuthService, ProfileResponse } from '../../../core/services/auth.service';
 import { ProjectService } from '../../../core/services/project.service';
 import { HttpClient } from '@angular/common/http';
-import { SvgIconsComponent } from "../../../shared/svg-icons/svg-icons.component";
+import { SvgIconsComponent } from '../../../shared/svg-icons/svg-icons.component';
 import { ActivityService } from '../../../core/services/activity.service';
 import { Activity } from '../../../core/models/activity';
 
@@ -27,7 +27,7 @@ export interface ProjectExport {
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.css']
 })
-export class TopbarComponent {
+export class TopbarComponent implements AfterViewInit {
   @Input() heading: string = '';
  
   faSyncAlt = faSyncAlt;
@@ -112,6 +112,14 @@ export class TopbarComponent {
     });
   }
 
+  ngAfterViewInit(): void {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+
   getDeepestChild(route: ActivatedRoute): string {
     while (route.firstChild) {
       route = route.firstChild;
@@ -125,6 +133,11 @@ export class TopbarComponent {
 
   toggleDropdown1(): void {
     this.isOpen = !this.isOpen;
+  }
+
+  toggleNotificationDropdown(): void {
+    this.showDropdown = !this.showDropdown;
+    console.log('Notification dropdown toggled:', this.showDropdown);
   }
 
   changeImage(newImage: string) {

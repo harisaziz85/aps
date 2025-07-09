@@ -25,11 +25,6 @@ input:focus {
   border-radius: 20px 20px 0 0 !important;
 }
 
-.topselect {
-  background-color: transparent;
-  border: 0 !important;
-}
-
 .userbtn {
   border-radius: 15px;
   font-size: 16px;
@@ -187,14 +182,6 @@ input:focus {
   border: 1px solid rgba(230, 60, 26, 1);
 }
 
-.topbtn {
-  border-radius: 15px;
-  background-color: transparent !important;
-  height: 48px;
-  width: 135px;
-  border: 1px solid rgba(164, 163, 162, 1) !important;
-}
-
 .topbtn1 {
   border-radius: 15px;
   background-color: #000000 !important;
@@ -331,32 +318,6 @@ input[type="email"] {
   border: 1px solid #ccc;
 }
 
-.topselect {
-  border: none;
-  background: transparent;
-  outline: none;
-  cursor: pointer;
-}
-
-.topbtn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 155px;
-}
-
-.input-group .btn-outline-secondary {
-  padding: 0.25rem 0.5rem;
-}
-
-.input-group .form-control {
-  border-right: 0;
-}
-
-.input-group .btn-outline-secondary {
-  border-left: 0;
-}
-
 .inp123 {
   border: 1px solid rgba(205, 204, 203, 1);
   border-radius: 15px;
@@ -365,99 +326,6 @@ input[type="email"] {
 .fm12 {
   border: 0px !important;
   height: 48px !important;
-}
-
-.image-upload-container {
-  position: relative;
-  display: inline-block;
-}
-
-.upload-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 80px;
-  height: 80px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  cursor: pointer;
-}
-
-.image-upload-container:hover .upload-overlay {
-  opacity: 1;
-}
-
-.upload-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-.topimg {
-  cursor: pointer;
-}
-
-.shimmer {
-  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
-  background-size: 800px 104px;
-  animation: shimmer 1.5s infinite linear;
-  border-radius: 4px;
-}
-
-.shimmer-profile-pic {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-}
-
-.shimmer-user-type {
-  width: 116px;
-  height: 34px;
-  border-radius: 10px;
-}
-
-.shimmer-name {
-  width: 120px;
-  height: 14px;
-  border-radius: 4px;
-}
-
-.shimmer-username {
-  width: 100%;
-  height: 34px;
-  border-radius: 4px;
-  margin: 0 8px;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -468px 0;
-  }
-  100% {
-    background-position: 468px 0;
-  }
-}
-
-.error {
-  color: red;
-  font-size: 12px;
-  margin-top: 4px;
-  font-family: 'Roboto', sans-serif;
 }
 
 .image-upload-box {
@@ -730,7 +598,111 @@ input[type="email"] {
 .footer-container app-foot {
   width: 100%;
 }
-.foot12{
+.foot12 {
   opacity: 1 !important;
   z-index: 1000 !important;
+}
+
+.shimmer {
+  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+  background-size: 800px 104px;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+.shimmer-profile-pic {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.shimmer-user-type {
+  width: 116px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.shimmer-name {
+  width: 120px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.shimmer-username {
+  width: 100%;
+  height: 34px;
+  border-radius: 4px;
+  margin: 0 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown-container {
+  position: relative;
+  width: 155px;
+}
+
+.custom-dropdown-btn {
+  width: 100%;
+  height: 48px;
+  background-color: rgba(255, 255, 255, 0.8); /* Light pinkish background */
+  border: 1px solid rgba(164, 163, 162, 1);
+  border-radius: 15px;
+  font-size: 16px;
+  color: #000;
+  text-align: left;
+  padding: 0 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropdown-arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #000;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid rgba(164, 163, 162, 1);
+  border-radius: 15px;
+  opacity: 1;
+  margin-top: 2px;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #000;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(252, 235, 232, 1);
 }

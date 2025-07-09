@@ -1290,117 +1290,107 @@
 
     <!-- Modal (Slide-in from Right) -->
 
-   <div class="outer-overlay" *ngIf="isOpen">
-  <div class="overlay bg-black bg-opacity-50"></div>
-
-  <div class="fixed right-0 top-0 w-96 h-full bg-white shadow-lg transition-transform transform translate-x-0">
-    <div class="d-flex justify-content-between border-b align-items-center">
-      <h2 class="head onestbold">Report</h2>
-      <button (click)="closeModal()" class="cross">
-        
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="white"/>
-<path d="M25 15L15 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15 15L25 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-
-
-        
+<div *ngIf="isOpen">
+  <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 40;"></div>
+  <div style="position: fixed; right: 0; top: 0; width: 600px; height: 100%; background: #EEF0F1; z-index: 50; transform: translateX(0); display: flex; flex-direction: column; border-radius: 20px 0 0 20px;">
+    <div style="position: sticky; top: 0; z-index: 60; background: #EEF0F1; border-bottom: 1px solid #e5e7eb; padding: 16px; display: flex; justify-content: space-between; align-items: center; border-radius: 20px 0 0 20px;">
+      <h2 style="font-weight: bold;">Report</h2>
+      <button (click)="closeModal()" style="border:0px">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="white"/>
+          <path d="M25 15L15 25" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 15L25 25" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </button>
     </div>
-   
-    <div class="custom-dropdown" id="dropdown-toggle-4" (click)="toggleDropdown4($event)">
-      <span class="icon">
-        <app-svg-icons icon="fil4" size="16"></app-svg-icons>
-      </span>
-      <input type="text" [value]="selectedOption4" placeholder="Select an option" readonly />
-      <span class="arrow">
-        <app-svg-icons icon="down" size="16"></app-svg-icons>
-      </span>
-      <div class="dropdown-menu" *ngIf="isDropdownOpen4">
-        <div (click)="selectOption4('Standard Reports', $event)">Standard Reports</div>
-        <div (click)="selectOption4('2D', $event)">2D</div>
-        <div (click)="selectOption4('Excel', $event)">Excel</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="custom-dropdown" id="dropdown-toggle-subproject" (click)="toggleSubProjectDropdown($event)">
-      <span class="icon">
-        <app-svg-icons icon="fil4" size="16"></app-svg-icons>
-      </span>
-      <input type="text" [value]="selectedSubProject || 'Select a sub-project'" placeholder="Select a sub-project" readonly />
-      <span class="arrow">
-        <app-svg-icons icon="down" size="16"></app-svg-icons>
-      </span>
-      <div class="dropdown-menu" *ngIf="isSubProjectDropdownOpen">
-        <div *ngFor="let subProject of subProjects" (click)="selectSubProject(subProject, $event)">{{subProject}}</div>
-        <div *ngIf="!subProjects || subProjects.length === 0">No sub-projects available</div>
-      </div>
-    </div>
-    <!-- Selected Sub-project Card -->
-    <div class="card card5 cd2 mt-3" *ngIf="selectedSubProject">
-      <div class="d-flex align-items-center">
-        <span class="subimg">{{selectedSubProject}}</span>
-        <button class="bordercl" (click)="removeSubProject()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 9C0 4.02944 4.02944 0 9 0C13.9706 0 18 4.02944 18 9C18 13.9706 13.9706 18 9 18C4.02944 18 0 13.9706 0 9Z" fill="#EC1919"/>
-<path d="M12.3327 5.6665L5.66602 12.3332" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M5.66602 5.6665L12.3327 12.3332" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</button>
-      </div>
-    </div>
-    </div>
-    <div class="body123">
-      <!-- Select All Checkbox -->
-      <div style="margin-left: 16px;" class="d-flex">
-        <input type="checkbox" class="check1" name="" id="" (change)="toggleSelectAll()">
-        <p class="robotoregular txt">Select All</p>
-      </div>
-      <!-- Loading Indicator -->
-      <div *ngIf="isLoadingAttributes" class="text-center my-3">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
+    <div style="flex: 1; overflow-y: auto; padding: 16px;">
+      <div style="background:white; padding:16px; border-radius:15px">
+        <p class="onestbold">Report Type</p>
+        <div id="dropdown-toggle-4" (click)="toggleDropdown4($event)" style="display: flex; align-items: center; height:50px; gap: 8px; border: 1px solid #e5e7eb; border-radius: 15px; padding: 10px;">
+          <span>
+            <app-svg-icons icon="fil4" size="16"></app-svg-icons>
+          </span>
+          <input type="text" [value]="selectedOption4" placeholder="Select an option" readonly style="flex: 1; padding: 0; border: none; outline: none; background: transparent;" />
+          <span>
+            <app-svg-icons icon="down" size="16"></app-svg-icons>
+          </span>
         </div>
-        <p class="mt-2 text-muted">Loading attributes...</p>
-      </div>
-      <!-- Dynamic Standard Attributes Section -->
-      <div *ngIf="!isLoadingAttributes && standardAttributes && standardAttributes.attributes && standardAttributes.attributes.length > 0">
-        <div *ngFor="let attr of standardAttributes.attributes" class="card card5 cd1" style="margin-bottom: 8px;">
-          <input type="checkbox" class="check1 mt-4" name="" id="dynamic-{{attr._id}}" [(ngModel)]="selectedFields[attr.name]">
-          <div class="form-group w-100" style="display: block;">
-            <p class="robotoregular mb-0" style="font-size: 14px; display: block;">{{attr.name}}</p>
-            <input type="text" class="form-control sle1" [value]="attr.type === 'list' ? attr.value.join(', ') : attr.value" readonly>
-            <div *ngIf="attr.conditionalAttribute && attr.conditionalAttribute.isEnabled" class="mt-1">
-              <small class="text-muted robotoregular">
-                <span *ngIf="attr.conditionalAttribute.productId">Linked to product</span>
-                <span *ngIf="attr.conditionalAttribute.productId && attr.conditionalAttribute.approvalDocumentId"> | </span>
-                <span *ngIf="attr.conditionalAttribute.approvalDocumentId">Requires approval</span>
-              </small>
+        <div *ngIf="isDropdownOpen4" style="background: #F9FAFB; border: 1px solid #e5e7eb; border-radius: 15px; width: 100%; margin-top: 4px;">
+          <div (click)="selectOption4('Standard Reports', $event)" style="padding: 8px; cursor: pointer;">Standard Reports</div>
+          <div (click)="selectOption4('2D', $event)" style="padding: 8px; cursor: pointer;">2D</div>
+          <div (click)="selectOption4('Excel', $event)" style="padding: 8px; cursor: pointer;">Excel</div>
+        </div>
+        <div style="margin-top: 16px">
+          <div id="dropdown-toggle-subproject" (click)="toggleSubProjectDropdown($event)" style="display: flex; align-items: center; height:50px; gap: 8px; border: 1px solid #e5e7eb; border-radius: 15px; padding: 10px;">
+            <span>
+              <app-svg-icons icon="fil4" size="16"></app-svg-icons>
+            </span>
+            <input type="text" [value]="selectedSubProject || 'Select a sub-project'" placeholder="Select a sub-project" readonly style="flex: 1; padding: 0; border: none; outline: none; background: transparent;" />
+            <span>
+              <app-svg-icons icon="down" size="16"></app-svg-icons>
+            </span>
+          </div>
+          <div *ngIf="isSubProjectDropdownOpen" style="background: #F9FAFB; border: 1px solid #e5e7eb; border-radius: 15px; width: 100%; margin-top: 4px;">
+            <div *ngFor="let subProject of subProjects" (click)="selectSubProject(subProject, $event)" style="padding: 8px; cursor: pointer;">{{subProject}}</div>
+            <div *ngIf="!subProjects || subProjects.length === 0" style="padding: 8px;">No sub-projects available</div>
+          </div>
+          <div *ngIf="selectedSubProject" style="margin-top: 12px; padding: 8px; border: 1px solid #182a4d; border-radius: 15px;">
+            <div style="display: flex; align-items: center;">
+              <span>{{selectedSubProject}}</span>
+              <button (click)="removeSubProject()" style="margin-left: 8px;">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 9C0 4.02944 4.02944 0 9 0C13.9706 0 18 4.02944 18 9C18 13.9706 13.9706 18 9 18C4.02944 18 0 13.9706 0 9Z" fill="#EC1919"/>
+                  <path d="M12.3327 5.6665L5.66602 12.3332" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5.66602 5.6665L12.3327 12.3332" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <!-- No Attributes Message -->
-      <div *ngIf="!isLoadingAttributes && (!standardAttributes || !standardAttributes.attributes || standardAttributes.attributes.length === 0)" class="alert alert-info mt-3">
-        <p class="mb-0">No dynamic attributes available for this project. Please create standard attributes first.</p>
+      
+      <div style="margin-top: 16px;">
+        <div style="margin-left: 16px; display: flex; align-items: center; margin-bottom: 12px;">
+          <input type="checkbox" name="" id="" (change)="toggleSelectAll()" style="width: 20px; height: 20px; margin-right: 8px; border: 1px solid #e5e7eb; border-radius: 4px;">
+          <p style="margin: 0;">Select All</p>
+        </div>
+        <div *ngIf="isLoadingAttributes" style="text-align: center; margin: 12px 0;">
+          <div style="display: inline-block; border: 4px solid #3b82f6; border-top: 4px solid transparent; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite;"></div>
+          <p style="margin-top: 8px; color: #6b7280;">Loading attributes...</p>
+        </div>
+        <div *ngIf="!isLoadingAttributes && standardAttributes && standardAttributes.attributes && standardAttributes.attributes.length > 0">
+          <div *ngFor="let attr of standardAttributes.attributes" style="margin-bottom: 8px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 15px; display: flex; align-items: flex-end; background: #FFFFFF;">
+            <input type="checkbox" name="" id="dynamic-{{attr._id}}" [(ngModel)]="selectedFields[attr.name]" style="width: 20px; height: 20px; margin-right: 8px; margin-bottom: 8px;">
+            <div style="flex: 1;">
+              <p style="font-size: 14px; margin: 0 0 4px 0;">{{attr.name}}</p>
+              <input type="text" [value]="attr.type === 'list' ? attr.value.join(', ') : attr.value" readonly style="width: 100%; padding: 8px; border: 1px solid #CDCCCB; text-align: left; border-radius: 15px; outline: none;" class="attribute-field">
+              <div *ngIf="attr.conditionalAttribute && attr.conditionalAttribute.isEnabled" style="margin-top: 4px;">
+                <small style="color: #6b7280;">
+                  <span *ngIf="attr.conditionalAttribute.productId">Linked to product</span>
+                  <span *ngIf="attr.conditionalAttribute.productId && attr.conditionalAttribute.approvalDocumentId"> | </span>
+                  <span *ngIf="attr.conditionalAttribute.approvalDocumentId">Requires approval</span>
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!isLoadingAttributes && (!standardAttributes || !standardAttributes.attributes || standardAttributes.attributes.length === 0)" style="padding: 12px; border: 1px solid #60a5fa; border-radius: 15px; margin-top: 12px; background: #FFFFFF;">
+          <p style="margin: 0;">No dynamic attributes available for this project. Please create standard attributes first.</p>
+        </div>
       </div>
     </div>
-    <div class="btm">
-      <button class="btn btncv rep onestsemibold my-2" (click)="saveFormDataBeforeNavigation()" [routerLink]="['/pages/coverletter']" [queryParams]="{returnTo: 'reports', from: 'reports'}">
+    <div style="position: sticky; bottom: 0; z-index: 60; border-radius: 20px 0 0 20px; background: #EEF0F1; padding: 16px; border-top: 1px solid #e5e7eb;">
+      <button (click)="saveFormDataBeforeNavigation()" [routerLink]="['/pages/coverletter']" [queryParams]="{returnTo: 'reports', from: 'reports'}" style="display: block; width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #000000; border-radius: 15px; background:rgba(255, 0, 0, 0); height:56px">
         <app-svg-icons icon="fil6" size="16"></app-svg-icons>
         Cover Letter
       </button>
-      <button type="button" class="btn btn-dark w-100 rep onestsemibold" (click)="generateReport()">
+      <button type="button" (click)="generateReport()" style="display: block; width: 100%; padding: 8px; background: #0F0F0F; color: white; border-radius: 15px; height:56px">
         <app-svg-icons icon="fil5" size="16"></app-svg-icons>
         Generate Report
       </button>
     </div>
   </div>
 </div>
-
-
-
-
 
 
 

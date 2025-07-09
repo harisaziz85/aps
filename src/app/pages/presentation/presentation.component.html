@@ -381,41 +381,5 @@
   </div>
 </div>
 
-
-<!-- <div class="fullprojreport-modal-overlay" *ngIf="isFullProjReportModalOpen">
-  <div class="fullprojreport-modal-content">
-    <div class="fullprojreport-modal-header">
-      <h2 class="onestbold">Full Project Report</h2>
-      <button class="fullprojreport-close-btn" (click)="closeFullProjReportModal()">×</button>
-    </div>
-    <div class="fullprojreport-modal-body">
-      <p class="robotoregular">Select the standard attributes to include in the Full Project Report:</p>
-      <form>
-        <div class="form-group">
-          <label class="robotoregular">
-            <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)" [indeterminate]="isSelectAllIndeterminate()">
-            Select All
-          </label>
-        </div>
-        <div class="form-group" *ngIf="isLoadingAttributes">
-          <p>Loading attributes...</p>
-        </div>
-        <div class="form-group" *ngIf="!isLoadingAttributes && standardAttributes?.attributes?.length === 0">
-          <p>No attributes available for this project.</p>
-        </div>
-        <div class="form-group" *ngFor="let attr of standardAttributes?.attributes">
-          <label class="robotoregular">
-            <input type="checkbox" [(ngModel)]="selectedFields[attr.name]" [ngModelOptions]="{standalone: true}" (change)="updateSelectAll()">
-            {{ attr.name }}
-          </label>
-        </div>
-      </form>
-    </div>
-    <div class="fullprojreport-modal-footer">
-      <button class="btn btn-primary" (click)="generateFullProjectReport()">Generate Report</button>
-      <button class="btn btn-dark1" (click)="closeFullProjReportModal()">Close</button>
-    </div>
-  </div>
-</div> -->
 </div>
 <app-foot />
