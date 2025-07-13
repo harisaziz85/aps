@@ -27,20 +27,33 @@ import { FootComponent } from './components/foot/foot.component';
 import { SliderComponent } from './components/slider/slider.component';
 import { RouterModule } from '@angular/router';
 import { SvgIconsComponent } from "../shared/svg-icons/svg-icons.component";
+import { UpdateStep1Component } from './update-step1/update-step1.component';
+import { UpdateStep2Component } from './update-step2/update-step2.component';
+import { UpdateStep3Component } from './update-step3/update-step3.component';
+import { UpdateStep4Component } from './update-step4/update-step4.component';
+import { UpdateStep5Component } from './update-step5/update-step5.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+
 @NgModule({
   declarations: [
     
     ActivityComponent,
     DashboardComponent,
- 
-
     ArchiveComponent,
+    
+        
    
 
   ],
   imports: [
-    CoverletterComponent,
+    UpdateStep1Component,
+    UpdateStep2Component,
+    UpdateStep4Component,
+    NavbarComponent,
 
+    UpdateStep3Component,
+    UpdateStep5Component,
+    CoverletterComponent,
     CommonModule,
     PagesRoutingModule,
     ArchiveProjectComponent,

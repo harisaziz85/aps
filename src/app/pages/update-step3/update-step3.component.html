@@ -1,0 +1,63 @@
+<div class="container-fluid" style="background-color: #EEF0F1; padding:24px ; height:100vh; padding-bottom:100px">
+  <app-topbar heading="Projects and Buildings"></app-topbar>
+
+  <app-navbar/>
+  <div class="content-wrapper" style="display: flex; gap: 24px;">
+    <!-- Main Content Card -->
+    <div class="main-content" style="flex: 2;">
+      <div class="card" style="padding: 24px; background-color: #ffffff; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div *ngIf="errorMessage">
+          <p class="error">{{ errorMessage }}</p>
+        </div>
+        <div *ngIf="projectId" >
+          <div *ngIf="isLoading; else content">
+            <p>Loading hierarchy levels...</p>
+          </div>
+          <ng-template #content>
+            <h4 class="onestbold" style="margin-bottom: 24px;">Hierarchy Levels</h4>
+            <div *ngIf="getHierarchyLevels().length > 0; else noLevels">
+              <!-- Individual input field for each hierarchy level -->
+              <div *ngFor="let level of getHierarchyLevels(); let i = index" class="hierarchy-card" style="margin-bottom: 15px; display: flex; align-items: start; flex-direction:column; gap: 10px;">
+                <label [for]="'level-' + i" class="onestregular">Hierarchy Level {{ i + 1 }}</label>
+                <input 
+                  [id]="'level-' + i" 
+                  type="text" 
+                  class="form-control"
+                  [(ngModel)]="level.name"
+                  (ngModelChange)="onLevelChange(i)"
+                  placeholder="Enter hierarchy level name"
+                />
+                <button type="button" class="btn" style="background: black; color:white; border-radius:10px" (click)="removeHierarchyLevel(i)">Remove</button>
+              </div>
+            </div>
+            <ng-template #noLevels>
+              <p>No hierarchy levels available.</p>
+            </ng-template>
+            <button type="button" class="btn" style="margin-top: 15px; background:black;color:white;border-radius:10px" (click)="addHierarchyLevel()">Add Hierarchy Level</button>
+          </ng-template>
+          <div class="button-group" style="margin-top: 24px;">
+            <button type="button" class="btn btn-secondary" (click)="goToStep3()">Back</button>
+            <button type="button" class="btn btn-dark" style="border-radius: 10px; background:black" (click)="saveAndNext()">Save and Next</button>
+          </div>
+        </div>
+        <div *ngIf="!projectId">
+          <p>No project ID provided in route</p>
+          <p><strong>Project ID (from service):</strong> {{ serviceProjectId || 'Not set in service' }}</p>
+        </div>
+      </div>
+    </div>
+    <!-- Static Card on the Right -->
+    <div class="side-card" style="flex: 1; background:#ffffff; border-radius: 20px; padding: 24px;">
+        <p style="font-size:21px;" class="onestbold">Configuration</p>
+        <p style="font-size: 16px;" class="onestbold">Standard Configuration</p>
+        <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
+        <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
+        <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
+        <p style="font-size: 16px;" class="onestbold">Advanced Configuration for Advanced Users</p>
+        <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
+        <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
+        <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
+    </div>
+  </div>
+</div>
+<app-foot/>

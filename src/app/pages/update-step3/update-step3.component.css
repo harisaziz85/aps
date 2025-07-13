@@ -1,0 +1,72 @@
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 20px;
+}
+
+.main-content {
+  flex: 1; /* Takes the remaining space */
+}
+
+.side-card {
+  width: 30%; /* Fixed 30% width */
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hierarchy-list {
+  list-style-type: none;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.hierarchy-list li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.hierarchy-list li:last-child {
+  border-bottom: none;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.button-group {
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}

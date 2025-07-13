@@ -1,0 +1,367 @@
+<div class="" style="padding: 24px; background:#EEF0F1; height: 100vh; padding-bottom:100px">
+  <app-topbar heading="Projects and Buildings"></app-topbar>
+
+  <app-navbar/>
+  <div *ngIf="projectId">
+   
+
+    <h3>Project Reports</h3>
+    <div *ngIf="reports.length > 0; else noReports" class="report-cards">
+      <div class="card col-2" *ngFor="let report of reports">
+        <div class="card-body text-center">
+          <svg width="36" height="42" viewBox="0 0 36 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.33398 15H14.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.33398 23H26.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.33398 31H26.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1.33398 35.0001V7.00008C1.33398 4.05341 3.72065 1.66675 6.66732 1.66675H21.5633C22.27 1.66675 22.95 1.94675 23.4487 2.44808L33.886 12.8854C34.3873 13.3867 34.6673 14.0641 34.6673 14.7707V35.0001C34.6673 37.9467 32.2806 40.3334 29.334 40.3334H6.66732C3.72065 40.3334 1.33398 37.9467 1.33398 35.0001Z" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M34.428 13.6667H25.3346C23.8626 13.6667 22.668 12.4721 22.668 11.0001V1.93872" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="card-text">{{ report.coverLetter.reportTitle }}</p>
+        </div>
+      </div>
+    </div>
+    <ng-template #noReports>
+      <p>No reports found for this project.</p>
+    </ng-template>
+
+    <div class="button-group">
+      <button type="button" class="btn" style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="goToStep4()">Back</button>
+      <button type="button" class="btn ms-2 " style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="openRightModal()">Report</button>
+    </div>
+  </div>
+  <div *ngIf="!projectId">
+    <p>No project ID provided in route</p>
+    <p><strong>Project ID (from service):</strong> {{ serviceProjectId || 'Not set in service' }}</p>
+  </div>
+
+  <!-- Right-Aligned Modal -->
+  <div #rightModal class="modal fade right-modal" id="rightModal" tabindex="-1" aria-labelledby="rightModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-right" style="margin: 0; position: fixed; right: 0; top: 0; bottom: 0; width: 600px;">
+      <div class="modal-content" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px; height: 100%;">
+        <div class="modal-header" style="position: sticky; top: 0; z-index: 1; background: #fff;">
+          <h5 class="modal-title" id="rightModalLabel">Report</h5>
+          <button type="button" class="btn-close" (click)="closeRightModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="overflow-y: auto;">
+          <form *ngIf="projectAttributes">
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="reportTypeCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="reportType" style="margin-bottom: 5px;">Report Type</label>
+                  <select id="reportType" class="form-control" [value]="getAttributeValue('Report Type')" style="width: 100%;">
+                    <option value="standard">Standard Reports</option>
+                    <option value="excel">Excel Reports</option>
+                    <option value="2dPlans">2D Plans</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="subCategoryCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="subCategory" style="margin-bottom: 5px;">Sub-category</label>
+                  <select id="subCategory" class="form-control" [value]="getAttributeValue('Sub-category')" style="width: 100%;">
+                    <option value="items">Items</option>
+                    <option value="fireDampers">Fire Dampers</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="penetrationCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="penetration" style="margin-bottom: 5px;">Penetration</label>
+                  <input type="text" id="penetration" class="form-control" [value]="getAttributeValue('Penetration')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="productNameCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="productName" style="margin-bottom: 5px;">Product Name</label>
+                  <select id="productName" class="form-control" [value]="getAttributeValue('Product Name')" style="width: 100%;">
+                    <!-- Add product options as needed -->
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="approvalCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="approval" style="margin-bottom: 5px;">Approval</label>
+                  <select id="approval" class="form-control" [value]="getAttributeValue('Approval')" style="width: 100%;">
+                    <!-- Add approval options as needed -->
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="buildingCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="building" style="margin-bottom: 5px;">Building</label>
+                  <select id="building" class="form-control" [value]="getAttributeValue('Building')" style="width: 100%;">
+                    <!-- Add building options as needed -->
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="levelCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="level" style="margin-bottom: 5px;">Level</label>
+                  <select id="level" class="form-control" [value]="getAttributeValue('Level')" style="width: 100%;">
+                    <!-- Add level options as needed -->
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="itemCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="item" style="margin-bottom: 5px;">Item #</label>
+                  <input type="text" id="item" class="form-control" [value]="getAttributeValue('Item #')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="testReferenceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="testReference" style="margin-bottom: 5px;">Test Reference</label>
+                  <input type="text" id="testReference" class="form-control" [value]="getAttributeValue('Test Reference')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="locationCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="location" style="margin-bottom: 5px;">Location</label>
+                  <input type="text" id="location" class="form-control" [value]="getAttributeValue('Location')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="frlCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="frl" style="margin-bottom: 5px;">FRL</label>
+                  <input type="text" id="frl" class="form-control" [value]="getAttributeValue('FRL')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="barrierCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="barrier" style="margin-bottom: 5px;">Barrier</label>
+                  <input type="text" id="barrier" class="form-control" [value]="getAttributeValue('Barrier')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="descriptionCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="description" style="margin-bottom: 5px;">Description</label>
+                  <input type="text" id="description" class="form-control" [value]="getAttributeValue('Description')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="installerCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="installer" style="margin-bottom: 5px;">Installer</label>
+                  <select id="installer" class="form-control" [value]="getAttributeValue('Installer')" style="width: 100%;">
+                    <!-- Add installer options as needed -->
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="inspectorCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="inspector" style="margin-bottom: 5px;">Inspector</label>
+                  <input type="text" id="inspector" class="form-control" [value]="getAttributeValue('Inspector')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="safetyMeasuresCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="safetyMeasures" style="margin-bottom: 5px;">Safety Measures</label>
+                  <input type="text" id="safetyMeasures" class="form-control" [value]="getAttributeValue('Safety Measures')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="relevanceToBuildingCodeCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="relevanceToBuildingCode" style="margin-bottom: 5px;">Relevance to Building Code</label>
+                  <input type="text" id="relevanceToBuildingCode" class="form-control" [value]="getAttributeValue('Relevance to Building Code')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="complianceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="compliance" style="margin-bottom: 5px;">Compliance</label>
+                  <input type="text" id="compliance" class="form-control" [value]="getAttributeValue('Compliance')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="commentsCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="comments" style="margin-bottom: 5px;">Comments</label>
+                  <input type="text" id="comments" class="form-control" [value]="getAttributeValue('Comments')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="notesCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="notes" style="margin-bottom: 5px;">Notes</label>
+                  <input type="text" id="notes" class="form-control" [value]="getAttributeValue('Notes')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="priceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="price" style="margin-bottom: 5px;">Price Excluding GST</label>
+                  <input type="text" id="price" class="form-control" [value]="getAttributeValue('Price')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="stickerNoCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="stickerNo" style="margin-bottom: 5px;">Sticker No</label>
+                  <input type="text" id="stickerNo" class="form-control" [value]="getAttributeValue('Sticker No')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="testIdCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="testId" style="margin-bottom: 5px;">Test ID</label>
+                  <input type="text" id="testId" class="form-control" [value]="getAttributeValue('Test ID')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="serviceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="service" style="margin-bottom: 5px;">Service</label>
+                  <input type="text" id="service" class="form-control" [value]="getAttributeValue('Service')" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>For Reports longer than 500 items, separate the report into multiple parts</label>
+              <div class="form-check">
+                <input type="radio" id="noSeparate" name="separate" class="form-check-input" [(ngModel)]="selectedAttributes['Separate Report']" [value]="false" checked style="width: 20px; height: 20px; margin-right: 10px;">
+                <label for="noSeparate" class="form-check-label">No</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email me a notification when report generation is complete</label>
+              <div class="form-check">
+                <input type="radio" id="yesNotify" name="notify" class="form-check-input" [(ngModel)]="selectedAttributes['Email Notification']" [value]="true" style="width: 20px; height: 20px; margin-right: 10px;">
+                <label for="yesNotify" class="form-check-label">Yes</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="noNotify" name="notify" class="form-check-input" [(ngModel)]="selectedAttributes['Email Notification']" [value]="false" checked style="width: 20px; height: 20px; margin-right: 10px;">
+                <label for="noNotify" class="form-check-label">No</label>
+              </div>
+            </div>
+          </form>
+          <div *ngIf="!projectAttributes">
+            <p>Loading project attributes...</p>
+          </div>
+        </div>
+        <div class="modal-footer" style="position: sticky; bottom: 0; z-index: 1; background: #fff;">
+          <button type="button" class="btncl1" (click)="goToCoverLetter()" style="width: 100%;">Cover Letter</button>
+          <button type="button" class="btncl"  (click)="generateReport()" style="width: 100%;">Generate Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-foot/>
+
+<style>
+.report-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.card {
+  width: 16%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  height: 200px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+.card-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.card-text {
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.btncl{
+  background-color: black !important;
+  color: white;
+  height: 48px;
+  border-radius: 20px;
+}
+.btncl1{
+  background-color: rgba(0, 0, 0, 0) !important;
+  color: black;
+  height: 48px;
+  border-radius: 20px;
+}
+</style>

@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { ProjectService } from '../../core/services/project.service';
 import { ProjectResponse } from '../../core/models/project';
@@ -8,7 +7,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Router, RouterLink } from '@angular/router';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { FootComponent } from '../components/foot/foot.component';
-import { SvgIconsComponent } from "../../shared/svg-icons/svg-icons.component";
+import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
 
 @Component({
   selector: 'app-projectbuilding',
@@ -264,7 +263,14 @@ export class ProjectbuildingComponent implements OnInit {
     this.selectAll = this.filteredProjects.every(p => p.selected);
   }
 
-  navigateToPresentation(projectId: string): void {
+  navigateToPresentation(projectId: string, event: Event): void {
+    event.stopPropagation();
     this.router.navigate(['/pages/presentation', projectId]);
+  }
+
+  navigateToUpdate(projectId: string, event: Event): void {
+    event.stopPropagation();
+    console.log('Navigating to update project with ID:', projectId);
+    this.router.navigate(['/pages/updateproject', projectId]);
   }
 }

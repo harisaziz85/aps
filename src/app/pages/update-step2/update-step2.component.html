@@ -1,0 +1,146 @@
+<div style="padding: 24px; background:#EEF0F1; padding-bottom:100px">
+  <app-topbar heading="Projects and Buildings"></app-topbar>
+
+  <app-navbar/>
+  <div *ngIf="!projectId">
+    <p>No project ID provided in route</p>
+  </div>
+  <div class="row">
+    <div class="col-8">
+      <div class="card" >
+        <div class="card-body">
+          <!-- <p><strong>Project ID (from route):</strong> {{ projectId || 'Not provided in route' }}</p> -->
+          <div *ngIf="projectData" class="row">
+            <div class="col-12">
+              <label for="templateSelect" class="onestbold" style="font-size: 21px; margin-bottom:24px">Template</label><br>
+              <label for="">Template</label>
+              <div class="custom-dropdown w-50">
+                <div class="selected-option" (click)="toggleTemplateDropdown()">
+                  {{ selectedTemplate || 'Select a template' }}
+                  <span class="arrow" [ngClass]="{'open': isTemplateDropdownOpen}">▾</span>
+                </div>
+                <ul class="dropdown-options" [ngClass]="{'open': isTemplateDropdownOpen}">
+                  <li *ngFor="let template of templateOptions" (click)="selectTemplate(template)">
+                    {{ template }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-6 mt-3">
+              <label for="productSelect" class="onestregular">Product</label>
+              <div class="custom-dropdown">
+                <div class="selected-option" (click)="toggleProductDropdown()">
+                  {{ getProductName(selectedProductId) }}
+                  <span class="arrow" [ngClass]="{'open': isProductDropdownOpen}">▾</span>
+                </div>
+                <ul class="dropdown-options" [ngClass]="{'open': isProductDropdownOpen}">
+                  <li *ngFor="let product of products" (click)="selectProduct(product._id)">
+                    {{ product.name }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-6 mt-3">
+              <label for="approvalSelect" class="onestregular">Approval Documents</label>
+              <div class="custom-dropdown">
+                <div class="selected-option" (click)="toggleApprovalDropdown()">
+                  {{ getApprovalDocumentNames() }}
+                  <span class="arrow" [ngClass]="{'open': isApprovalDropdownOpen}">▾</span>
+                </div>
+                <ul class="dropdown-options" [ngClass]="{'open': isApprovalDropdownOpen}">
+                  <li *ngFor="let doc of getFilteredApprovalDocuments()" (click)="toggleApprovalDocument(doc._id)">
+                    <span [ngClass]="{'selected': isApprovalDocumentSelected(doc._id)}">{{ doc.name }}</span>
+                    <span class="checkmark" *ngIf="isApprovalDocumentSelected(doc._id)">✔</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+         
+          </div>
+         
+        </div>
+      </div>
+      <div *ngFor="let attr of attributes; let i = index" class="card attribute-card">
+        <div class="card-body">
+          <div class="d-flex align-items-end">
+            <div class="attr">
+              <label>Attribute</label>
+              <input type="text" class="" [(ngModel)]="attr.name" [disabled]="i === 0 && attr.name === 'FD No.'" class="atb">
+            </div>
+            <!-- <div class="attr" *ngIf="i === 0 && attr.name === 'FD No.'">
+              <label>Combined Attributes</label>
+              <input type="text" class="" [value]="getCombinedAttributes(i)" disabled>
+            </div> -->
+            <div class="attr">
+              <label>Type</label>
+              <select [(ngModel)]="attr.type" class="lib">
+                <option value="string">String</option>
+                <option value="list">List</option>
+              </select>
+            </div>
+            <div class="attr">
+              <label>Attribute Value</label>
+              <input type="text" class="atb" [(ngModel)]="newAttributeValues[i]">
+            </div>
+            <button class="btnwe me-3" (click)="addAttributeValue(i)">+ Value</button>
+            <button class="btn  btn-sm" (click)="removeAttribute(i)" *ngIf="i !== 0 || attr.name !== 'FD No.'"><svg width="45" height="45" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 0.5H33C41.0081 0.5 47.5 6.99187 47.5 15V33C47.5 41.0081 41.0081 47.5 33 47.5H15C6.99187 47.5 0.5 41.0081 0.5 33V15C0.5 6.99187 6.99187 0.5 15 0.5Z" stroke="#0F0F0F"/>
+<path d="M17.75 19.25H30.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M21.75 19.25V17.75C21.75 17.198 22.198 16.75 22.75 16.75H25.25C25.802 16.75 26.25 17.198 26.25 17.75V19.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M28.75 21.75V29.25C28.75 30.355 27.855 31.25 26.75 31.25H21.25C20.145 31.25 19.25 30.355 19.25 29.25V21.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M22.25 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25.75 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</button>
+          </div>
+       <div class="d-flex">  
+          <div style="width: 56%;" class="d-flex flex-column">
+  <!-- First row with two checkboxes side by side -->
+  <div class="d-flex flex-row gap-3 mt-4">
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <input type="checkbox" [(ngModel)]="attr.editableBackOffice"  class="chk"> Editable Only in Back Office
+    </div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <input type="checkbox" [(ngModel)]="attr.hideForMobileUser" class="chk"> Hide for Mobile User
+    </div>
+  </div>
+  <!-- Second row with the third checkbox -->
+  <div class="mt-2 d-flex align-items-center gap-2 mb-1">
+    <input type="checkbox" [(ngModel)]="attr.conditionalAttribute.isEnabled"  class="chk"> Conditional Attribute
+  </div>
+</div>
+          <div class="badge-container" *ngIf="attr.values?.length">
+            <span *ngFor="let value of attr.values" class="badge">{{ value }}</span>
+          </div>
+          </div> 
+        </div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="card">
+        <div class="card-body">
+          <label for="employeeSelect" class="onestregular">Assigned Employees</label>
+          <div class="custom-dropdown">
+            <div class="selected-option" (click)="toggleEmployeeDropdown()">
+              {{ selectedEmployeeIds.length > 0 ? 'Employees selected' : 'Select employees' }}
+              <span class="arrow" [ngClass]="{'open': isEmployeeDropdownOpen}">▾</span>
+            </div>
+            <ul class="dropdown-options" [ngClass]="{'open': isEmployeeDropdownOpen}">
+              <li *ngFor="let employee of employees" (click)="toggleEmployee(employee._id)">
+                <span [ngClass]="{'selected': isEmployeeSelected(employee._id)}">{{ employee.name }}</span>
+                <span class="checkmark" *ngIf="isEmployeeSelected(employee._id)">✔</span>
+              </li>
+            </ul>
+          </div>
+          <div class="badge-container">
+            <span *ngFor="let name of getSelectedEmployeeNames()" class="badge">{{ name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+   <div class="button-group">
+            <button type="button" class="btn " style="background-color: black; color:white; height:56px;border-radius:20px; width:200px" (click)="saveAndNext()">Save and Next</button>
+          </div>
+</div>
+<app-foot/>

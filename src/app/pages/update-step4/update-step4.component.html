@@ -1,0 +1,179 @@
+<div style="width: 100%; min-height:100vh; padding: 24px; padding-bottom:100px; background:#EEF0F1">
+  <app-topbar heading="Projects and Buildings"></app-topbar>
+
+  <app-navbar/>
+  <div *ngIf="errorMessage" class="error-message">
+    <p>{{ errorMessage }}</p>
+  </div>
+  <div *ngIf="successMessage" class="success-message">
+    <p>{{ successMessage }}</p>
+  </div>
+  
+
+  <!-- Cards for Document Types -->
+  <div class="card-container">
+    <div class="card">
+      <div class="d-flex itms">
+        <h3 style="width: 325%;">2D Plans ({{ documentCounts['2D Plan'] || 0 }})</h3>
+        <div class="custom-dropdown ms-auto">
+          <button class="dropdown-btn" (click)="toggleDropdown('2D Plan')">
+            {{ fileSelectionMode['2D Plan'] }}
+          </button>
+          <div class="dropdown-content" *ngIf="showDropdown['2D Plan']">
+            <a (click)="selectMode('2D Plan', 'Single File')">Single File</a>
+            <a (click)="selectMode('2D Plan', 'Bulk Files')">Bulk Files</a>
+          </div>
+        </div>
+      </div>
+      <div *ngFor="let doc of documents['2D Plan'] || []; let i = index" class="d-flex justify-content-between align-items-center mb-2">
+        <span>
+          {{ doc.documentName }} ({{ doc.fileType }}) </span> <span ><span class="text-left me-3">{{ getHierarchyName(doc.hierarchyLevel) }}</span> 
+        <button (click)="deleteDocument('2D Plan', i)" class="btn ">
+          <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.75 4.75H15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.75 4.75V3.25C6.75 2.698 7.198 2.25 7.75 2.25H10.25C10.802 2.25 11.25 2.698 11.25 3.25V4.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.75 7.25V14.75C13.75 15.855 12.855 16.75 11.75 16.75H6.25C5.145 16.75 4.25 15.855 4.25 14.75V7.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.25 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.75 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        </span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="heading-dropdown-container">
+        <h3 style="width: 325%;">Technical Documents ({{ documentCounts['Technical Document'] || 0 }})</h3>
+        <div class="custom-dropdown">
+          <button class="dropdown-btn" (click)="toggleDropdown('Technical Document')">
+            {{ fileSelectionMode['Technical Document'] }}
+          </button>
+          <div class="dropdown-content" *ngIf="showDropdown['Technical Document']">
+            <a (click)="selectMode('Technical Document', 'Single File')">Single File</a>
+            <a (click)="selectMode('Technical Document', 'Bulk Files')">Bulk Files</a>
+          </div>
+        </div>
+      </div>
+      <div *ngFor="let doc of documents['Technical Document'] || []; let i = index" class="d-flex justify-content-between align-items-center mb-2">
+        <span>
+          {{ doc.documentName }} ({{ doc.fileType }})
+        </span>
+        <span>
+          <span class="text-left me-3">{{ getHierarchyName(doc.hierarchyLevel) }}</span>
+          <button (click)="deleteDocument('Technical Document', i)" class="btn ">
+            <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.75 4.75H15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6.75 4.75V3.25C6.75 2.698 7.198 2.25 7.75 2.25H10.25C10.802 2.25 11.25 2.698 11.25 3.25V4.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13.75 7.25V14.75C13.75 15.855 12.855 16.75 11.75 16.75H6.25C5.145 16.75 4.25 15.855 4.25 14.75V7.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7.25 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10.75 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="itms">
+        <h3 style="width: 325%;">Additional Documents ({{ documentCounts['Additional Document'] || 0 }})</h3>
+        <div class="custom-dropdown">
+          <button class="dropdown-btn" (click)="toggleDropdown('Additional Document')">
+            {{ fileSelectionMode['Additional Document'] }}
+          </button>
+          <div class="dropdown-content" *ngIf="showDropdown['Additional Document']">
+            <a (click)="selectMode('Additional Document', 'Single File')">Single File</a>
+            <a (click)="selectMode('Additional Document', 'Bulk Files')">Bulk Files</a>
+          </div>
+        </div>
+      </div>
+      <div *ngFor="let doc of documents['Additional Document'] || []; let i = index" class="d-flex justify-content-between align-items-center mb-2">
+        <span>
+          {{ doc.documentName }} ({{ doc.fileType }})
+        </span>
+        <span>
+          <span class="text-left me-3">{{ getHierarchyName(doc.hierarchyLevel) }}</span>
+          <button (click)="deleteDocument('Additional Document', i)" class="btn ">
+            <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.75 4.75H15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6.75 4.75V3.25C6.75 2.698 7.198 2.25 7.75 2.25H10.25C10.802 2.25 11.25 2.698 11.25 3.25V4.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13.75 7.25V14.75C13.75 15.855 12.855 16.75 11.75 16.75H6.25C5.145 16.75 4.25 15.855 4.25 14.75V7.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7.25 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10.75 9.25V13.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Document Upload -->
+  <div class="modal" *ngIf="isModalOpen">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">×</span>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="documentType">Document Type:</label>
+          <select id="documentType" [(ngModel)]="documentType" class="form-control" (change)="onDocumentTypeChange()">
+            <option value="" disabled>Select a document type</option>
+            <option value="2D Plan">2D Plan</option>
+            <option value="Technical Document">Technical Document</option>
+            <option value="Additional Document">Additional Document</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="hierarchyLevel">Hierarchy Level:</label>
+          <select id="hierarchyLevel" [(ngModel)]="selectedHierarchyLevel" class="form-control">
+            <option value="" disabled>Select a hierarchy level</option>
+            <option *ngFor="let level of hierarchyLevels" [value]="level._id">{{ level.name }} ({{ level.instanceCount }} instances)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fileInput">Select Files (PDF, JPEG, PNG):</label>
+          <input
+            id="fileInput"
+            type="file"
+            [multiple]="isBulkMode()"
+            (change)="onFileSelected($event)"
+            accept=".pdf,.jpg,.jpeg,.png"
+          />
+        </div>
+        <div *ngIf="selectedFiles.length > 0">
+          <p>Selected Files:</p>
+          <ul>
+            <li *ngFor="let file of selectedFiles; let i = index">
+              {{ file.name }} ({{ file.size | number }} bytes)
+              <div class="form-group">
+                <label [for]="'documentName' + i">Document Name:</label>
+                <input
+                  [id]="'documentName' + i"
+                  type="text"
+                  [(ngModel)]="fileMeta[i].documentName"
+                  class="form-control"
+                  placeholder="Enter document name"
+                  required
+                />
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <button
+            class="btn btn-primary"
+            (click)="save()"
+            [disabled]="!projectId || !documentType || !selectedHierarchyLevel || selectedFiles.length === 0 || isLoadingHierarchy || !isValidMeta()"
+          >
+            Save
+          </button>
+          <button class="btn btn-primary" (click)="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Button Group for Navigation -->
+  <div class="button-group" style="margin-top: 20px;">
+    <button class="btn " style="background: black; color:white;height:56px; border-radius:20px " (click)="goToStep5()" [disabled]="!projectId">
+     Save and Next
+    </button>
+   
+  </div>
+</div>
+<app-foot/>

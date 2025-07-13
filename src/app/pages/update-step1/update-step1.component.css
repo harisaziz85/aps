@@ -1,0 +1,81 @@
+.container {
+  max-width: 100%; /* Override Bootstrap's container max-width for full width */
+  padding: 24px; /* Apply 24px padding on all sides */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-primary {
+  background-color: black !important;
+  border: 0px !important;
+  height: 56px !important;
+  padding: 8px 30px;
+  border-radius: 20px;
+  color: white;
+  margin-right: 10px;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  padding: 8px 16px;
+  border-radius: 4px;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.card {
+  margin-bottom: 10px; /* 10px margin-bottom for cards */
+  border-radius: 20px;
+}
+
+.card-title {
+  margin-bottom: 15px;
+  font-size: 21px;
+}
+
+.card-body {
+  padding: 15px;
+}
+.immm{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.immm img{
+  border-radius: 20px;
+}
+label{
+  font-size: 14px;
+}
+input{
+  height: 48px !important;
+  border-radius: 15px !important;
+}
+select{
+   height: 48px !important;
+  border-radius: 15px !important;
+}

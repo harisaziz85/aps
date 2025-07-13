@@ -1,0 +1,238 @@
+<div class="container" style="padding: 24px; background:#EEF0F1; padding-bottom:100px">
+  <app-topbar heading="Projects and Buildings"></app-topbar>
+  <app-navbar/>
+  <div *ngIf="errorMessage">
+    <p class="error">{{ errorMessage }}</p>
+  </div>
+  <div *ngIf="projectId && projectData" class="row">
+    <!-- Left Column (col-md-8) for Project, Address, and Administration -->
+    <div class="col-md-8">
+      <!-- Project Details Card -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title onestbold">Project Name</h5>
+          <div class="form-group">
+            <div class="immm">
+              <label for="projectImage" class="onestregular">Project Image:</label>
+              <img [src]="projectData.imageUrl" alt="Project Image" style="width: 120px; height:120px; margin-bottom: 10px;" *ngIf="projectData.imageUrl">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label for="projectName" class="onestregular">Project Name:</label>
+              <input 
+                type="text" 
+                id="projectName" 
+                class="form-control"
+                [(ngModel)]="projectData.projectName" 
+                name="projectName"
+                placeholder="Enter project name">
+            </div>
+            <div class="col-6 form-group">
+              <label for="buildingName">Building Name:</label>
+              <input 
+                type="text" 
+                id="buildingName" 
+                class="form-control"
+                [(ngModel)]="projectData.buildingName" 
+                name="buildingName"
+                placeholder="Enter building name">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label for="subProjects">Sub Projects:</label>
+              <select 
+                id="subProjects" 
+                class="form-control"
+                [(ngModel)]="selectedSubProject" 
+                name="subProjects">
+                <option *ngFor="let subProject of projectData.subProjects" [value]="subProject">{{ subProject }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Address Details Card -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Address Details</h5>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label for="addressLine1">Address Line 1:</label>
+              <input 
+                type="text" 
+                id="addressLine1" 
+                class="form-control"
+                [(ngModel)]="projectData.address.line1" 
+                name="addressLine1"
+                placeholder="Enter address line 1">
+            </div>
+            <div class="col-6 form-group">
+              <label for="addressLine2">Address Line 2:</label>
+              <input 
+                type="text" 
+                id="addressLine2" 
+                class="form-control"
+                [(ngModel)]="projectData.address.line2" 
+                name="addressLine2"
+                placeholder="Enter address line 2">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label for="city">City:</label>
+              <input 
+                type="text" 
+                id="city" 
+                class="form-control"
+                [(ngModel)]="projectData.address.city" 
+                name="city"
+                placeholder="Enter city">
+            </div>
+            <div class="col-6 form-group">
+              <label for="state">State:</label>
+              <input 
+                type="text" 
+                id="state" 
+                class="form-control"
+                [(ngModel)]="projectData.address.state" 
+                name="state"
+                placeholder="Enter state">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label for="zip">Zip:</label>
+              <input 
+                type="text" 
+                id="zip" 
+                class="form-control"
+                [(ngModel)]="projectData.address.zip" 
+                name="zip"
+                placeholder="Enter zip code">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Project Administration Card -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Project Administration</h5>
+          <div class="row">
+            <div class="col-6 form-group">
+              <label for="projectStatus">Project Status:</label>
+              <select 
+                id="projectStatus" 
+                class="form-control"
+                [(ngModel)]="projectData.projectAdministration.projectStatus" 
+                name="projectStatus">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <div class="col-6 form-group">
+              <label for="hierarchyLevelsChange">Hierarchy Levels Change:</label>
+              <select 
+                id="hierarchyLevelsChange" 
+                class="form-control"
+                [(ngModel)]="hierarchyLevelsChangeValue" 
+                name="hierarchyLevelsChange">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column (col-md-4) for Subcontractor and Client -->
+    <div class="col-md-4">
+      <!-- Subcontractor Details Card -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Subcontractor Details</h5>
+          <div class="form-group">
+            <label for="subcontractorName">Subcontractor Name:</label>
+            <input 
+              type="text" 
+              id="subcontractorName" 
+              class="form-control"
+              [(ngModel)]="projectData.subcontractorInfo.name" 
+              name="subcontractorName"
+              placeholder="Enter subcontractor name">
+          </div>
+          <div class="form-group">
+            <label for="subcontractorContact">Subcontractor Contact Person:</label>
+            <input 
+              type="text" 
+              id="subcontractorContact" 
+              class="form-control"
+              [(ngModel)]="projectData.subcontractorInfo.contactPerson" 
+              name="subcontractorContact"
+              placeholder="Enter subcontractor contact person">
+          </div>
+          <div class="form-group">
+            <label for="subcontractorPhone">Subcontractor Phone:</label>
+            <input 
+              type="text" 
+              id="subcontractorPhone" 
+              class="form-control"
+              [(ngModel)]="projectData.subcontractorInfo.phone" 
+              name="subcontractorPhone"
+              placeholder="Enter subcontractor phone">
+          </div>
+        </div>
+      </div>
+      <!-- Client Details Card -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Client Details</h5>
+          <div class="form-group">
+            <label for="clientName">Client Name:</label>
+            <select 
+              id="clientName" 
+              class="form-control"
+              [(ngModel)]="projectData.clientInfo.name" 
+              name="clientName">
+              <option *ngFor="let client of clientNames" [value]="client">{{ client }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="clientContact">Client Contact Person:</label>
+            <input 
+              type="text" 
+              id="clientContact" 
+              class="form-control"
+              [(ngModel)]="projectData.clientInfo.contactPerson" 
+              name="clientContact"
+              placeholder="Enter client contact person">
+          </div>
+          <div class="form-group">
+            <label for="clientPhone">Client Phone:</label>
+            <input 
+              type="text" 
+              id="clientPhone" 
+              class="form-control"
+              [(ngModel)]="projectData.clientInfo.phone" 
+              name="clientPhone"
+              placeholder="Enter client phone">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="row">
+    <div class="col-md-12">
+      <button type="button" class="btn btn-primary" (click)="saveAndNext()">Save and Next</button>
+    </div>
+  </div>
+
+  <div *ngIf="!projectId">
+    <p>No project ID provided</p>
+  </div>
+</div><app-foot/>

@@ -1,0 +1,204 @@
+.card {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.onestregular {
+  font-weight: 500;
+}
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  border-radius: 20px !important;
+}
+
+.selected-option {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  height: 48px;
+  cursor: pointer;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.attr{
+  width: 27% !important;
+}
+.atb{
+  width: 100% !important;
+  height: 48px !important;
+  border-radius: 15px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+.attr .lib{
+  width: 100% !important;
+  height: 48px !important;
+  border-radius: 15px !important;
+
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+
+}
+.chk{
+  width: 20px;
+  height: 20px;
+}
+.arrow {
+  transition: transform 0.2s;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.dropdown-options.open {
+  display: block;
+}
+
+.dropdown-options li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown-options li:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-options li .selected {
+  font-weight: bold;
+}
+
+.checkmark {
+  margin-left: 10px;
+  color: green;
+}
+
+.button-group {
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.align-items-end {
+  align-items: flex-end;
+}
+
+.attr {
+  margin-right: 15px;
+}
+
+.attr label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.attr input,
+.attr select {
+  width: 150px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btnwe {
+  background-color: #000000;
+  border: 1px solid #ccc;
+  height: 48px;
+  color: white;
+  width: 120px;
+  height: 48px;
+  border-radius: 15px !important;
+  cursor: pointer;
+}
+
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.badge-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  position: relative; /* For positioning the close button */
+  display: inline-flex;
+  align-items: center;
+  padding: 18px;
+  margin: 5px;
+  background-color: #FCEBE8;
+  color: black;
+  border: 1px solid #E63C1A;
+  font-weight: 500 !important;
+  border-radius: 12px;
+  font-size: 0.9em;
+}
+
+.badge-close {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #E63C1A;
+  font-weight: bold;
+  line-height: 1;
+  padding: 2px 6px;
+  transition: color 0.2s;
+}
+
+.attribute-card {
+  margin-bottom: 15px;
+}
