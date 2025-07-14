@@ -164,7 +164,7 @@ export class UpdateStep2Component implements OnInit {
   selectedProductNameId: string = '';
   selectedApprovalDocumentIds: string[] = [];
   selectedEmployeeIds: string[] = [];
-  templateOptions: string[] = ['Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration', 'Annual Inspection', 'Scoping', 'Installation/Penetration Register', 'Third Party Certification'];
+  templateOptions: string[] = ['Penetration', 'Fire Dampers' ,'Annual Inspection', 'Scoping', 'Installation/Penetration Register', 'Third Party Certification'];
   products: Product[] = [];
   employees: Employee[] = [];
   isTemplateDropdownOpen: boolean = false;

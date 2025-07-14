@@ -83,35 +83,36 @@
               <input type="text" class="atb" [(ngModel)]="newAttributeValues[i]">
             </div>
             <button class="btnwe me-3" (click)="addAttributeValue(i)">+ Value</button>
-            <button class="btn  btn-sm" (click)="removeAttribute(i)" *ngIf="i !== 0 || attr.name !== 'FD No.'"><svg width="45" height="45" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15 0.5H33C41.0081 0.5 47.5 6.99187 47.5 15V33C47.5 41.0081 41.0081 47.5 33 47.5H15C6.99187 47.5 0.5 41.0081 0.5 33V15C0.5 6.99187 6.99187 0.5 15 0.5Z" stroke="#0F0F0F"/>
-<path d="M17.75 19.25H30.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M21.75 19.25V17.75C21.75 17.198 22.198 16.75 22.75 16.75H25.25C25.802 16.75 26.25 17.198 26.25 17.75V19.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M28.75 21.75V29.25C28.75 30.355 27.855 31.25 26.75 31.25H21.25C20.145 31.25 19.25 30.355 19.25 29.25V21.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M22.25 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M25.75 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</button>
+            <button class="btn btn-sm" (click)="removeAttribute(i)" *ngIf="i !== 0 || attr.name !== 'FD No.'">
+              <svg width="45" height="45" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 0.5H33C41.0081 0.5 47.5 6.99187 47.5 15V33C47.5 41.0081 41.0081 47.5 33 47.5H15C6.99187 47.5 0.5 41.0081 0.5 33V15C0.5 6.99187 6.99187 0.5 15 0.5Z" stroke="#0F0F0F"/>
+                <path d="M17.75 19.25H30.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21.75 19.25V17.75C21.75 17.198 22.198 16.75 22.75 16.75H25.25C25.802 16.75 26.25 17.198 26.25 17.75V19.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M28.75 21.75V29.25C28.75 30.355 27.855 31.25 26.75 31.25H21.25C20.145 31.25 19.25 30.355 19.25 29.25V21.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M22.25 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M25.75 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
-       <div class="d-flex">  
-          <div style="width: 56%;" class="d-flex flex-column">
-  <!-- First row with two checkboxes side by side -->
-  <div class="d-flex flex-row gap-3 mt-4">
-    <div class="d-flex align-items-center gap-2 mb-1">
-      <input type="checkbox" [(ngModel)]="attr.editableBackOffice"  class="chk"> Editable Only in Back Office
-    </div>
-    <div class="d-flex align-items-center gap-2 mb-1">
-      <input type="checkbox" [(ngModel)]="attr.hideForMobileUser" class="chk"> Hide for Mobile User
-    </div>
-  </div>
-  <!-- Second row with the third checkbox -->
-  <div class="mt-2 d-flex align-items-center gap-2 mb-1">
-    <input type="checkbox" [(ngModel)]="attr.conditionalAttribute.isEnabled"  class="chk"> Conditional Attribute
-  </div>
-</div>
-          <div class="badge-container" *ngIf="attr.values?.length">
-            <span *ngFor="let value of attr.values" class="badge">{{ value }}</span>
-          </div>
+          <div class="d-flex">  
+            <div style="width: 56%;" class="d-flex flex-column">
+              <!-- First row with two checkboxes side by side -->
+              <div class="d-flex flex-row gap-3 mt-4">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <input type="checkbox" [(ngModel)]="attr.editableBackOffice" class="chk"> Editable Only in Back Office
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <input type="checkbox" [(ngModel)]="attr.hideForMobileUser" class="chk"> Hide for Mobile User
+                </div>
+              </div>
+              <!-- Second row with the third checkbox -->
+              <div class="mt-2 d-flex align-items-center gap-2 mb-1">
+                <input type="checkbox" [(ngModel)]="attr.conditionalAttribute.isEnabled" class="chk"> Conditional Attribute
+              </div>
+            </div>
+            <div class="badge-container" *ngIf="attr.values?.length">
+              <span *ngFor="let value of attr.values" class="badge">{{ value }}</span>
+            </div>
           </div> 
         </div>
       </div>
@@ -139,8 +140,6 @@
       </div>
     </div>
   </div>
-
-            <button type="button" class="btn bts1" style="background-color: black; color:white; height:56px;border-radius:20px; width:200px" (click)="saveAndNext()">Save and Next</button>
-        
+  <button type="button" class="btn bts1" style="background-color: black; color:white; height:56px;border-radius:20px; width:200px" (click)="saveAndNext()">Save and Next</button>
 </div>
 <app-foot/>
