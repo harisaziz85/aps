@@ -244,4 +244,12 @@ export class ProjectListComponent implements OnInit {
   navigateToPresentation(projectId: string): void {
     this.router.navigate(['/pages/presentation', projectId]);
   }
+
+  navigateToSubprojects(projectId: string): void {
+    this.router.navigate(['/pages/subprojects', projectId]);
+  }
+
+  navigateToUpdateProject(projectId: string): void {
+    this.router.navigate(['/pages/updateproject', projectId]);
+  }
 }

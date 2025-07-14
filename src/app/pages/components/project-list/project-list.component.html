@@ -91,7 +91,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let project of projects" class="align-middle" (click)="navigateToPresentation(project.id)" style="cursor: pointer;">
+          <tr *ngFor="let project of projects" class="align-middle" (click)="navigateToUpdateProject(project.id)" style="cursor: pointer;">
             <td (click)="$event.stopPropagation()">
               <input type="checkbox" class="chk" [ngModel]="selectedProjects.has(project.id)"
                 (ngModelChange)="toggleProjectSelection(project.id, $event)">
@@ -122,15 +122,15 @@
                     {{ project.status }}
                   </button>
                   <div class="dropdown-menu" [class.show]="showStatusDropdown.has(project.id)">
-                   <button class="dropdown-item" *ngFor="let status of statusOptions"
-        (click)="selectStatus(project, status, $event)">
-  {{ status }}
-</button>
+                    <button class="dropdown-item" *ngFor="let status of statusOptions"
+                      (click)="selectStatus(project, status, $event)">
+                      {{ status }}
+                    </button>
                   </div>
                 </div>
               </div>
             </td>
-            <td class="assignee-images">
+            <td class="assignee-images" (click)="$event.stopPropagation()">
               <div class="image-stack">
                 <ng-container *ngIf="getAssigneeImages(project.assignee).length > 0; else noAssigneeTemplate">
                   <ng-container *ngFor="let image of getAssigneeImages(project.assignee); let i = index">
@@ -144,7 +144,7 @@
                 </ng-template>
               </div>
             </td>
-            <td class="robotoregular txt1">
+            <td class="robotoregular txt1" (click)="navigateToPresentation(project.id); $event.stopPropagation()">
               <div class="d-flex align-items-center">
                 <span class="me-2">
                   <app-svg-icons icon="instance" size="16"></app-svg-icons>
