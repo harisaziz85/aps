@@ -49,7 +49,6 @@
           <form *ngIf="projectAttributes">
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="reportTypeCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="reportType" style="margin-bottom: 5px;">Report Type</label>
                   <select id="reportType" class="form-control" [value]="getAttributeValue('Report Type')" style="width: 100%;">
@@ -62,7 +61,6 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="subCategoryCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="subCategory" style="margin-bottom: 5px;">Sub-category</label>
                   <select id="subCategory" class="form-control" [value]="getAttributeValue('Sub-category')" style="width: 100%;">

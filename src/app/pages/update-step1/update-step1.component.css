@@ -84,3 +84,19 @@ position: absolute !important;
 top: 152px !important;
 right: 10px;
 }
+#projectName{
+  border-radius: 15px !important;
+  border: 0px !important;
+}
+.line1{
+  display: flex; align-items:center; border:1px solid #CDCCCB;
+  border-radius: 15px;
+  padding-left: 15px;
+}
+input:focus{
+  box-shadow: none !important;
+}
+select:focus{
+  box-shadow: none !important;
+
+}

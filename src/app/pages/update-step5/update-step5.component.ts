@@ -5,31 +5,32 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Modal } from 'bootstrap';
 import jsPDF from 'jspdf';
-// import { NavbarComponent } from "../components/navbar/navbar.component";
-import { PagesModule } from "../pages.module";
-import { NavbarComponent } from "../components/navbar/navbar.component";
+import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
-import { FootComponent } from "../components/foot/foot.component";
+import { FootComponent } from '../components/foot/foot.component';
 
 interface ProjectReport {
   coverLetter: {
     reportTitle: string;
+    address: string;
+    date: string;
+    buildingName: string;
+    additionalInfo: string;
+    clientName: string;
+    inspectionOverview: {
+      totalItems: string;
+      passedItems: string;
+      failedItems: string;
+      tbcItems: string;
+    };
+    fileUrl: string;
   };
-}
-
-interface CoverLetterData {
-  address: string;
-  date: string;
-  buildingName: string;
-  reportTitle: string;
-  additionalInfo: string;
-  clientName: string;
-  inspectionOverview: {
-    totalItems: string;
-    passedItems: string;
-    failedItems: string;
-    tbcItems: string;
-  };
+  _id: string;
+  projectId: string;
+  instanceId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 interface TableRow {
@@ -60,14 +61,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   projectAttributes: any = {};
   private rightModalInstance: Modal | null = null;
   selectedAttributes: { [key: string]: boolean } = {};
-  coverLetterData: CoverLetterData = {
+  coverLetterData: ProjectReport['coverLetter'] = {
     address: 'N/A',
     date: new Date().toISOString().split('T')[0],
     buildingName: 'N/A',
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'N/A',
-    inspectionOverview: { totalItems: 'N/A', passedItems: 'N/A', failedItems: 'N/A', tbcItems: 'N/A' }
+    fileUrl: 'N/A',
+    inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
   projectData: any = null;
@@ -80,7 +82,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || null;
+      this.projectId = params['id'] || '68346cc0b9c8f8893e6873b7';
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -115,6 +117,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           this.projectData = response;
+          if (response.reports?.length > 0) {
+            this.coverLetterData = response.reports[response.reports.length - 1].coverLetter;
+          }
         },
         error: (error) => {
           this.errorMessage = 'Failed to load project data. Please try again later.';
@@ -128,6 +133,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           this.reports = response.data;
+          if (this.reports.length > 0) {
+            this.coverLetterData = this.reports[this.reports.length - 1].coverLetter;
+          }
         },
         error: (error) => {
           this.errorMessage = 'Failed to load project reports. Please try again later.';
@@ -164,11 +172,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               reportTitle: response.data.coverLetter.reportTitle || 'N/A',
               additionalInfo: response.data.coverLetter.additionalInfo || 'N/A',
               clientName: response.data.coverLetter.clientName || 'N/A',
+              fileUrl: response.data.coverLetter.fileUrl || 'N/A',
               inspectionOverview: {
-                totalItems: response.data.coverLetter.inspectionOverview?.totalItems || 'N/A',
-                passedItems: response.data.coverLetter.inspectionOverview?.passedItems || 'N/A',
-                failedItems: response.data.coverLetter.inspectionOverview?.failedItems || 'N/A',
-                tbcItems: response.data.coverLetter.inspectionOverview?.tbcItems || 'N/A'
+                totalItems: response.data.coverLetter.inspectionOverview?.totalItems || '0',
+                passedItems: response.data.coverLetter.inspectionOverview?.passedItems || '0',
+                failedItems: response.data.coverLetter.inspectionOverview?.failedItems || '0',
+                tbcItems: response.data.coverLetter.inspectionOverview?.tbcItems || '0'
               }
             };
           }
@@ -236,12 +245,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     const margin = 10;
     let yOffset = 20;
     const lineHeight = 10;
-    const imageWidth = 250; // Updated image width
-    const imageHeight = 250; // Updated image height
+    const imageWidth = 80; // Adjusted from 250px
+    const imageHeight = 80; // Adjusted from 250px
     const photoImageHeight = 30;
     const baseRowHeight = 30;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+    const contentWidth = pageWidth - 2 * margin;
 
     // Add Project Name
     doc.setFont('helvetica', 'bold');
@@ -252,30 +262,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     // Add Client Name
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
-    doc.text(`Client Name: ${this.projectData?.project?.clientInfo?.name || 'N/A'}`, margin, yOffset);
+    doc.text(`Client Name: ${this.projectData?.project?.clientInfo?.name || this.coverLetterData?.clientName || 'N/A'}`, margin, yOffset);
     yOffset += lineHeight * 2;
 
-    // Add Project Image
-    if (this.projectData?.project?.imageUrl) {
-      try {
-        const imgData = await this.getImageData(this.projectData.project.imageUrl);
-        doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-        yOffset += imageHeight + lineHeight; // Move yOffset below image
-      } catch (error) {
-        console.error('Error loading project image:', error);
-        doc.setFontSize(10);
-        doc.setTextColor(255, 0, 0);
-        doc.text('Failed to load project image', margin, yOffset);
-        doc.setTextColor(0, 0, 0);
-        yOffset += lineHeight * 2;
-      }
-    } else {
-      doc.setFontSize(10);
-      doc.text('No project image available', margin, yOffset);
-      yOffset += lineHeight * 2;
-    }
-
-    // Format Address from project/download API
+    // Format Address
     const address = this.projectData?.project?.address
       ? [
           this.projectData.project.address.line1,
@@ -286,17 +276,45 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         ]
           .filter(Boolean)
           .join(', ')
-      : 'N/A';
+      : this.coverLetterData?.address || 'N/A';
 
-    // Add Address, Building Name, and Report Title
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    doc.text(`Address: ${address}`, margin, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Building Name: ${this.projectData?.project?.buildingName || 'N/A'}`, margin, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, margin, yOffset);
-    yOffset += lineHeight * 2;
+    // Add Address, Building Name, and Report Title side by side with Report Cover Image
+    if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
+      try {
+        const imgData = await this.getImageData(this.coverLetterData.fileUrl);
+        doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
+        
+        // Add text next to image
+        const textX = margin + imageWidth + 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text(`Address: ${address}`, textX, yOffset + 10);
+        doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
+        doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
+        yOffset += imageHeight + lineHeight;
+      } catch (error) {
+        console.error('Error loading report cover image:', error);
+        doc.setFontSize(10);
+        doc.setTextColor(255, 0, 0);
+        doc.text('Failed to load report cover image', margin, yOffset);
+        doc.setTextColor(0, 0, 0);
+        // Add text without image
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text(`Address: ${address}`, margin, yOffset + 10);
+        doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, margin, yOffset + 20);
+        doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, margin, yOffset + 30);
+        yOffset += imageHeight + lineHeight;
+      }
+    } else {
+      // Add text without image
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.text(`Address: ${address}`, margin, yOffset);
+      doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, margin, yOffset + 10);
+      doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, margin, yOffset + 20);
+      yOffset += 40 + lineHeight;
+    }
 
     // Add Inspection Report Overview
     doc.setFont('helvetica', 'bold');
@@ -305,13 +323,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     yOffset += lineHeight;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
-    doc.text(`Number of Items: ${this.coverLetterData?.inspectionOverview?.totalItems || 'N/A'}`, margin, yOffset);
+    doc.text(`Number of Items: ${this.coverLetterData?.inspectionOverview?.totalItems || '0'}`, margin, yOffset);
     yOffset += lineHeight;
-    doc.text(`Number of PASS: ${this.coverLetterData?.inspectionOverview?.passedItems || 'N/A'}`, margin, yOffset);
+    doc.text(`Number of PASS: ${this.coverLetterData?.inspectionOverview?.passedItems || '0'}`, margin, yOffset);
     yOffset += lineHeight;
-    doc.text(`Number of FAIL: ${this.coverLetterData?.inspectionOverview?.failedItems || 'N/A'}`, margin, yOffset);
+    doc.text(`Number of FAIL: ${this.coverLetterData?.inspectionOverview?.failedItems || '0'}`, margin, yOffset);
     yOffset += lineHeight;
-    doc.text(`Number of TBC: ${this.coverLetterData?.inspectionOverview?.tbcItems || 'N/A'}`, margin, yOffset);
+    doc.text(`Number of TBC: ${this.coverLetterData?.inspectionOverview?.tbcItems || '0'}`, margin, yOffset);
     yOffset += lineHeight * 2;
 
     // Add Additional Information Box
@@ -319,9 +337,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     doc.setFontSize(12);
     doc.text('Additional Information:', margin, yOffset);
     yOffset += lineHeight;
-
-    // Draw a bordered box for additionalInfo
-    const boxWidth = pageWidth - 2 * margin;
+    const boxWidth = contentWidth;
     const additionalInfo = this.coverLetterData?.additionalInfo || 'N/A';
     const textLines = doc.splitTextToSize(additionalInfo, boxWidth - 10);
     const textHeight = textLines.length * lineHeight;
@@ -333,32 +349,38 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     doc.text(textLines, margin + 5, yOffset + 8);
     yOffset += boxHeight + lineHeight;
 
-    // Add Hierarchy Document Images
+    // Add Hierarchy Document Images (100% width)
     if (this.projectData?.documents?.length > 0) {
       for (const docItem of this.projectData.documents) {
         if (docItem.files?.length > 0) {
           for (const file of docItem.files) {
-            // Start a new page for each image
-            doc.addPage();
-            yOffset = 20;
+            if (yOffset + imageHeight + lineHeight > pageHeight - margin) {
+              doc.addPage();
+              yOffset = 20;
+            }
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(12);
             doc.text(`Document Image: ${file.documentName || 'N/A'}`, margin, yOffset);
             yOffset += lineHeight;
             try {
               const imgData = await this.getImageData(file.documentUrl);
-              doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
+              doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, imageHeight);
+              yOffset += imageHeight + lineHeight;
             } catch (error) {
               console.error(`Error loading document image ${file.documentName}:`, error);
               doc.setFontSize(10);
               doc.setTextColor(255, 0, 0);
               doc.text(`Failed to load document image: ${file.documentName || 'N/A'}`, margin, yOffset);
               doc.setTextColor(0, 0, 0);
+              yOffset += lineHeight * 2;
             }
-            yOffset += imageHeight + lineHeight;
           }
         }
       }
+    } else {
+      doc.setFontSize(10);
+      doc.text('No document images available', margin, yOffset);
+      yOffset += lineHeight * 2;
     }
 
     // Add Attributes Table
@@ -367,9 +389,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       yOffset = 20;
     }
 
-    // Define table structure
     const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
-    const columnWidths = [20, 20, 30, 20, 20, 20, 20, 30, 30];
+    const columnWidths = [20, 30, 30, 20, 20, 20, 20, 30, 30];
     const tableX = margin;
     const headerHeight = 10;
     const tableStartY = yOffset;
@@ -386,20 +407,20 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     });
     yOffset += headerHeight + 2;
 
-    // Prepare table data from instances
+    // Prepare table data from instances or fallback to standardAttributes
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.projectData?.instances?.length > 0) {
       for (const instance of this.projectData.instances) {
         const row: TableRow = {
           'Ref No': index.toString(),
-          'Location': instance.hierarchyName || 'N/A',
+          'Location': instance.hierarchyName || this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
           'Plan': 'N/A',
-          'Type': instance.subProjectCategory || 'N/A',
+          'Type': instance.subProjectCategory || this.projectData?.project?.subProjects?.join(', ') || 'N/A',
           'Substrate': 'N/A',
           'FRL': 'N/A',
           'Result': 'N/A',
-          'Photos': 'N/A',
+          'Photos': instance.photos?.length > 0 ? `${instance.photos.length} photo(s)` : 'N/A',
           'Comments': 'N/A'
         };
         if (instance.attributes) {
@@ -413,6 +434,18 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         tableData.push(row);
         index++;
       }
+    } else {
+      tableData.push({
+        'Ref No': '1',
+        'Location': this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
+        'Plan': 'N/A',
+        'Type': this.projectData?.project?.subProjects?.join(', ') || 'N/A',
+        'Substrate': this.getAttributeValue('Materials'),
+        'FRL': this.getAttributeValue('FRL'),
+        'Result': this.getAttributeValue('Compliance'),
+        'Photos': 'N/A',
+        'Comments': this.getAttributeValue('Comments')
+      });
     }
 
     // Draw table rows
@@ -420,7 +453,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     doc.setFontSize(8);
     let tableEndY = yOffset;
     for (const row of tableData) {
-      const instance = this.projectData.instances[index - 2];
+      const instance = this.projectData?.instances?.[index - 2] || {};
       const photoCount = instance.photos?.length || 0;
       const rowHeight = baseRowHeight + (photoCount * photoImageHeight);
 
