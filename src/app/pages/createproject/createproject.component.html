@@ -140,14 +140,14 @@
     </div>
   </div>
   <!-- Tags -->
-  <div class="tags-container mt-2">
-    <span class="tags robotoregular" *ngFor="let tag of addedTags; let i = index">
-      {{ tag }}
-      <button class="remove-tag" type="button" (click)="removeTag(i, $event)">
-        <app-svg-icons icon="tag" size="16"></app-svg-icons>
-      </button>
-    </span>
-  </div>
+ <div class="tags-container mt-2">
+  <span class="tags robotoregular" *ngFor="let tag of addedTags; let i = index">
+    {{ tag }}
+    <button class="remove-tag" type="button" (click)="removeTag(i, $event)">
+      <app-svg-icons icon="tag" size="16"></app-svg-icons>
+    </button>
+  </span>
+</div>
 </div>
             </div>
           </div>
@@ -379,17 +379,17 @@
         <div class="row">
           <div class="col-6">
             <label for="productId" class="robotoregular txt mb">Product ID <span class="star">*</span></label>
-            <div class="form-group position-relative">
-              <select class="form-control custom-select-icon" id="productId" [(ngModel)]="productId" (change)="onProductChange()">
-                <option value="" disabled selected>Select a product</option>
-                <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
-              </select>
-              <span class="dropdown-icon">
-                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
+           <div class="form-group position-relative">
+  <select class="form-control custom-select-icon" id="productId" [(ngModel)]="productId" (change)="onProductChange()" style="border-radius: 10px; border: 1px solid #ccc; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+    <option value="" disabled selected>Select a product</option>
+    <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
+  </select>
+  <span class="dropdown-icon">
+    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </span>
+</div>
           </div>
           <div class="col-6">
             <label for="approvalDocuments" class="robotoregular txt mb">Approval Documents <span class="star">*</span></label>

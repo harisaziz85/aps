@@ -79,3 +79,8 @@ select{
    height: 48px !important;
   border-radius: 15px !important;
 }
+.bts1{
+position: absolute !important;
+top: 152px !important;
+right: 10px;
+}

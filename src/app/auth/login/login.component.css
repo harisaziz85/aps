@@ -8,6 +8,15 @@ body {
   flex-direction: column;
   justify-content: center;
 }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: inherit !important; /* Keeps the text color as per your design */
+  background-color: transparent !important; /* Ensures background is transparent */
+  transition: background-color 5000s ease-in-out 0s; /* Prevents abrupt changes */
+}
 .chk1{
   width: 20px;
   height: 20px;

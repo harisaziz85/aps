@@ -179,9 +179,7 @@
                 </button>
                 <div class="dropdown-content1 d-flex align-items-center" *ngIf="showDropdownIndex === i">
                   <div>
-                    <a (click)="navigateToUpdate(project.id, $event)">
-                      <app-svg-icons icon="edit" size="16"></app-svg-icons>
-                      Edit</a><br>
+                    
                     <a (click)="openModal('Archive', project, $event)">
                       <app-svg-icons icon="archive" size="16"></app-svg-icons>
                       Archive</a><br>

@@ -70,3 +70,12 @@
 .btn:hover {
   opacity: 0.9;
 }
+.bts1{
+position: absolute !important;
+top: 152px !important;
+right: 24px;
+height: 56px;
+border-radius: 20px !important;
+padding-left: 16px !important;
+padding-right: 16px !important;
+}

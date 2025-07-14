@@ -4,8 +4,11 @@
   <app-navbar/>
   <div *ngIf="projectId">
    
-
+<div class="d-flex align-items-center justify-content-between mb-4">
     <h3>Project Reports</h3>
+
+   <button type="button" class="btn me-4" style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="openRightModal()">Report</button>
+</div>
     <div *ngIf="reports.length > 0; else noReports" class="report-cards">
       <div class="card col-2" *ngFor="let report of reports">
         <div class="card-body text-center">
@@ -25,8 +28,8 @@
     </ng-template>
 
     <div class="button-group">
-      <button type="button" class="btn" style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="goToStep4()">Back</button>
-      <button type="button" class="btn ms-2 " style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="openRightModal()">Report</button>
+  
+     
     </div>
   </div>
   <div *ngIf="!projectId">

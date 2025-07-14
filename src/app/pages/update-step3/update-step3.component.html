@@ -33,11 +33,12 @@
             <ng-template #noLevels>
               <p>No hierarchy levels available.</p>
             </ng-template>
-            <button type="button" class="btn" style="margin-top: 15px; background:black;color:white;border-radius:10px" (click)="addHierarchyLevel()">Add Hierarchy Level</button>
+            <div class="text-center">
+            <button type="button" class="btn" style="margin-top: 25px; background:black;color:white;border-radius:20px;  height:56px" (click)="addHierarchyLevel()">Add Hierarchy Level</button></div>
           </ng-template>
           <div class="button-group" style="margin-top: 24px;">
-            <button type="button" class="btn btn-secondary" (click)="goToStep3()">Back</button>
-            <button type="button" class="btn btn-dark" style="border-radius: 10px; background:black" (click)="saveAndNext()">Save and Next</button>
+         
+            
           </div>
         </div>
         <div *ngIf="!projectId">
@@ -59,5 +60,6 @@
         <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
     </div>
   </div>
+  <button type="button" class="btn btn-dark bts1" style="border-radius: 10px; background:black" (click)="saveAndNext()">Save and Next</button>
 </div>
 <app-foot/>
