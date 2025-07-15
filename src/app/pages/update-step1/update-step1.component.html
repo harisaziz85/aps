@@ -20,26 +20,27 @@
           <div class="row">
             <div class="col-6 form-group">
               <label for="projectName" class="onestregular">Project Name:</label>
-              <div class="line1"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div class="line1">
+               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.75 8.75C3.171 9.366 5.716 10.253 9 10.253C12.284 10.253 14.829 9.366 16.25 8.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M9 9.25V11.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M6.25 4.75V2.25C6.25 1.698 6.698 1.25 7.25 1.25H10.75C11.302 1.25 11.75 1.698 11.75 2.25V4.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M14.25 4.75H3.75C2.64543 4.75 1.75 5.64543 1.75 6.75V13.25C1.75 14.3546 2.64543 15.25 3.75 15.25H14.25C15.3546 15.25 16.25 14.3546 16.25 13.25V6.75C16.25 5.64543 15.3546 4.75 14.25 4.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-<input 
-                type="text" 
-                id="projectName" 
-                class="cl11"
-                class="form-control"
-                [(ngModel)]="projectData.projectName" 
-                name="projectName"
-                placeholder="Enter project name">
-</div>
-              
+
+                <input 
+                  type="text" 
+                  id="projectName" 
+                  class="cl11 form-control"
+                  [(ngModel)]="projectData.projectName" 
+                  name="projectName"
+                  placeholder="Enter project name">
+              </div>
             </div>
             <div class="col-6 form-group">
               <label for="buildingName">Building Name:</label>
-              <div class="line1"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div class="line1">
+               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M9 7.25V6.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M6.25 7.25V6.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M11.75 7.25V6.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -50,38 +51,38 @@
 <path d="M16.25 16.25H1.75" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M3.25 16.25V4.88002C3.25 4.49502 3.471 4.14402 3.819 3.97802L8.569 1.70602C8.842 1.57602 9.159 1.57602 9.432 1.70602L14.182 3.97802C14.529 4.14402 14.751 4.49502 14.751 4.88002V16.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
- <input 
-                type="text" 
-                id="buildingName" 
-                style="border: 0px;"
-                class="form-control"
-                [(ngModel)]="projectData.buildingName" 
-                name="buildingName"
-                placeholder="Enter building name">
-</div>
-             
+
+                <input 
+                  type="text" 
+                  id="buildingName" 
+                  style="border: 0px;"
+                  class="form-control"
+                  [(ngModel)]="projectData.buildingName" 
+                  name="buildingName"
+                  placeholder="Enter building name">
+              </div>
             </div>
           </div>
           <div class="row">
             <div class="col-6 form-group">
               <label for="subProjects">Sub Projects:</label>
-              <div class="line1">
+              <div class="line1 dropdown-container" #dropdownContainer (click)="toggleDropdown('subProjects', $event)" [class.active]="dropdownOpen['subProjects']">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M9 2.75V15.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M15.25 9H9" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M13.25 2.75H4.75C3.64543 2.75 2.75 3.64543 2.75 4.75V13.25C2.75 14.3546 3.64543 15.25 4.75 15.25H13.25C14.3546 15.25 15.25 14.3546 15.25 13.25V4.75C15.25 3.64543 14.3546 2.75 13.25 2.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-<select 
-                id="subProjects" 
-                class="form-control"
-                [(ngModel)]="selectedSubProject" 
-                style="border: 0px ;"
-                name="subProjects">
-                <option *ngFor="let subProject of projectData.subProjects" [value]="subProject">{{ subProject }}</option>
-              </select>
 
+                <span class="dropdown-selected-text">{{ selectedSubProject || 'Select sub project' }}</span>
+                <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L1 4L11 4L6 9Z" fill="#0F0F0F"/>
+                </svg>
+                <div class="dropdown-options" *ngIf="dropdownOpen['subProjects']">
+                  <div class="option" *ngFor="let option of projectData.subProjects" (click)="selectOption('subProjects', option, $event)">
+                    {{ option }}
+                  </div>
+                </div>
               </div>
-              
             </div>
           </div>
         </div>
@@ -93,57 +94,90 @@
           <div class="row">
             <div class="col-6 form-group">
               <label for="addressLine1">Address Line 1:</label>
-              <input 
-                type="text" 
-                id="addressLine1" 
-                class="form-control"
-                [(ngModel)]="projectData.address.line1" 
-                name="addressLine1"
-                placeholder="Enter address line 1">
+              <div class="line1">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.7797 7.266C14.7797 9.888 11.3517 14.099 9.7757 15.897C9.3627 16.368 8.6367 16.368 8.2247 15.897C6.6487 14.1 3.2207 9.889 3.2207 7.266C3.2217 3.776 6.2077 1.75 9.0007 1.75C11.7937 1.75 14.7797 3.776 14.7797 7.266Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 9.25C9.9665 9.25 10.75 8.4665 10.75 7.5C10.75 6.5335 9.9665 5.75 9 5.75C8.0335 5.75 7.25 6.5335 7.25 7.5C7.25 8.4665 8.0335 9.25 9 9.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input 
+                  type="text" 
+                  id="addressLine1" 
+                  class="form-control"
+                  [(ngModel)]="projectData.address.line1" 
+                  name="addressLine1"
+                  placeholder="Enter address line 1">
+              </div>
             </div>
             <div class="col-6 form-group">
               <label for="addressLine2">Address Line 2:</label>
-              <input 
-                type="text" 
-                id="addressLine2" 
-                class="form-control"
-                [(ngModel)]="projectData.address.line2" 
-                name="addressLine2"
-                placeholder="Enter address line 2">
+              <div class="line1">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.7797 7.266C14.7797 9.888 11.3517 14.099 9.7757 15.897C9.3627 16.368 8.6367 16.368 8.2247 15.897C6.6487 14.1 3.2207 9.889 3.2207 7.266C3.2217 3.776 6.2077 1.75 9.0007 1.75C11.7937 1.75 14.7797 3.776 14.7797 7.266Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 9.25C9.9665 9.25 10.75 8.4665 10.75 7.5C10.75 6.5335 9.9665 5.75 9 5.75C8.0335 5.75 7.25 6.5335 7.25 7.5C7.25 8.4665 8.0335 9.25 9 9.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input 
+                  type="text" 
+                  id="addressLine2" 
+                  class="form-control"
+                  [(ngModel)]="projectData.address.line2" 
+                  name="addressLine2"
+                  placeholder="Enter address line 2">
+              </div>
             </div>
           </div>
           <div class="row">
             <div class="col-6 form-group">
               <label for="city">City:</label>
-              <input 
-                type="text" 
-                id="city" 
-                class="form-control"
-                [(ngModel)]="projectData.address.city" 
-                name="city"
-                placeholder="Enter city">
+              <div class="line1">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.7797 7.266C14.7797 9.888 11.3517 14.099 9.7757 15.897C9.3627 16.368 8.6367 16.368 8.2247 15.897C6.6487 14.1 3.2207 9.889 3.2207 7.266C3.2217 3.776 6.2077 1.75 9.0007 1.75C11.7937 1.75 14.7797 3.776 14.7797 7.266Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 9.25C9.9665 9.25 10.75 8.4665 10.75 7.5C10.75 6.5335 9.9665 5.75 9 5.75C8.0335 5.75 7.25 6.5335 7.25 7.5C7.25 8.4665 8.0335 9.25 9 9.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input 
+                  type="text" 
+                  id="city" 
+                  class="form-control"
+                  [(ngModel)]="projectData.address.city" 
+                  name="city"
+                  placeholder="Enter city">
+              </div>
             </div>
             <div class="col-6 form-group">
               <label for="state">State:</label>
-              <input 
-                type="text" 
-                id="state" 
-                class="form-control"
-                [(ngModel)]="projectData.address.state" 
-                name="state"
-                placeholder="Enter state">
+              <div class="line1">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14.7797 7.266C14.7797 9.888 11.3517 14.099 9.7757 15.897C9.3627 16.368 8.6367 16.368 8.2247 15.897C6.6487 14.1 3.2207 9.889 3.2207 7.266C3.2217 3.776 6.2077 1.75 9.0007 1.75C11.7937 1.75 14.7797 3.776 14.7797 7.266Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 9.25C9.9665 9.25 10.75 8.4665 10.75 7.5C10.75 6.5335 9.9665 5.75 9 5.75C8.0335 5.75 7.25 6.5335 7.25 7.5C7.25 8.4665 8.0335 9.25 9 9.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input 
+                  type="text" 
+                  id="state" 
+                  class="form-control"
+                  [(ngModel)]="projectData.address.state" 
+                  name="state"
+                  placeholder="Enter state">
+              </div>
             </div>
           </div>
           <div class="row">
             <div class="col-6 form-group">
               <label for="zip">Zip:</label>
-              <input 
-                type="text" 
-                id="zip" 
-                class="form-control"
-                [(ngModel)]="projectData.address.zip" 
-                name="zip"
-                placeholder="Enter zip code">
+              <div class="line1">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M3.75 6.25H15.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2.75 11.75H14.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.63306 2.75L5.28906 15.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.7112 2.75L10.3672 15.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+                <input 
+                  type="text" 
+                  id="zip" 
+                  class="form-control"
+                  [(ngModel)]="projectData.address.zip" 
+                  name="zip"
+                  placeholder="Enter zip code">
+              </div>
             </div>
           </div>
         </div>
@@ -155,26 +189,46 @@
           <div class="row">
             <div class="col-6 form-group">
               <label for="projectStatus">Project Status:</label>
-              <select 
-                id="projectStatus" 
-                class="form-control"
-                [(ngModel)]="projectData.projectAdministration.projectStatus" 
-                name="projectStatus">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="Completed">Completed</option>
-              </select>
+              <div class="line1 dropdown-container" #dropdownContainer (click)="toggleDropdown('projectStatus', $event)" [class.active]="dropdownOpen['projectStatus']">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M16.1354 8.49998C15.7774 8.49998 15.4614 8.24298 15.3974 7.87898C14.9294 5.19198 12.8094 3.07198 10.1234 2.60398C9.71544 2.53298 9.44144 2.14498 9.51344 1.73698C9.58444 1.32898 9.97144 1.05398 10.3814 1.12698C13.6904 1.70298 16.2994 4.31298 16.8764 7.62198C16.9474 8.02998 16.6744 8.41898 16.2664 8.48998C16.2224 8.49798 16.1794 8.50098 16.1364 8.50098L16.1354 8.49998Z" fill="#0F0F0F"/>
+<path d="M10.2492 16.885C9.89123 16.885 9.57523 16.628 9.51123 16.264C9.44023 15.856 9.71323 15.467 10.1212 15.396C12.8082 14.928 14.9282 12.808 15.3962 10.122C15.4672 9.71301 15.8572 9.44001 16.2632 9.51201C16.6712 9.58301 16.9452 9.97101 16.8732 10.38C16.2972 13.689 13.6872 16.298 10.3782 16.875C10.3342 16.883 10.2912 16.886 10.2482 16.886L10.2492 16.885Z" fill="#0F0F0F"/>
+<path d="M7.75147 16.885C7.70847 16.885 7.66547 16.882 7.62147 16.874C4.31247 16.298 1.70347 13.687 1.12647 10.379C1.05547 9.971 1.32847 9.582 1.73647 9.511C2.14447 9.439 2.53247 9.713 2.60347 10.121C3.07147 12.808 5.19147 14.928 7.87747 15.396C8.28547 15.467 8.55947 15.855 8.48747 16.263C8.42447 16.628 8.10747 16.885 7.74947 16.885H7.75147Z" fill="#0F0F0F"/>
+<path d="M1.86572 8.49996C1.82272 8.49996 1.77972 8.49696 1.73672 8.48896C1.32872 8.41796 1.05472 8.02996 1.12672 7.62096C1.70272 4.31196 4.31172 1.70296 7.62072 1.12596C8.03072 1.05696 8.41672 1.32796 8.48872 1.73596C8.55972 2.14396 8.28672 2.53296 7.87872 2.60396C5.19172 3.07196 3.07172 5.19196 2.60372 7.87796C2.54072 8.24296 2.22372 8.49996 1.86572 8.49996Z" fill="#0F0F0F"/>
+<path d="M9 6.5C7.621 6.5 6.5 7.621 6.5 9C6.5 10.379 7.621 11.5 9 11.5C10.379 11.5 11.5 10.379 11.5 9C11.5 7.621 10.379 6.5 9 6.5Z" fill="#0F0F0F"/>
+</svg>
+
+                <span class="dropdown-selected-text">{{ projectData.projectAdministration.projectStatus || 'Select project status' }}</span>
+                <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L1 4L11 4L6 9Z" fill="#0F0F0F"/>
+                </svg>
+                <div class="dropdown-options" *ngIf="dropdownOpen['projectStatus']">
+                  <div class="option" *ngFor="let option of ['Active', 'Inactive', 'Completed']" (click)="selectOption('projectStatus', option, $event)">
+                    {{ option }}
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-6 form-group">
               <label for="hierarchyLevelsChange">Hierarchy Levels Change:</label>
-              <select 
-                id="hierarchyLevelsChange" 
-                class="form-control"
-                [(ngModel)]="hierarchyLevelsChangeValue" 
-                name="hierarchyLevelsChange">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
+              <div class="line1 dropdown-container" #dropdownContainer (click)="toggleDropdown('hierarchyLevelsChange', $event)" [class.active]="dropdownOpen['hierarchyLevelsChange']">
+             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.25 2.75H10.75C10.1977 2.75 9.75 3.19772 9.75 3.75V6.25C9.75 6.80228 10.1977 7.25 10.75 7.25H13.25C13.8023 7.25 14.25 6.80228 14.25 6.25V3.75C14.25 3.19772 13.8023 2.75 13.25 2.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.25 10.75H10.75C10.1977 10.75 9.75 11.1977 9.75 11.75V14.25C9.75 14.8023 10.1977 15.25 10.75 15.25H13.25C13.8023 15.25 14.25 14.8023 14.25 14.25V11.75C14.25 11.1977 13.8023 10.75 13.25 10.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.25 5.25H5.25C4.422 5.25 3.75 4.578 3.75 3.75V1.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.25 13.25H5.25C4.422 13.25 3.75 12.578 3.75 11.75V3.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+                <span class="dropdown-selected-text">{{ hierarchyLevelsChangeValue || 'Select hierarchy change' }}</span>
+                <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L1 4L11 4L6 9Z" fill="#0F0F0F"/>
+                </svg>
+                <div class="dropdown-options" *ngIf="dropdownOpen['hierarchyLevelsChange']">
+                  <div class="option" *ngFor="let option of ['Yes', 'No']" (click)="selectOption('hierarchyLevelsChange', option, $event)">
+                    {{ option }}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -189,33 +243,53 @@
           <h5 class="card-title">Subcontractor Details</h5>
           <div class="form-group">
             <label for="subcontractorName">Subcontractor Name:</label>
-            <input 
-              type="text" 
-              id="subcontractorName" 
-              class="form-control"
-              [(ngModel)]="projectData.subcontractorInfo.name" 
-              name="subcontractorName"
-              placeholder="Enter subcontractor name">
+            <div class="line1">
+             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 7.25C10.5188 7.25 11.75 6.01878 11.75 4.5C11.75 2.98122 10.5188 1.75 9 1.75C7.48122 1.75 6.25 2.98122 6.25 4.5C6.25 6.01878 7.48122 7.25 9 7.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.7624 15.516C14.6224 15.245 15.0744 14.295 14.7094 13.471C13.7394 11.28 11.5504 9.75 9.00035 9.75C6.45035 9.75 4.26135 11.28 3.29135 13.471C2.92635 14.296 3.37835 15.245 4.23835 15.516C5.46335 15.902 7.08435 16.25 9.00035 16.25C10.9164 16.25 12.5374 15.902 13.7624 15.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+              <input 
+                type="text" 
+                id="subcontractorName" 
+                class="form-control"
+                [(ngModel)]="projectData.subcontractorInfo.name" 
+                name="subcontractorName"
+                placeholder="Enter subcontractor name">
+            </div>
           </div>
           <div class="form-group">
             <label for="subcontractorContact">Subcontractor Contact Person:</label>
-            <input 
-              type="text" 
-              id="subcontractorContact" 
-              class="form-control"
-              [(ngModel)]="projectData.subcontractorInfo.contactPerson" 
-              name="subcontractorContact"
-              placeholder="Enter subcontractor contact person">
+            <div class="line1">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 7.25C10.5188 7.25 11.75 6.01878 11.75 4.5C11.75 2.98122 10.5188 1.75 9 1.75C7.48122 1.75 6.25 2.98122 6.25 4.5C6.25 6.01878 7.48122 7.25 9 7.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.7624 15.516C14.6224 15.245 15.0744 14.295 14.7094 13.471C13.7394 11.28 11.5504 9.75 9.00035 9.75C6.45035 9.75 4.26135 11.28 3.29135 13.471C2.92635 14.296 3.37835 15.245 4.23835 15.516C5.46335 15.902 7.08435 16.25 9.00035 16.25C10.9164 16.25 12.5374 15.902 13.7624 15.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+              <input 
+                type="text" 
+                id="subcontractorContact" 
+                class="form-control"
+                [(ngModel)]="projectData.subcontractorInfo.contactPerson" 
+                name="subcontractorContact"
+                placeholder="Enter subcontractor contact person">
+            </div>
           </div>
           <div class="form-group">
             <label for="subcontractorPhone">Subcontractor Phone:</label>
-            <input 
-              type="text" 
-              id="subcontractorPhone" 
-              class="form-control"
-              [(ngModel)]="projectData.subcontractorInfo.phone" 
-              name="subcontractorPhone"
-              placeholder="Enter subcontractor phone">
+            <div class="line1">
+             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.3464 10.646L10.2054 12.072C8.43836 11.033 6.96536 9.56101 5.92736 7.79401L7.35336 6.65301C7.69736 6.37801 7.81236 5.90501 7.63336 5.50301L6.33336 2.57601C6.14036 2.14201 5.66236 1.91201 5.20336 2.03101L2.72836 2.67301C2.25036 2.79801 1.94136 3.26101 2.00936 3.75001C2.90136 10.104 7.89536 15.098 14.2504 15.991C14.7394 16.058 15.2024 15.749 15.3264 15.272L15.9684 12.797C16.0874 12.338 15.8574 11.861 15.4244 11.668L12.4974 10.368C12.0954 10.189 11.6234 10.304 11.3474 10.647L11.3464 10.646Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+              <input 
+                type="text" 
+                id="subcontractorPhone" 
+                class="form-control"
+                [(ngModel)]="projectData.subcontractorInfo.phone" 
+                name="subcontractorPhone"
+                placeholder="Enter subcontractor phone">
+            </div>
           </div>
         </div>
       </div>
@@ -225,33 +299,55 @@
           <h5 class="card-title">Client Details</h5>
           <div class="form-group">
             <label for="clientName">Client Name:</label>
-            <select 
-              id="clientName" 
-              class="form-control"
-              [(ngModel)]="projectData.clientInfo.name" 
-              name="clientName">
-              <option *ngFor="let client of clientNames" [value]="client">{{ client }}</option>
-            </select>
+            <div class="line1 dropdown-container" #dropdownContainer (click)="toggleDropdown('clientName', $event)" [class.active]="dropdownOpen['clientName']">
+             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 7.25C10.5188 7.25 11.75 6.01878 11.75 4.5C11.75 2.98122 10.5188 1.75 9 1.75C7.48122 1.75 6.25 2.98122 6.25 4.5C6.25 6.01878 7.48122 7.25 9 7.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.7624 15.516C14.6224 15.245 15.0744 14.295 14.7094 13.471C13.7394 11.28 11.5504 9.75 9.00035 9.75C6.45035 9.75 4.26135 11.28 3.29135 13.471C2.92635 14.296 3.37835 15.245 4.23835 15.516C5.46335 15.902 7.08435 16.25 9.00035 16.25C10.9164 16.25 12.5374 15.902 13.7624 15.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+              <span class="dropdown-selected-text">{{ projectData.clientInfo.name || 'Select client' }}</span>
+              <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 9L1 4L11 4L6 9Z" fill="#0F0F0F"/>
+              </svg>
+              <div class="dropdown-options" *ngIf="dropdownOpen['clientName']">
+                <div class="option" *ngFor="let option of clientNames" (click)="selectOption('clientName', option, $event)">
+                  {{ option }}
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label for="clientContact">Client Contact Person:</label>
-            <input 
-              type="text" 
-              id="clientContact" 
-              class="form-control"
-              [(ngModel)]="projectData.clientInfo.contactPerson" 
-              name="clientContact"
-              placeholder="Enter client contact person">
+            <div class="line1">
+             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 7.25C10.5188 7.25 11.75 6.01878 11.75 4.5C11.75 2.98122 10.5188 1.75 9 1.75C7.48122 1.75 6.25 2.98122 6.25 4.5C6.25 6.01878 7.48122 7.25 9 7.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.7624 15.516C14.6224 15.245 15.0744 14.295 14.7094 13.471C13.7394 11.28 11.5504 9.75 9.00035 9.75C6.45035 9.75 4.26135 11.28 3.29135 13.471C2.92635 14.296 3.37835 15.245 4.23835 15.516C5.46335 15.902 7.08435 16.25 9.00035 16.25C10.9164 16.25 12.5374 15.902 13.7624 15.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+              <input 
+                type="text" 
+                id="clientContact" 
+                class="form-control"
+                [(ngModel)]="projectData.clientInfo.contactPerson" 
+                name="clientContact"
+                placeholder="Enter client contact person">
+            </div>
           </div>
           <div class="form-group">
             <label for="clientPhone">Client Phone:</label>
-            <input 
-              type="text" 
-              id="clientPhone" 
-              class="form-control"
-              [(ngModel)]="projectData.clientInfo.phone" 
-              name="clientPhone"
-              placeholder="Enter client phone">
+            <div class="line1">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.3464 10.646L10.2054 12.072C8.43836 11.033 6.96536 9.56101 5.92736 7.79401L7.35336 6.65301C7.69736 6.37801 7.81236 5.90501 7.63336 5.50301L6.33336 2.57601C6.14036 2.14201 5.66236 1.91201 5.20336 2.03101L2.72836 2.67301C2.25036 2.79801 1.94136 3.26101 2.00936 3.75001C2.90136 10.104 7.89536 15.098 14.2504 15.991C14.7394 16.058 15.2024 15.749 15.3264 15.272L15.9684 12.797C16.0874 12.338 15.8574 11.861 15.4244 11.668L12.4974 10.368C12.0954 10.189 11.6234 10.304 11.3474 10.647L11.3464 10.646Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+              <input 
+                type="text" 
+                id="clientPhone" 
+                class="form-control"
+                [(ngModel)]="projectData.clientInfo.phone" 
+                name="clientPhone"
+                placeholder="Enter client phone">
+            </div>
           </div>
         </div>
       </div>
@@ -259,11 +355,10 @@
   </div>
 
   <!-- Buttons -->
- 
-      <button type="button" class="btn btn-primary bts1" (click)="saveAndNext()">Save and Next</button>
-   
+  <button type="button" class="btn btn-primary bts1" (click)="saveAndNext()">Save and Next</button>
 
   <div *ngIf="!projectId">
     <p>No project ID provided</p>
   </div>
-</div><app-foot/>
+</div>
+<app-foot/>

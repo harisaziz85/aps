@@ -41,7 +41,7 @@ interface TableRow {
   Substrate: string;
   FRL: string;
   Result: string;
-  Photos: string;
+  Photos: string[];
   Comments: string;
 }
 
@@ -62,13 +62,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   private rightModalInstance: Modal | null = null;
   selectedAttributes: { [key: string]: boolean } = {};
   coverLetterData: ProjectReport['coverLetter'] = {
-    address: 'N/A',
+    address: '123 Main St, Suite 200, New York, NY, 10001',
     date: new Date().toISOString().split('T')[0],
-    buildingName: 'N/A',
+    buildingName: 'Tower A',
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
-    clientName: 'N/A',
-    fileUrl: 'N/A',
+    clientName: 'Mehtab',
+    fileUrl: 'http://95.111.223.104:8000/uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -82,7 +82,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || '68346cc0b9c8f8893e6873b7';
+      this.projectId = params['id'] || '6876470af2107c98777291b0';
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -104,11 +104,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.rightModal) {
+    if (this.rightModal?.nativeElement) {
       this.rightModalInstance = new Modal(this.rightModal.nativeElement, { backdrop: 'static', keyboard: false });
       if (this.isModalOpen) {
         this.openRightModal();
       }
+    } else {
+      console.error('Right modal element not found');
     }
   }
 
@@ -116,14 +118,16 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     this.http.get<any>(`https://aspbackend-production.up.railway.app/api/project/download/${projectId}`)
       .subscribe({
         next: (response) => {
-          this.projectData = response;
-          if (response.reports?.length > 0) {
-            this.coverLetterData = response.reports[response.reports.length - 1].coverLetter;
+          if (response) {
+            this.projectData = response;
+            if (response.reports?.length > 0) {
+              this.coverLetterData = response.reports[response.reports.length - 1].coverLetter || this.coverLetterData;
+            }
           }
         },
-        error: (error) => {
+        error: (err) => {
           this.errorMessage = 'Failed to load project data. Please try again later.';
-          console.error('Error fetching project data:', error);
+          console.error('Error fetching project data:', err);
         }
       });
   }
@@ -132,14 +136,16 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     this.http.get<{ data: ProjectReport[] }>(`https://vps.allpassiveservices.com.au/api/project/reports/${projectId}`)
       .subscribe({
         next: (response) => {
-          this.reports = response.data;
-          if (this.reports.length > 0) {
-            this.coverLetterData = this.reports[this.reports.length - 1].coverLetter;
+          if (response?.data) {
+            this.reports = response.data;
+            if (this.reports.length > 0) {
+              this.coverLetterData = this.reports[this.reports.length - 1].coverLetter || this.coverLetterData;
+            }
           }
         },
-        error: (error) => {
+        error: (err) => {
           this.errorMessage = 'Failed to load project reports. Please try again later.';
-          console.error('Error fetching reports:', error);
+          console.error('Error fetching reports:', err);
         }
       });
   }
@@ -148,14 +154,16 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     this.http.get<any>(`https://vps.allpassiveservices.com.au/api/project/attributes/${projectId}`)
       .subscribe({
         next: (response) => {
-          this.projectAttributes = response.data;
-          ['Report Type', 'Sub-category', 'Penetration', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference', 'Location', 'FRL', 'Barrier', 'Description', 'Date', 'Installer', 'Inspector', 'Safety Measures', 'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Price', 'Report Data', 'Report Attachment', 'Separate Report', 'Email Notification', 'Cover Letter', 'Sticker No', 'Test ID', 'Service'].forEach(field => {
-            this.selectedAttributes[field] = false;
-          });
+          if (response?.data) {
+            this.projectAttributes = response.data;
+            ['Report Type', 'Sub-category', 'Penetration', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference', 'Location', 'FRL', 'Barrier', 'Description', 'Date', 'Installer', 'Inspector', 'Safety Measures', 'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Price', 'Report Data', 'Report Attachment', 'Separate Report', 'Email Notification', 'Cover Letter', 'Sticker No', 'Test ID', 'Service'].forEach(field => {
+              this.selectedAttributes[field] = false;
+            });
+          }
         },
-        error: (error) => {
+        error: (err) => {
           this.errorMessage = 'Failed to load project attributes. Please try again later.';
-          console.error('Error fetching attributes:', error);
+          console.error('Error fetching attributes:', err);
         }
       });
   }
@@ -164,15 +172,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     this.http.get<any>(`https://vps.allpassiveservices.com.au/api/project/coverletter/${projectId}`)
       .subscribe({
         next: (response) => {
-          if (response.data?.coverLetter) {
+          if (response?.data?.coverLetter) {
             this.coverLetterData = {
-              address: response.data.coverLetter.address || 'N/A',
+              address: response.data.coverLetter.address || '123 Main St, Suite 200, New York, NY, 10001',
               date: response.data.coverLetter.date || new Date().toISOString().split('T')[0],
-              buildingName: response.data.coverLetter.buildingName || 'N/A',
+              buildingName: response.data.coverLetter.buildingName || 'Tower A',
               reportTitle: response.data.coverLetter.reportTitle || 'N/A',
               additionalInfo: response.data.coverLetter.additionalInfo || 'N/A',
-              clientName: response.data.coverLetter.clientName || 'N/A',
-              fileUrl: response.data.coverLetter.fileUrl || 'N/A',
+              clientName: response.data.coverLetter.clientName || 'Mehtab',
+              fileUrl: response.data.coverLetter.fileUrl || 'http://95.111.223.104:8000/uploads/1752585290123-129536.jpg',
               inspectionOverview: {
                 totalItems: response.data.coverLetter.inspectionOverview?.totalItems || '0',
                 passedItems: response.data.coverLetter.inspectionOverview?.passedItems || '0',
@@ -182,8 +190,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             };
           }
         },
-        error: (error) => {
-          console.error('Error fetching cover letter data:', error);
+        error: (err) => {
+          console.error('Error fetching cover letter data:', err);
         }
       });
   }
@@ -241,131 +249,193 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   async generateReport() {
-    const doc = new jsPDF();
+    // Constants for layout
     const margin = 10;
-    let yOffset = 20;
     const lineHeight = 10;
-    const imageWidth = 80; // Adjusted from 250px
-    const imageHeight = 80; // Adjusted from 250px
-    const photoImageHeight = 30;
-    const baseRowHeight = 30;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+    const imageWidth = 52.92; // 200px ≈ 52.92mm
+    const imageHeight = 52.92; // 200px ≈ 52.92mm
+    const docImageHeight = 132.29; // 500px ≈ 132.29mm
+    const photoImageHeight = 30; // Height for photos in table
+    const baseRowHeight = 30; // Minimum row height
+    const pageWidth = 297; // A3 width (mm)
+    const pageHeight = 420; // A3 height (mm)
     const contentWidth = pageWidth - 2 * margin;
+    const bottomMargin = 40;
+    const logoWidth = 40;
+    const logoHeight = 20;
+    const textMargin = 7.94; // 30px ≈ 7.94mm
+    const clientNameMarginBottom = 10.58; // 40px ≈ 10.58mm
+    const headerHeight = 10;
+    const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
+    const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42]; // Total: 277
+
+    // Initialize PDF with A3 size
+    const doc = new jsPDF({ format: 'a3' });
+    let yOffset = margin;
+    const maxContentHeight = pageHeight - margin - bottomMargin;
+
+    // Helper function to check and add new page if needed
+    const checkPageBreak = (requiredHeight: number) => {
+      if (yOffset + requiredHeight > maxContentHeight) {
+        doc.addPage();
+        yOffset = margin;
+        return true;
+      }
+      return false;
+    };
+
+    // Add Logo
+    try {
+      const logoUrl = '/images/logo.png';
+      const logoData = await this.getImageData(logoUrl);
+      const logoX = pageWidth - margin - logoWidth;
+      checkPageBreak(logoHeight + lineHeight);
+      doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
+      yOffset += logoHeight + lineHeight;
+    } catch (error) {
+      console.error('Error loading logo image:', error);
+      checkPageBreak(lineHeight * 2);
+      doc.setFontSize(10);
+      doc.setTextColor(255, 0, 0);
+      doc.text('Failed to load logo image', pageWidth - margin - 40, yOffset + 10);
+      doc.setTextColor(0, 0, 0);
+      yOffset += logoHeight + lineHeight;
+    }
 
     // Add Project Name
+    checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.text(`Project Name: ${this.projectData?.project?.projectName || 'N/A'}`, margin, yOffset);
-    yOffset += lineHeight * 2;
+    yOffset += lineHeight;
 
     // Add Client Name
-    doc.setFont('helvetica', 'normal');
+    checkPageBreak(lineHeight + clientNameMarginBottom);
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text(`Client Name: ${this.projectData?.project?.clientInfo?.name || this.coverLetterData?.clientName || 'N/A'}`, margin, yOffset);
-    yOffset += lineHeight * 2;
+    yOffset += lineHeight + clientNameMarginBottom;
 
-    // Format Address
-    const address = this.projectData?.project?.address
-      ? [
-          this.projectData.project.address.line1,
-          this.projectData.project.address.line2,
-          this.projectData.project.address.city,
-          this.projectData.project.address.state,
-          this.projectData.project.address.zip
-        ]
-          .filter(Boolean)
-          .join(', ')
-      : this.coverLetterData?.address || 'N/A';
-
-    // Add Address, Building Name, and Report Title side by side with Report Cover Image
+    // Add Project Image and Text
+    const textX = 105.6; // 400px ≈ 105.6mm
+    checkPageBreak(lineHeight + imageHeight + lineHeight);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Site Logo : ', margin, yOffset);
+    yOffset += lineHeight;
     if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
       try {
         const imgData = await this.getImageData(this.coverLetterData.fileUrl);
         doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-        
-        // Add text next to image
-        const textX = margin + imageWidth + 10;
-        doc.setFont('helvetica', 'normal');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text(`Address: ${address}`, textX, yOffset + 10);
-        doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
-        doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
+        doc.text('Address:', textX, yOffset + 10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX + 30, yOffset + 10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Building Name', textX, yOffset + 20);
+        doc.text(':', textX + 30, yOffset + 20);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX + 32.64, yOffset + 20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Report Title:', textX, yOffset + 30);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${this.coverLetterData?.reportTitle || 'N/A'}`, textX + 30, yOffset + 30);
         yOffset += imageHeight + lineHeight;
       } catch (error) {
-        console.error('Error loading report cover image:', error);
+        console.error('Error loading project image:', error);
         doc.setFontSize(10);
         doc.setTextColor(255, 0, 0);
-        doc.text('Failed to load report cover image', margin, yOffset);
+        doc.text('Failed to load project image', margin, yOffset);
         doc.setTextColor(0, 0, 0);
-        // Add text without image
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.text(`Address: ${address}`, margin, yOffset + 10);
-        doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, margin, yOffset + 20);
-        doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, margin, yOffset + 30);
+        doc.text(`Address: ${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
+        doc.text(`Building Name   : ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
+        doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
         yOffset += imageHeight + lineHeight;
       }
     } else {
-      // Add text without image
+      doc.setFontSize(10);
+      doc.text('No project image available', margin, yOffset);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
-      doc.text(`Address: ${address}`, margin, yOffset);
-      doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, margin, yOffset + 10);
-      doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, margin, yOffset + 20);
-      yOffset += 40 + lineHeight;
+      doc.text(`Address: ${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
+      doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
+      doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
+      yOffset += imageHeight + lineHeight;
     }
 
-    // Add Inspection Report Overview
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text('Inspection Report Overview', margin, yOffset);
-    yOffset += lineHeight;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    doc.text(`Number of Items: ${this.coverLetterData?.inspectionOverview?.totalItems || '0'}`, margin, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Number of PASS: ${this.coverLetterData?.inspectionOverview?.passedItems || '0'}`, margin, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Number of FAIL: ${this.coverLetterData?.inspectionOverview?.failedItems || '0'}`, margin, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Number of TBC: ${this.coverLetterData?.inspectionOverview?.tbcItems || '0'}`, margin, yOffset);
-    yOffset += lineHeight * 2;
+    // Add margin before Inspection Overview
+    yOffset += 13.2;
 
-    // Add Additional Information Box
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('Additional Information:', margin, yOffset);
-    yOffset += lineHeight;
-    const boxWidth = contentWidth;
+    // Inspection Report Overview and Additional Information
+    const overviewX = margin;
+    const additionalInfoX = 105.6;
+    const columnWidth = (contentWidth - 10) / 2;
     const additionalInfo = this.coverLetterData?.additionalInfo || 'N/A';
-    const textLines = doc.splitTextToSize(additionalInfo, boxWidth - 10);
+    const tempDoc = new jsPDF();
+    tempDoc.setFont('helvetica', 'normal');
+    tempDoc.setFontSize(12);
+    const textLines = tempDoc.splitTextToSize(additionalInfo, columnWidth - 10);
     const textHeight = textLines.length * lineHeight;
     const boxHeight = textHeight + 10;
-    doc.setLineWidth(0.5);
-    doc.rect(margin, yOffset, boxWidth, boxHeight);
+    const overviewHeight = lineHeight * 2; // Reduced height for tighter layout
+    checkPageBreak(Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('Inspection Report Overview', overviewX, yOffset);
+    let overviewYOffset = yOffset + lineHeight * 0.5;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
-    doc.text(textLines, margin + 5, yOffset + 8);
-    yOffset += boxHeight + lineHeight;
+    doc.text('Number of Items:', overviewX, overviewYOffset);
+    doc.text(`${this.coverLetterData?.inspectionOverview?.totalItems || '0'}`, overviewX + 35, overviewYOffset);
+    overviewYOffset += lineHeight * 0.5;
+    doc.text('Number of', overviewX, overviewYOffset);
+    doc.setTextColor(92, 201, 110);
+    doc.text('PASS:', overviewX + 20 + 1.06, overviewYOffset);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${this.coverLetterData?.inspectionOverview?.passedItems || '0'}`, overviewX + 35, overviewYOffset);
+    overviewYOffset += lineHeight * 0.5;
+    doc.text('Number of', overviewX, overviewYOffset);
+    doc.setTextColor(228, 66, 52);
+    doc.text('FAIL:', overviewX + 20 + 1.06, overviewYOffset);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${this.coverLetterData?.inspectionOverview?.failedItems || '0'}`, overviewX + 35, overviewYOffset);
+    overviewYOffset += lineHeight * 0.5;
+    doc.text('Number of', overviewX, overviewYOffset);
+    doc.setTextColor(128, 128, 128);
+    doc.text('TBC:', overviewX + 20 + 1.06, overviewYOffset);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${this.coverLetterData?.inspectionOverview?.tbcItems || '0'}`, overviewX + 35, overviewYOffset);
 
-    // Add Hierarchy Document Images (100% width)
+    // Additional Information Box
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setLineWidth(0.5);
+    doc.rect(additionalInfoX, yOffset, columnWidth, boxHeight);
+    doc.text('Additional Information:', additionalInfoX + 5, yOffset + 8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(textLines, additionalInfoX + 5, yOffset + 8 + lineHeight);
+
+    yOffset += Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3;
+
+    // Add Hierarchy Document Images
     if (this.projectData?.documents?.length > 0) {
       for (const docItem of this.projectData.documents) {
         if (docItem.files?.length > 0) {
           for (const file of docItem.files) {
-            if (yOffset + imageHeight + lineHeight > pageHeight - margin) {
-              doc.addPage();
-              yOffset = 20;
-            }
+            checkPageBreak(lineHeight + docImageHeight + lineHeight);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(12);
             doc.text(`Document Image: ${file.documentName || 'N/A'}`, margin, yOffset);
             yOffset += lineHeight;
             try {
               const imgData = await this.getImageData(file.documentUrl);
-              doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, imageHeight);
-              yOffset += imageHeight + lineHeight;
+              doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
+              yOffset += docImageHeight + lineHeight;
             } catch (error) {
               console.error(`Error loading document image ${file.documentName}:`, error);
               doc.setFontSize(10);
@@ -378,36 +448,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         }
       }
     } else {
+      checkPageBreak(lineHeight * 2);
       doc.setFontSize(10);
       doc.text('No document images available', margin, yOffset);
       yOffset += lineHeight * 2;
     }
 
-    // Add Attributes Table
-    if (yOffset + lineHeight * 3 > pageHeight - margin) {
-      doc.addPage();
-      yOffset = 20;
-    }
-
-    const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
-    const columnWidths = [20, 30, 30, 20, 20, 20, 20, 30, 30];
-    const tableX = margin;
-    const headerHeight = 10;
-    const tableStartY = yOffset;
-
-    // Draw table headers
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    let xOffset = tableX;
-    headers.forEach((header, index) => {
-      doc.text(header, xOffset + 1, yOffset + 8);
-      doc.setLineWidth(0.5);
-      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
-      xOffset += columnWidths[index];
-    });
-    yOffset += headerHeight + 2;
-
-    // Prepare table data from instances or fallback to standardAttributes
+    // Prepare Table Data
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.projectData?.instances?.length > 0) {
@@ -420,12 +467,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           'Substrate': 'N/A',
           'FRL': 'N/A',
           'Result': 'N/A',
-          'Photos': instance.photos?.length > 0 ? `${instance.photos.length} photo(s)` : 'N/A',
+          'Photos': instance.photos?.map((p: any) => p.url) || [],
           'Comments': 'N/A'
         };
         if (instance.attributes) {
           instance.attributes.forEach((attr: any) => {
-            if (attr.name === 'Materials') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
+            if (attr.name === 'Materils') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
             if (attr.name === 'FRL') row['FRL'] = attr.selectedValue || attr.value || 'N/A';
             if (attr.name === 'Compliance') row['Result'] = attr.selectedValue || attr.value || 'N/A';
             if (attr.name === 'Comments') row['Comments'] = attr.selectedValue || attr.value || 'N/A';
@@ -440,28 +487,50 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         'Location': this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
         'Plan': 'N/A',
         'Type': this.projectData?.project?.subProjects?.join(', ') || 'N/A',
-        'Substrate': this.getAttributeValue('Materials'),
+        'Substrate': this.getAttributeValue('Materils'),
         'FRL': this.getAttributeValue('FRL'),
         'Result': this.getAttributeValue('Compliance'),
-        'Photos': 'N/A',
+        'Photos': [],
         'Comments': this.getAttributeValue('Comments')
       });
     }
+
+    // Add Attributes Table
+    checkPageBreak(lineHeight * 3 + headerHeight);
+    yOffset += lineHeight * 3;
+    const tableX = margin;
+    const tableStartY = yOffset;
+
+    // Draw table headers
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    let xOffset = tableX;
+    headers.forEach((header, index) => {
+      doc.setFillColor(0, 0, 0);
+      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight, 'F');
+      doc.setTextColor(255, 255, 255);
+      const headerLines = doc.splitTextToSize(header, columnWidths[index] - 4);
+      doc.text(headerLines, xOffset + columnWidths[index] / 2, yOffset + 8, { align: 'center' });
+      doc.setLineWidth(0.2);
+      doc.setDrawColor(255, 255, 255);
+      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
+      xOffset += columnWidths[index];
+    });
+    doc.setTextColor(0, 0, 0);
+    yOffset += headerHeight;
 
     // Draw table rows
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     let tableEndY = yOffset;
     for (const row of tableData) {
-      const instance = this.projectData?.instances?.[index - 2] || {};
-      const photoCount = instance.photos?.length || 0;
-      const rowHeight = baseRowHeight + (photoCount * photoImageHeight);
+      const commentsText = row['Comments'] || 'N/A';
+      const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
+      const commentsHeight = commentsLines.length * 6;
+      const photosHeight = row['Photos'].length > 0 ? photoImageHeight : 6;
+      const rowHeight = Math.max(baseRowHeight, commentsHeight, photosHeight);
 
-      if (yOffset + rowHeight > pageHeight - margin) {
-        doc.addPage();
-        yOffset = 20;
-      }
-
+      checkPageBreak(rowHeight);
       const rowStartY = yOffset;
       xOffset = tableX;
       for (const header of headers) {
@@ -469,51 +538,71 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         if (header === 'Plan' && this.projectData?.documents?.[0]?.files?.[0]?.documentUrl) {
           try {
             const imgData = await this.getImageData(this.projectData.documents[0].files[0].documentUrl);
-            doc.addImage(imgData, 'PNG', xOffset + 1, yOffset + 2, columnWidths[colIndex] - 2, baseRowHeight - 4);
+            const imgWidth = columnWidths[colIndex] - 4;
+            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
           } catch (error) {
             console.error('Error loading plan image:', error);
             doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load plan image', xOffset + 1, yOffset + 8);
+            doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
             doc.setTextColor(0, 0, 0);
           }
-        } else if (header === 'Photos' && instance.photos?.length > 0) {
-          let photoYOffset = yOffset + 2;
-          for (const photo of instance.photos) {
-            try {
-              const imgData = await this.getImageData(photo.url);
-              doc.addImage(imgData, 'PNG', xOffset + 1, photoYOffset, columnWidths[colIndex] - 2, photoImageHeight - 4);
-              photoYOffset += photoImageHeight;
-            } catch (error) {
-              console.error('Error loading photo:', error);
-              doc.setTextColor(255, 0, 0);
-              doc.text('Failed to load photo', xOffset + 1, photoYOffset + 8);
-              doc.setTextColor(0, 0, 0);
-              photoYOffset += photoImageHeight;
-            }
+        } else if (header === 'Photos' && row['Photos'].length > 0) {
+          try {
+            const imgData = await this.getImageData(row['Photos'][0]);
+            const imgWidth = columnWidths[colIndex] - 4;
+            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+          } catch (error) {
+            console.error('Error loading photo:', error);
+            doc.setTextColor(255, 0, 0);
+            doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
+            doc.setTextColor(0, 0, 0);
           }
-        } else if (header === 'Photos' && (!instance.photos || instance.photos.length === 0)) {
-          doc.text('N/A', xOffset + 1, yOffset + 8);
-        } else {
+        } else if (header === 'Result') {
+          const cellText = row[header] || 'N/A';
+          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
+          const textHeight = cellLines.length * 6;
+          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+          if (cellText.toUpperCase() === 'PASS') {
+            doc.setTextColor(92, 201, 110);
+          } else if (cellText.toUpperCase() === 'FAIL') {
+            doc.setTextColor(228, 66, 52);
+          } else if (cellText.toUpperCase() === 'TBC') {
+            doc.setTextColor(128, 128, 128);
+          } else {
+            doc.setTextColor(0, 0, 0);
+          }
+          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+          doc.setTextColor(0, 0, 0);
+        } else if (header === 'Comments') {
+          const cellLines = doc.splitTextToSize(row[header] || 'N/A', columnWidths[colIndex] - 4);
+          const textHeight = cellLines.length * 6;
+          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+        } else if (header !== 'Photos') {
           const cellText = row[header as keyof TableRow] || 'N/A';
-          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 2);
-          doc.text(cellLines, xOffset + 1, yOffset + 8);
+          const cellLines = doc.splitTextToSize(cellText as string, columnWidths[colIndex] - 4);
+          const textHeight = cellLines.length * 6;
+          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
         }
         doc.setLineWidth(0.2);
+        doc.setDrawColor(0, 0, 0);
         doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
         xOffset += columnWidths[colIndex];
       }
-
       yOffset += rowHeight;
       tableEndY = yOffset;
     }
 
     // Draw outer table border
     doc.setLineWidth(0.5);
-    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
-    doc.rect(tableX, tableStartY, tableWidth, tableEndY - tableStartY);
+    doc.setDrawColor(0, 0, 0);
+    doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
     // Save the PDF
-    doc.save(`${this.projectId}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    doc.save('ASP Report.pdf');
   }
 
   private async getImageData(url: string): Promise<string> {

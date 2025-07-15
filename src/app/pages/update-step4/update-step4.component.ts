@@ -4,11 +4,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UpdateService } from '../../core/services/update-service.service';
-// import { NavbarComponent } from "../components/navbar/navbar.component";
-import { PagesModule } from "../pages.module";
-import { NavbarComponent } from "../components/navbar/navbar.component"; // Import UpdateService
+import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
-import { FootComponent } from "../components/foot/foot.component";
+import { FootComponent } from '../components/foot/foot.component';
 
 interface HierarchyLevel {
   _id: string;
@@ -23,7 +21,7 @@ interface UploadDocumentResponse {
     projectId: string;
     documentType: string;
     hierarchyLevel: string;
-    files: any[];
+    files: { documentName: string; documentUrl: string; version: number; _id: string; markers: any[] }[];
     createdAt: string;
     updatedAt: string;
     __v: number;
@@ -77,7 +75,7 @@ export class UpdateStep4Component implements OnInit {
     'Technical Document': 0,
     'Additional Document': 0
   };
-  documents: { [key: string]: { documentName: string, fileType: string, _id: string, hierarchyLevel: string }[] } = {
+  documents: { [key: string]: { documentName: string; fileType: string; fileId: string; documentId: string; hierarchyLevel: string }[] } = {
     '2D Plan': [],
     'Technical Document': [],
     'Additional Document': []
@@ -92,13 +90,14 @@ export class UpdateStep4Component implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private router: Router, // Add Router
-    private updateService: UpdateService // Add UpdateService
+    private router: Router,
+    private updateService: UpdateService
   ) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || this.updateService.getProjectId(); // Fallback to UpdateService
+      this.projectId = params['id'] || this.updateService.getProjectId();
+      console.log('Project ID:', this.projectId);
       if (!this.projectId) {
         this.errorMessage = 'No project ID provided in route or service';
       } else {
@@ -116,10 +115,12 @@ export class UpdateStep4Component implements OnInit {
       headers: { 'Accept': 'application/json' }
     }).subscribe({
       next: (response) => {
+        console.log('Hierarchy response:', response);
         this.hierarchyLevels = response.hierarchyData?.levels || response.data?.levels || [];
         this.isLoadingHierarchy = false;
       },
       error: (error: HttpErrorResponse) => {
+        console.error('Hierarchy fetch error:', error);
         this.errorMessage = error.error?.message || `Failed to load hierarchy levels (Status: ${error.status})`;
         this.isLoadingHierarchy = false;
       }
@@ -132,6 +133,7 @@ export class UpdateStep4Component implements OnInit {
       headers: { 'Accept': 'application/json' }
     }).subscribe({
       next: (response: GetDocumentsResponse) => {
+        console.log('Documents response:', response);
         this.documentCounts = { '2D Plan': 0, 'Technical Document': 0, 'Additional Document': 0 };
         this.documents = { '2D Plan': [], 'Technical Document': [], 'Additional Document': [] };
         response.data.forEach(doc => {
@@ -139,12 +141,13 @@ export class UpdateStep4Component implements OnInit {
           if (doc.documentType === 'Technical') normalizedDocType = 'Technical Document';
           else if (doc.documentType === 'Additional') normalizedDocType = 'Additional Document';
           if (this.documentCounts[normalizedDocType] !== undefined) {
-            this.documentCounts[normalizedDocType]++;
+            this.documentCounts[normalizedDocType] += doc.files.length;
             doc.files.forEach(file => {
               this.documents[normalizedDocType].push({
                 documentName: file.documentName,
                 fileType: file.documentUrl.split('.').pop() || 'pdf',
-                _id: file._id,
+                fileId: file._id, // Store file ID
+                documentId: doc._id, // Store document ID
                 hierarchyLevel: doc.hierarchyLevel
               });
             });
@@ -152,25 +155,10 @@ export class UpdateStep4Component implements OnInit {
         });
       },
       error: (error: HttpErrorResponse) => {
+        console.error('Documents fetch error:', error);
         this.errorMessage = error.error?.message || `Failed to load documents (Status: ${error.status})`;
       }
     });
-  }
-
-  onModeChange(docType: string) {
-    if (this.documentType === docType) {
-      this.selectedFiles = [];
-      this.fileMeta = [];
-    }
-  }
-
-  onDocumentTypeChange() {
-    this.selectedFiles = [];
-    this.fileMeta = [];
-  }
-
-  isBulkMode(): boolean {
-    return !!this.documentType && this.fileSelectionMode[this.documentType] === 'Bulk Files';
   }
 
   onFileSelected(event: any) {
@@ -205,6 +193,10 @@ export class UpdateStep4Component implements OnInit {
     }
   }
 
+  isBulkMode(): boolean {
+    return !!this.documentType && this.fileSelectionMode[this.documentType] === 'Bulk Files';
+  }
+
   isValidMeta(): boolean {
     return this.fileMeta.every(meta => meta.documentName && meta.documentName.trim() !== '');
   }
@@ -217,9 +209,9 @@ export class UpdateStep4Component implements OnInit {
 
     const formData = new FormData();
     formData.append('projectId', this.projectId);
-    const backendDocumentType = this.documentType === 'Technical Document' ? 'Technical' : 
-                              this.documentType === 'Additional Document' ? 'Additional' : 
-                              this.documentType;
+    const backendDocumentType = this.documentType === 'Technical Document' ? 'Technical' :
+                                this.documentType === 'Additional Document' ? 'Additional' :
+                                this.documentType;
     formData.append('documentType', backendDocumentType);
     formData.append('hierarchyLevel', this.selectedHierarchyLevel);
 
@@ -240,6 +232,7 @@ export class UpdateStep4Component implements OnInit {
       headers: { 'Accept': 'application/json' }
     }).subscribe({
       next: (response: UploadDocumentResponse) => {
+        console.log('Upload response:', response);
         this.successMessage = response.message || 'Documents uploaded successfully';
         this.errorMessage = null;
         this.documentType = '';
@@ -250,41 +243,42 @@ export class UpdateStep4Component implements OnInit {
         this.closeModal();
       },
       error: (error: HttpErrorResponse) => {
+        console.error('Upload error:', error);
         this.errorMessage = error.error?.message || `Upload failed (Status: ${error.status})`;
         this.successMessage = null;
-        console.error('Error details:', error);
       }
     });
   }
 
-  next() {
-    // Add navigation logic here
-  }
-
-  addDocument(docType: string) {
-    this.documentType = docType;
-    this.selectedFiles = [];
-    this.fileMeta = [];
-  }
-
   deleteDocument(docType: string, index: number) {
     const doc = this.documents[docType][index];
-    if (doc && doc._id) {
-      this.http.delete(`https://vps.allpassiveservices.com.au/api/updateProject/project-documents/${doc._id}`, {
-        headers: { 'Accept': 'application/json' }
-      }).subscribe({
-        next: () => {
-          this.documents[docType].splice(index, 1);
-          this.documentCounts[docType]--;
-          this.successMessage = 'Document deleted successfully';
-          this.errorMessage = null;
-        },
-        error: (error: HttpErrorResponse) => {
-          this.errorMessage = error.error?.message || `Failed to delete document (Status: ${error.status})`;
-          this.successMessage = null;
-        }
-      });
+    if (!doc || !doc.documentId) {
+      this.errorMessage = 'Invalid document ID';
+      this.successMessage = null;
+      console.error('Delete failed: Invalid document ID', { doc });
+      return;
     }
+
+    const documentId = doc.documentId;
+    console.log('Attempting to delete document:', { docType, index, documentId });
+
+    this.http.delete(`https://vps.allpassiveservices.com.au/api/updateProject/project-documents/${documentId}`, {
+      headers: { 'Accept': 'application/json' }
+    }).subscribe({
+      next: (response: any) => {
+        console.log('Delete response:', response);
+        this.documents[docType] = this.documents[docType].filter(d => d.documentId !== documentId); // Remove all files for this document
+        this.documentCounts[docType] = this.documents[docType].length; // Update count
+        this.successMessage = response.message || 'Document deleted successfully';
+        this.errorMessage = null;
+        if (this.projectId) this.fetchDocuments(this.projectId); // Refresh documents
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Delete error:', error);
+        this.errorMessage = error.error?.message || `Failed to delete document (Status: ${error.status})`;
+        this.successMessage = null;
+      }
+    });
   }
 
   goToStep5() {
@@ -292,6 +286,7 @@ export class UpdateStep4Component implements OnInit {
       this.router.navigate(['/pages/updateproject5', this.projectId]);
     } else {
       this.errorMessage = 'No project ID provided for navigation to Step 5';
+      this.successMessage = null;
     }
   }
 
@@ -302,10 +297,6 @@ export class UpdateStep4Component implements OnInit {
   selectMode(docType: string, mode: string) {
     this.fileSelectionMode[docType] = mode;
     this.showDropdown[docType] = false;
-    if (this.documentType === docType) {
-      this.selectedFiles = [];
-      this.fileMeta = [];
-    }
     this.openModal(docType);
   }
 
@@ -316,11 +307,14 @@ export class UpdateStep4Component implements OnInit {
 
   openModal(docType: string) {
     this.documentType = docType;
+    this.selectedFiles = [];
+    this.fileMeta = [];
     this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.documentType = '';
     this.selectedFiles = [];
     this.fileMeta = [];
   }

@@ -1,22 +1,23 @@
-<div class="container-fluid" style="background-color: #EEF0F1; padding:24px ; height:100vh; padding-bottom:100px">
+<div class="container-fluid" style="background-color: #EEF0F1; padding:24px; height:150vh; padding-bottom:700px">
   <app-topbar heading="Projects and Buildings"></app-topbar>
-
-  <app-navbar/>
+  <app-navbar />
   <div class="content-wrapper" style="display: flex; gap: 24px;">
     <!-- Main Content Card -->
     <div class="main-content" style="flex: 2;">
       <div class="card" style="padding: 24px; background-color: #ffffff; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <div *ngIf="errorMessage">
-          <p class="error">{{ errorMessage }}</p>
+          <p class="error" style="color: red;">{{ errorMessage }}</p>
         </div>
-        <div *ngIf="projectId" >
+        <div *ngIf="successMessage">
+          <p class="success" style="color: green;">{{ successMessage }}</p>
+        </div>
+        <div *ngIf="projectId">
           <div *ngIf="isLoading; else content">
             <p>Loading hierarchy levels...</p>
           </div>
           <ng-template #content>
             <h4 class="onestbold" style="margin-bottom: 24px;">Hierarchy Levels</h4>
             <div *ngIf="getHierarchyLevels().length > 0; else noLevels">
-              <!-- Individual input field for each hierarchy level -->
               <div *ngFor="let level of getHierarchyLevels(); let i = index" class="hierarchy-card" style="margin-bottom: 15px; display: flex; align-items: start; flex-direction:column; gap: 10px;">
                 <label [for]="'level-' + i" class="onestregular">Hierarchy Level {{ i + 1 }}</label>
                 <input 
@@ -34,12 +35,9 @@
               <p>No hierarchy levels available.</p>
             </ng-template>
             <div class="text-center">
-            <button type="button" class="btn" style="margin-top: 25px; background:black;color:white;border-radius:20px;  height:56px" (click)="addHierarchyLevel()">Add Hierarchy Level</button></div>
+              <button type="button" class="btn" style="margin-top: 25px; background:black;color:white;border-radius:20px; height:56px" (click)="addHierarchyLevel()">Add Hierarchy Level</button>
+            </div>
           </ng-template>
-          <div class="button-group" style="margin-top: 24px;">
-         
-            
-          </div>
         </div>
         <div *ngIf="!projectId">
           <p>No project ID provided in route</p>
@@ -49,17 +47,17 @@
     </div>
     <!-- Static Card on the Right -->
     <div class="side-card" style="flex: 1; background:#ffffff; border-radius: 20px; padding: 24px;">
-        <p style="font-size:21px;" class="onestbold">Configuration</p>
-        <p style="font-size: 16px;" class="onestbold">Standard Configuration</p>
-        <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
-        <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
-        <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
-        <p style="font-size: 16px;" class="onestbold">Advanced Configuration for Advanced Users</p>
-        <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
-        <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
-        <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
+      <p style="font-size:21px;" class="onestbold">Configuration</p>
+      <p style="font-size: 16px;" class="onestbold">Standard Configuration</p>
+      <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
+      <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
+      <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
+      <p style="font-size: 16px;" class="onestbold">Advanced Configuration for Advanced Users</p>
+      <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
+      <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
+      <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
     </div>
   </div>
   <button type="button" class="btn btn-dark bts1" style="border-radius: 10px; background:black" (click)="saveAndNext()">Save and Next</button>
 </div>
-<app-foot/>
+<app-foot />

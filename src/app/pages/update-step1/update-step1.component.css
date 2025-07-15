@@ -1,6 +1,6 @@
 .container {
-  max-width: 100%; /* Override Bootstrap's container max-width for full width */
-  padding: 24px; /* Apply 24px padding on all sides */
+  max-width: 100%;
+  padding: 24px;
 }
 
 .form-group {
@@ -48,7 +48,7 @@
 }
 
 .card {
-  margin-bottom: 10px; /* 10px margin-bottom for cards */
+  margin-bottom: 10px;
   border-radius: 20px;
 }
 
@@ -60,43 +60,95 @@
 .card-body {
   padding: 15px;
 }
-.immm{
+
+.immm {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-.immm img{
+
+.immm img {
   border-radius: 20px;
 }
-label{
+
+label {
   font-size: 14px;
 }
-input{
+
+input {
   height: 48px !important;
   border-radius: 15px !important;
 }
-select{
-   height: 48px !important;
-  border-radius: 15px !important;
+
+input:focus {
+  box-shadow: none !important;
 }
-.bts1{
-position: absolute !important;
-top: 152px !important;
-right: 10px;
+
+.bts1 {
+  position: absolute !important;
+  top: 152px !important;
+  right: 10px;
 }
-#projectName{
+
+#projectName {
   border-radius: 15px !important;
   border: 0px !important;
 }
-.line1{
-  display: flex; align-items:center; border:1px solid #CDCCCB;
+
+.line1 {
+  display: flex;
+  align-items: center;
+  border: 1px solid #CDCCCB;
   border-radius: 15px;
   padding-left: 15px;
+  position: relative;
 }
-input:focus{
-  box-shadow: none !important;
-}
-select:focus{
-  box-shadow: none !important;
 
+.dropdown-container {
+  cursor: pointer;
+  height: 56px;
+  padding-right: 20px;
+  width: 100%;
+}
+input{
+  border: 0px !important;
+}
+
+.dropdown-selected-text {
+  flex-grow: 1;
+  font-size: 14px;
+  margin-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.arrow {
+  margin-left: 8px;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #CDCCCB;
+  border-radius: 15px;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 2px;
+}
+
+.option {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.option:hover {
+  background-color: #f0f0f0;
 }

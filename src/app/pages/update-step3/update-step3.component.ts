@@ -6,15 +6,15 @@ import { DownloadProject } from '../../core/models/download-project';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { NavbarComponent } from "../components/navbar/navbar.component";
+import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
-import { FootComponent } from "../components/foot/foot.component";
+import { FootComponent } from '../components/foot/foot.component';
 
 @Component({
   selector: 'app-update-step3',
   standalone: true,
   templateUrl: './update-step3.component.html',
-  styleUrl: './update-step3.component.css',
+  styleUrls: ['./update-step3.component.css'],
   imports: [CommonModule, FormsModule, NavbarComponent, TopbarComponent, FootComponent]
 })
 export class UpdateStep3Component implements OnInit {
@@ -22,6 +22,7 @@ export class UpdateStep3Component implements OnInit {
   serviceProjectId: string | null = null;
   projectData: DownloadProject | null = null;
   errorMessage: string | null = null;
+  successMessage: string | null = null;
   isLoading: boolean = true;
   private apiUrl = 'https://vps.allpassiveservices.com.au/api/updateProject/building-hierarchy/';
 
@@ -35,11 +36,9 @@ export class UpdateStep3Component implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      console.log('Route Params:', params);
       this.projectId = params['id'] || null;
       this.serviceProjectId = this.updateService.getProjectId();
-      console.log('Project ID from route:', this.projectId);
-      console.log('Project ID from service:', this.serviceProjectId);
+      console.log('Project ID from route:', this.projectId, 'Service:', this.serviceProjectId);
 
       if (this.projectId) {
         this.fetchProjectData(this.projectId);
@@ -54,13 +53,11 @@ export class UpdateStep3Component implements OnInit {
     this.isLoading = true;
     this.downloadProjectService.getProjectDetails(projectId).subscribe({
       next: (data: DownloadProject) => {
-        console.log('Full Project Data:', data);
-        console.log('Hierarchy Data:', data.hierarchy);
+        console.log('Project Data:', data);
         this.projectData = data;
-        // Ensure hierarchy exists
         if (!this.projectData.hierarchy) {
           this.projectData.hierarchy = {
-            _id: `hierarchy-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+            _id: `temp-hierarchy-${Date.now()}`,
             projectId: projectId,
             levels: [],
             createdAt: new Date().toISOString(),
@@ -72,75 +69,91 @@ export class UpdateStep3Component implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching project data:', error);
-        this.errorMessage = 'Failed to load project data';
+        this.errorMessage = `Failed to load project data: ${error.error?.message || error.message}`;
         this.isLoading = false;
       }
     });
   }
 
   addHierarchyLevel() {
-    const newId = `level-${Date.now()}-${Math.random().toString(36).substring(2)}`;
-    if (this.projectData?.hierarchy?.levels) {
-      this.projectData.hierarchy.levels.push({
-        name: '',
-        _id: newId
-      });
-    } else if (this.projectData && this.projectId) {
-      this.projectData.hierarchy = {
-        _id: `hierarchy-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-        projectId: this.projectId,
-        levels: [{ name: '', _id: newId }],
+    const newId = `temp-level-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    if (this.projectData) {
+      this.projectData.hierarchy = this.projectData.hierarchy || {
+        _id: `temp-hierarchy-${Date.now()}`,
+        projectId: this.projectId!,
+        levels: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         __v: 0
       };
+      this.projectData.hierarchy.levels.push({ name: '', _id: newId });
+      this.successMessage = 'New hierarchy level added. Save to update on server.';
+      this.errorMessage = null;
     }
   }
 
   removeHierarchyLevel(index: number) {
-    if (this.projectData?.hierarchy?.levels) {
-      this.projectData.hierarchy.levels.splice(index, 1);
-    }
-  }
-
-  goToStep3() {
-    if (this.projectId) {
-      this.router.navigate(['/pages/updateproject3', this.projectId]);
+    if (this.projectData?.hierarchy?.levels?.[index]) {
+      const levelId = this.projectData.hierarchy.levels[index]._id;
+      if (levelId.startsWith('temp-')) {
+        // Local removal for unsaved levels
+        this.projectData.hierarchy.levels.splice(index, 1);
+        this.successMessage = 'Hierarchy level removed locally. Save to update on server.';
+        this.errorMessage = null;
+      } else {
+        // API call to delete saved level
+        this.http.delete(`${this.apiUrl}${this.projectData.hierarchy._id}/level/${levelId}`).subscribe({
+          next: (response: any) => {
+            console.log('Level deleted:', response);
+            this.projectData!.hierarchy!.levels.splice(index, 1);
+            this.successMessage = 'Hierarchy level deleted successfully.';
+            this.errorMessage = null;
+          },
+          error: (error) => {
+            console.error('Error deleting level:', error);
+            this.errorMessage = `Failed to delete level: ${error.error?.message || error.message}`;
+            this.successMessage = null;
+          }
+        });
+      }
     }
   }
 
   saveAndNext() {
-    if (this.projectId && this.projectData && this.projectData.hierarchy?._id) {
-      const payload = {
-        projectId: this.projectId,
-        levels: this.getHierarchyLevels().map(level => ({
-          name: level.name,
-          _id: level._id || `level-${Date.now()}-${Math.random().toString(36).substring(2)}`
-        }))
-      };
-
-      console.log('Sending payload:', payload);
-
-      this.http.put(`${this.apiUrl}${this.projectData.hierarchy._id}`, payload).subscribe({
-        next: (response: any) => {
-          console.log('Hierarchy updated successfully:', response);
-          // Update local data with response
-          if (response.levels) {
-            this.projectData!.hierarchy.levels = response.levels.map((level: any) => ({
-              name: level.name,
-              _id: level._id
-            }));
-          }
-          this.router.navigate(['/pages/updateproject4', this.projectId]);
-        },
-        error: (error) => {
-          console.error('Error updating hierarchy:', error);
-          this.errorMessage = error.error?.message || 'Failed to update hierarchy levels';
-        }
-      });
-    } else {
-      this.errorMessage = 'Project ID, project data, or hierarchy ID is missing';
+    if (!this.projectId || !this.projectData?.hierarchy) {
+      this.errorMessage = 'Project ID or hierarchy data missing';
+      this.successMessage = null;
+      return;
     }
+
+    const payload = {
+      projectId: this.projectId,
+      levels: this.getHierarchyLevels().map(level => ({
+        name: level.name || '',
+        _id: level._id.startsWith('temp-') ? undefined : level._id
+      }))
+    };
+
+    console.log('Payload:', payload);
+
+    const isNewHierarchy = this.projectData.hierarchy._id.startsWith('temp-');
+    const url = isNewHierarchy ? this.apiUrl : `${this.apiUrl}${this.projectData.hierarchy._id}`;
+    const request = isNewHierarchy ? this.http.post(url, payload) : this.http.put(url, payload);
+
+    request.subscribe({
+      next: (response: any) => {
+        console.log('Hierarchy saved:', response);
+        this.projectData!.hierarchy = response.data;
+        this.successMessage = 'Hierarchy saved successfully!';
+        this.errorMessage = null;
+        this.router.navigate(['/pages/updateproject4', this.projectId]);
+      },
+      error: (error) => {
+        console.error('Error saving hierarchy:', error);
+        this.errorMessage = `Failed to save hierarchy: ${error.error?.message || error.message}`;
+        this.successMessage = null;
+      }
+    });
   }
 
   getHierarchyLevels(): { name: string; _id: string }[] {
@@ -148,6 +161,8 @@ export class UpdateStep3Component implements OnInit {
   }
 
   onLevelChange(index: number) {
-    console.log('Hierarchy level changed:', this.getHierarchyLevels()[index]);
+    console.log('Level changed:', this.getHierarchyLevels()[index]);
+    this.successMessage = 'Level updated locally. Save to update on server.';
+    this.errorMessage = null;
   }
 }

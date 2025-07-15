@@ -163,10 +163,10 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
 
   predefinedTemplates: { [key: string]: Attribute[] } = {
      'Scoping': [
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -178,10 +178,10 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     ],
      'Annual Inspection': [
 
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Safety Measures', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -196,19 +196,19 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
    'Fire Dampers': [
       { name: 'FD No.', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Location', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Year Inspected', type: 'string', barrierInput: '', barrierValues: ['2025','2026','2027','2028','2029'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Year Inspected', type: 'list', barrierInput: '', barrierValues: ['2025','2026','2027','2028','2029'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Inspection Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Damper Accessible', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Damper Closes and fusable link ok', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Damper Closes and fusable link ok', type: 'list', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Damper Installed Correctly', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Flanges or Retaining Angles Correct', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Substrate Type', type: 'string', barrierInput: '', barrierValues: ['Concrete Wall','Masonry Wall','Dincel','Hebel Wall','Fire Rated Plasterboard Wall','Speedpanel Wall','Hebel Powerpanel Wall'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Penetration Compliant', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Breakaway Connection', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Damper free from Corrosion', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Is this damper installed correctly', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Flanges or Retaining Angles Correct', type: 'list', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Substrate Type', type: 'list', barrierInput: '', barrierValues: ['Concrete Wall','Masonry Wall','Dincel','Hebel Wall','Fire Rated Plasterboard Wall','Speedpanel Wall','Hebel Powerpanel Wall'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Penetration Compliant', type: 'list', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Breakaway Connection', type: 'list', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Damper free from Corrosion', type: 'list', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Is this damper installed correctly', type: 'list', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Date of Repairs', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
 
@@ -216,23 +216,23 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     'Installation/Penetration Register': [
       { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Materils', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Reference to Building Code', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: ['Pass','Fail'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Compliance', type: 'list', barrierInput: '', barrierValues: ['Pass','Fail'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
     ],
      'Third Party Certification': [
       { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Trade', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -682,15 +682,16 @@ options: string[] = ['Active', 'Completed'];
     console.log('Toggling dropdown6, new state:', this.isDropdownOpen6);
   }
 
+
   toggleDropdown7(event?: Event) {
     if (event) {
       event.stopPropagation();
     }
     this.isDropdownOpen7 = !this.isDropdownOpen7;
-    this.isDropdownOpen6 = false;
-    this.closeOtherDropdowns('dropdown-toggle-7');
     console.log('Toggling dropdown7, new state:', this.isDropdownOpen7);
   }
+
+  
 
   toggleDropdown12(event?: Event) {
     if (event) {
@@ -740,6 +741,13 @@ options: string[] = ['Active', 'Completed'];
 
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent) {
+  
+    const target = event.target as HTMLElement;
+    const dropdown = document.getElementById('dropdown-toggle-7');
+    if (dropdown && !dropdown.contains(target)) {
+      this.isDropdownOpen7 = false;
+    }
+  
     const dropdownIds = [
       'dropdown-toggle-status',
       'dropdown-toggle-1',

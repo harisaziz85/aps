@@ -133,8 +133,7 @@
       <div class="image-row">
         <img *ngFor="let photo of preInstallPhotos"
              [src]="photo.url"
-             width="250"
-             height="auto"
+             style="width:250px; height:250px"
              [alt]="photo.category"
              class="pic"
              (click)="openImageModal(photo.url)" />
@@ -152,8 +151,8 @@
       <div class="image-row">
         <img *ngFor="let photo of postInstallPhotos"
              [src]="photo.url"
-             width="250"
-             height="auto"
+                         style="width:250px; height:250px"
+
              [alt]="photo.category"
              class="pic"
              (click)="openImageModal(photo.url)" />
