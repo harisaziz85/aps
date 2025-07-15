@@ -40,7 +40,8 @@
   justify-content: center;
 }
 
-.back{
+
+.back23{
   background-color: #00000000 !important;
   width: 136px !important;
   height: 53px !important;
@@ -53,7 +54,16 @@
   align-items: center !important;
    position: absolute;
   top: 221px !important;
-  right: 170px;
+  right: 30px !important;
+}
+.back1123{
+  position: absolute;
+  top: 24%;
+  width: 128px;
+  right: 180px;
+  border-radius: 20px;
+  height: 54px;
+  border: 1px solid black;
 }
 .hierbtn{
   background-color: black;
@@ -1704,3 +1714,31 @@ input:-webkit-autofill:active {
     top: 36% !important;
     right: 30px !important;
   }
+  .back11{
+    position: absolute;
+    top: -75px;
+    width: 128px;
+    border-radius: 20px;
+    height: 56px;
+    border: 1px solid black;
+    right: -36.6%;
+  }
+  /* For 1360px screen */
+@media (max-width: 1400px) {
+  .back1123{
+    top: 36.5%; /* adjust as needed */
+  }
+}
+
+/* For smaller screens */
+@media (max-width: 1024px) {
+  .back1123 {
+    right: 10%;
+  }
+}
+@media (max-width: 1400px) {
+  .back11{
+    right: -32.5%; /* adjust as needed */
+  }
+}
+
