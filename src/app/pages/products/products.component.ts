@@ -118,13 +118,17 @@ export class ProductsComponent implements OnInit {
     console.log('Dropdown toggled, isDropdownOpen:', this.isDropdownOpen);
   }
 
-  selectOption(doc: Document, event: Event) {
-    event.stopPropagation();
-    if (!this.selectedDocuments.includes(doc._id)) {
-      this.selectedDocuments.push(doc._id);
-      console.log('Selected document:', doc._id, 'Current selectedDocuments:', this.selectedDocuments);
+  toggleDocumentSelection(docId: string, event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    if (isChecked) {
+      if (!this.selectedDocuments.includes(docId)) {
+        this.selectedDocuments.push(docId);
+        console.log('Selected document:', docId, 'Current selectedDocuments:', this.selectedDocuments);
+      }
+    } else {
+      this.selectedDocuments = this.selectedDocuments.filter(id => id !== docId);
+      console.log('Removed document:', docId, 'Current selectedDocuments:', this.selectedDocuments);
     }
-    this.isDropdownOpen = false;
   }
 
   removeDocument(docId: string) {
@@ -160,10 +164,10 @@ export class ProductsComponent implements OnInit {
 
     const link = document.createElement('a');
     link.href = doc.fileUrl;
-    link.download = doc.name; // Set the download attribute to the document name
+    link.download = doc.name;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link); // Corrected from removeGrokChild to removeChild
+    document.body.removeChild(link);
     console.log(`Initiated download for document: ${doc.name}`);
   }
 

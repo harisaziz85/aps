@@ -192,7 +192,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   confirmAction(): void {
-    if (!this.selectedProject || this.confirmationInput.toLowerCase() !== this.modalAction) return;
+    if (!this.selectedProject) return;
 
     const projectId = this.selectedProject.id;
     this.updatingProjects.add(projectId);

@@ -23,10 +23,10 @@
           (click)="cancelSelection()"
           style="padding: 8px 16px; border-radius: 4px;"
         >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M14 4L4 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M4 4L14 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 4L4 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 4L14 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
           Cancel
         </button>
         <button
@@ -47,6 +47,14 @@
           (click)="openBulkModal('Delete')"
           style="padding: 8px 16px; border-radius: 4px;"
         >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.75 4.25H15.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.75 4.25V2.75C6.75 2.198 7.198 1.75 7.75 1.75H10.25C10.802 1.75 11.25 2.198 11.25 2.75V4.25" fill="white"/>
+            <path d="M6.75 4.25V2.75C6.75 2.198 7.198 1.75 7.75 1.75H10.25C10.802 1.75 11.25 2.198 11.25 2.75V4.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.75 6.75V14.25C13.75 15.355 12.855 16.25 11.75 16.25H6.25C5.145 16.25 4.25 15.355 4.25 14.25V6.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.25 8.75V13.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.75 8.75V13.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
           Delete
         </button>
       </div>
@@ -77,7 +85,7 @@
           </th>
           <th style="padding: 15px; vertical-align: middle; text-align: left;">
             <app-svg-icons icon="instance" size="16"></app-svg-icons>
-            Instance
+            Sub Projects
           </th>
           <th style="padding: 15px; vertical-align: middle; text-align: center;"></th>
         </tr>
@@ -214,14 +222,22 @@
                 }
               </td>
               <td style="padding: 15px; vertical-align: middle; text-align: center; background: white; border-top-right-radius: 20px; border-bottom-right-radius: 20px;" (click)="$event.stopPropagation()">
-                <div class="custom-dropdown" style="position: relative; display: inline-block;">
-                  <button class="btn" (click)="toggleDropdown(i, $event)" style="background: none; border: none; cursor: pointer; padding: 5px; font-size: 16px;">
-                    ⋮
+                <div class="custom-dropdown">
+                  <button class="action-btn" (click)="toggleDropdown(i, $event)">
+                    <app-svg-icons icon="drop" size="16"></app-svg-icons>
                   </button>
                   @if (showDropdownIndex === i) {
-                    <div class="custom-dropdown-menu" style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px;">
-                      <a class="dropdown-item" (click)="openModal('Restore', project, $event)" style="display: block; padding: 8px 12px; color: black; text-decoration: none; cursor: pointer;">Restore</a>
-                      <a class="dropdown-item" (click)="openModal('Delete', project, $event)" style="display: block; padding: 8px 12px; color: black; text-decoration: none; cursor: pointer;">Delete</a>
+                    <div class="dropdown-content1 d-flex align-items-center">
+                      <div class="dropdown-item-container">
+                        <a (click)="openModal('Restore', project, $event)">
+                          <app-svg-icons icon="archive" size="16" class="icon"></app-svg-icons>
+                          <span class="dropdown-text">Restore</span>
+                        </a>
+                        <a class="text-danger" (click)="openModal('Delete', project, $event)">
+                          <app-svg-icons icon="delete" size="16" class="icon"></app-svg-icons>
+                          <span class="dropdown-text">Delete</span>
+                        </a>
+                      </div>
                     </div>
                   }
                 </div>
@@ -257,50 +273,100 @@
   }
 
   <!-- Custom Confirmation Modal for Single Project -->
-  @if (modalProject) {
-    <div class="modal" [ngClass]="{ 'show': modalProject }" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 1000;">
-      <div class="modal-overlay" (click)="closeModal()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
-      <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 600px; z-index: 1001;">
-        <h2 class="onestbold" style="font-size: 21px; margin-bottom: 10px;">{{ modalAction }} Project</h2>
-        <p style="margin-bottom: 15px;">
-          You’re about to {{ modalAction.toLowerCase() }} the project: <strong>{{ modalProject.projectName }}</strong>
-        </p>
-        <p style="margin-bottom: 10px;">Please type "<strong>{{ modalAction }}</strong>" to confirm:</p>
-        <input
-          type="text"
-          [(ngModel)]="actionInput"
-          placeholder="Type action here"
-          (keyup.enter)="confirmAction()"
-          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 15px;"
-        />
-        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button class="btn btn-secondary" (click)="closeModal()" style="padding: 8px 16px; border-radius: 4px;">Cancel</button>
-          <button class="btn btn-danger" (click)="confirmAction()" style="padding: 8px 16px; border-radius: 4px;">Confirm</button>
+  @if (modalProject && modalAction === 'Restore') {
+    <div class="confirm-action-modal">
+      <div class="confirm-action-overlay" (click)="closeModal()"></div>
+      <div class="confirm-action-content">
+        <div class="confirm-action-header">
+          <h3 class="onestbold h2">Restore Project</h3>
+          <button class="confirm-action-close" (click)="closeModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.3327 8.66797L8.66602 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.66602 8.66797L15.3327 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="confirm-action-body">
+          <p class="robotoregular fp">You’re going to restore this project <strong>{{ modalProject.projectName || 'N/A' }}</strong>. It will be moved back to active projects.</p>
+        </div>
+        <div class="confirm-action-footer">
+          <button class="btn  onestmedium" style="border: 1px solid black;" (click)="closeModal()">Cancel</button>
+          <button class="btn  onestmedium" style="background-color: black; color:white" (click)="confirmAction()">Restore</button>
+        </div>
+      </div>
+    </div>
+  }
+  @if (modalProject && modalAction === 'Delete') {
+    <div class="confirm-action-modal">
+      <div class="confirm-action-overlay" (click)="closeModal()"></div>
+      <div class="confirm-action-content1">
+        <div class="confirm-action-header">
+          <h3 class="onestbold h2">Confirm Delete</h3>
+          <button class="confirm-action-close" (click)="closeModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.3327 8.66797L8.66602 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.66602 8.66797L15.3327 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="confirm-action-body">
+          <p class="robotoregular fp">You’re going to delete project <strong>{{ modalProject.projectName|| 'N/A' }}</strong>. Deletion is permanent and cannot be undone.</p>
+          <p class="robotobold fp">Confirm by typing Delete below:</p>
+          <input type="text" class="confirm-action-input" [(ngModel)]="actionInput" placeholder="Type Delete" (keyup.enter)="confirmAction()"/>
+        </div>
+        <div class="confirm-action-footer">
+          <button class="btn btn-secondary onestmedium" (click)="closeModal()">Cancel</button>
+          <button class="btn onestmedium" style="background-color: #EC1919; color:white" (click)="confirmAction()">Confirm</button>
         </div>
       </div>
     </div>
   }
 
   <!-- Custom Confirmation Modal for Bulk Actions -->
-  @if (showBulkModal) {
-    <div class="modal" [ngClass]="{ 'show': showBulkModal }" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 1000;">
-      <div class="modal-overlay" (click)="closeBulkModal()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
-      <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 600px; z-index: 1001;">
-        <h2 class="onestbold" style="font-size: 21px; margin-bottom: 10px;">{{ modalAction }} Selected Projects</h2>
-        <p style="margin-bottom: 15px;">
-          You’re about to {{ modalAction.toLowerCase() }} {{ selectedProjectIds.length }} selected project(s).
-        </p>
-        <p style="margin-bottom: 10px;">Please type "<strong>{{ modalAction }}</strong>" to confirm:</p>
-        <input
-          type="text"
-          [(ngModel)]="actionInput"
-          placeholder="Type action here"
-          (keyup.enter)="confirmBulkAction()"
-          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 15px;"
-        />
-        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button class="btn btn-secondary" (click)="closeBulkModal()" style="padding: 8px 16px; border-radius: 4px;">Cancel</button>
-          <button class="btn btn-danger" (click)="confirmBulkAction()" style="padding: 8px 16px; border-radius: 4px;">Confirm</button>
+  @if (showBulkModal && modalAction === 'Restore') {
+    <div class="confirm-action-modal">
+      <div class="confirm-action-overlay" (click)="closeBulkModal()"></div>
+      <div class="confirm-action-content" style="width: 600px;">
+        <div class="confirm-action-header">
+          <h3 class="onestbold h2">Restore Projects</h3>
+          <button class="confirm-action-close" (click)="closeBulkModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.3327 8.66797L8.66602 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.66602 8.66797L15.3327 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="confirm-action-body onestbold">
+          <p class="onestbold fp">You’re going to restore {{ selectedProjectIds.length }} selected project(s). They will be moved back to active projects.</p>
+        </div>
+        <div class="confirm-action-footer">
+          <button class="btn  onestmedium" (click)="closeBulkModal()" style="height: 40px; width:94px ; border:1px solid black">Cancel</button>
+          <button class="onestmedium" style="background-color: black !important; color:white;border-radius:15px;width:100px " (click)="confirmBulkAction()">Restore</button>
+        </div>
+      </div>
+    </div>
+  }
+  @if (showBulkModal && modalAction === 'Delete') {
+    <div class="confirm-action-modal">
+      <div class="confirm-action-overlay" (click)="closeBulkModal()"></div>
+      <div class="confirm-action-content1">
+        <div class="confirm-action-header">
+          <h3 class="onestbold h2">Confirm Delete Selected Projects</h3>
+          <button class="confirm-action-close" (click)="closeBulkModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.3327 8.66797L8.66602 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.66602 8.66797L15.3327 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="confirm-action-body1">
+          <p class="robotoregular fp">You’re about to delete {{ selectedProjectIds.length }} selected project(s).</p>
+          <p class="robotoregular fp">Please type <strong>Delete</strong> to confirm:</p>
+          <input type="text" class="confirm-action-input" [(ngModel)]="actionInput" placeholder="Type Delete" (keyup.enter)="confirmBulkAction()"/>
+        </div>
+        <div class="confirm-action-footer">
+          <button class="btn btn-secondary onestmedium" (click)="closeBulkModal()">Cancel</button>
+          <button class="btn onestmedium" style="color:white" (click)="confirmBulkAction()">Confirm</button>
         </div>
       </div>
     </div>

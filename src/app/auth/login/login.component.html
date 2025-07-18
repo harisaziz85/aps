@@ -36,7 +36,19 @@
             </span>
             <input [type]="passwordVisible ? 'text' : 'password'" [(ngModel)]="password" name="password" class="form-control form-control1" placeholder="Enter password" required>
             <span class="input-group-text" (click)="togglePasswordVisibility()" style="cursor: pointer;">
-              <fa-icon [icon]="passwordVisible ? faEye : faEyeSlash"></fa-icon>
+              <svg *ngIf="!passwordVisible" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14.9373 6.59717C15.3383 7.04717 15.6623 7.48817 15.9113 7.86717C16.3613 8.55017 16.3613 9.44917 15.9113 10.1322C14.8933 11.6752 12.6493 14.2502 8.99927 14.2502C8.45027 14.2502 7.93327 14.1922 7.44727 14.0882" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4.9555 13.044C3.5995 12.168 2.6535 10.991 2.0875 10.132C1.6375 9.44902 1.6375 8.55002 2.0875 7.86702C3.1055 6.32402 5.3495 3.74902 8.9995 3.74902C10.6195 3.74902 11.9625 4.25602 13.0435 4.95502" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11.5781 9.95605C11.3001 10.7061 10.7051 11.3011 9.95508 11.5791" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.055 10.945C6.557 10.447 6.25 9.76 6.25 9C6.25 7.481 7.481 6.25 9 6.25C9.759 6.25 10.447 6.558 10.945 7.055" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 16L16 2" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg *ngIf="passwordVisible" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14.9373 6.59717C15.3383 7.04717 15.6623 7.48817 15.9113 7.86717C16.3613 8.55017 16.3613 9.44917 15.9113 10.1322C14.8933 11.6752 12.6493 14.2502 8.99927 14.2502C8.45027 14.2502 7.93327 14.1922 7.44727 14.0882" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4.9555 13.044C3.5995 12.168 2.6535 10.991 2.0875 10.132C1.6375 9.44902 1.6375 8.55002 2.0875 7.86702C3.1055 6.32402 5.3495 3.74902 8.9995 3.74902C10.6195 3.74902 11.9625 4.25602 13.0435 4.95502" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11.5781 9.95605C11.3001 10.7061 10.7051 11.3011 9.95508 11.5791" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.055 10.945C6.557 10.447 6.25 9.76 6.25 9C6.25 7.481 7.481 6.25 9 6.25C9.759 6.25 10.447 6.558 10.945 7.055" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </span>
           </div>
         </div>
@@ -51,7 +63,7 @@
             <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4.5 6.5C5.05228 6.5 5.5 6.05228 5.5 5.5C5.5 4.94772 5.05228 4.5 4.5 4.5C3.94772 4.5 3.5 4.94772 3.5 5.5C3.5 6.05228 3.94772 6.5 4.5 6.5Z" fill="#EC1919"/>
               <path d="M8 6.5C8.55228 6.5 9 6.05228 9 5.5C9 4.94772 8.55228 4.5 8 4.5C7.44772 4.5 7 4.94772 7 5.5C7 6.05228 7.44772 6.5 8 6.5Z" fill="#EC1919"/>
-              <path d="M15.25 5.709V3.25C15.25 2.146 14.355 1.25 13.25 1.25H2.75C1.645 1.25 0.75 2.146 0.75 3.25V7.75C0.75 8.854  Up1.645 9.75 2.75 9.75H6.191" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M15.25 5.709V3.25C15.25 2.146 14.355 1.25 13.25 1.25H2.75C1.645 1.25 0.75 2.146 0.75 3.25V7.75C0.75 8.854 1.645 9.75 2.75 9.75H6.191" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M14.4993 12.7501H14.9323C15.7203 12.7501 16.1993 11.8811 15.7773 11.2151L12.8443 6.58414C12.4513 5.96414 11.5473 5.96414 11.1543 6.58414L8.22134 11.2151C7.79934 11.8811 8.27834 12.7501 9.06634 12.7501H9.49934" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M12 9.25V11.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M12 14C12.4142 14 12.75 13.6642 12.75 13.25C12.75 12.8358 12.4142 12.5 12 12.5C11.5858 12.5 11.25 12.8358 11.25 13.25C11.25 13.6642 11.5858 14 12 14Z" fill="#EC1919"/>
@@ -60,32 +72,26 @@
           </a>
         </div>
 
-        <!-- Error Message Above Sign In Button -->
+        <div *ngIf="errorMsg" class="error-text text-center">{{ errorMsg }}</div>
 
         <button type="submit" class="btn btn-dark w-100 onestsemibold" [ngClass]="{'shimmer': isLoading}" style="border-radius: 15px;" [disabled]="isLoading">
-          <span class="me-1"><svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_12219_7237)">
-<path d="M7.75 5.75V3.25C7.75 2.698 8.198 2.25 8.75 2.25H15.25C15.802 2.25 16.25 2.698 16.25 3.25V14.75C16.25 15.302 15.802 15.75 15.25 15.75H8.75C8.198 15.75 7.75 15.302 7.75 14.75V12.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M4.5 11.75L7.25 9L4.5 6.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M7.25 9H1.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M16.042 2.64795L12.721 4.70695C12.427 4.88895 12.248 5.21095 12.248 5.55695V12.4439C12.248 12.7899 12.427 13.1109 12.721 13.2939L16.043 15.3539" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<defs>
-<clipPath id="clip0_12219_7237">
-<rect width="18" height="18" fill="white" transform="translate(0.5)"/>
-</clipPath>
-</defs>
-</svg>
-</span> {{ isLoading ? 'Signing In...' : 'Sign In' }}
+          <span class="me-1">
+            <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_12219_7237)">
+                <path d="M7.75 5.75V3.25C7.75 2.698 8.198 2.25 8.75 2.25H15.25C15.802 2.25 16.25 2.698 16.25 3.25V14.75C16.25 15.302 15.802 15.75 15.25 15.75H8.75C8.198 15.75 7.75 15.302 7.75 14.75V12.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4.5 11.75L7.25 9L4.5 6.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.25 9H1.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16.042 2.64795L12.721 4.70695C12.427 4.88895 12.248 5.21095 12.248 5.55695V12.4439C12.248 12.7899 12.427 13.1109 12.721 13.2939L16.043 15.3539" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_12219_7237">
+                  <rect width="18" height="18" fill="white" transform="translate(0.5)"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </span> {{ isLoading ? 'Signing In...' : 'Sign In' }}
         </button>
-        <div *ngIf="errorMsg" class="error-text text-center ">{{ errorMsg }}</div>
-
       </form>
     </div>
   </div>
 </div>
-
-
-
-
-

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { ArchiveProjectService } from '../../core/services/archiveprojects.service';
 import { ArchiveProject } from '../../core/models/archiveprojects';
@@ -43,6 +43,15 @@ export class ArchiveProjectComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProjects();
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown') && !target.closest('.action-btn')) {
+      this.showDropdownIndex = null;
+      this.cdr.detectChanges();
+    }
   }
 
   loadProjects(page: number = 1): void {
@@ -209,8 +218,13 @@ export class ArchiveProjectComponent implements OnInit {
   }
 
   confirmAction(): void {
-    if (!this.modalProject || this.actionInput.toLowerCase() !== this.modalAction.toLowerCase()) {
-      alert(`Please type "${this.modalAction}" to confirm.`);
+    if (!this.modalProject) {
+      alert('No project selected.');
+      return;
+    }
+
+    if (this.modalAction.toLowerCase() === 'delete' && this.actionInput.toLowerCase() !== 'delete') {
+      alert('Please type "Delete" to confirm.');
       return;
     }
 
@@ -248,8 +262,8 @@ export class ArchiveProjectComponent implements OnInit {
   }
 
   confirmBulkAction(): void {
-    if (this.actionInput.toLowerCase() !== this.modalAction.toLowerCase()) {
-      alert(`Please type "${this.modalAction}" to confirm.`);
+    if (this.modalAction.toLowerCase() === 'delete' && this.actionInput.toLowerCase() !== 'delete') {
+      alert('Please type "Delete" to confirm.');
       return;
     }
 

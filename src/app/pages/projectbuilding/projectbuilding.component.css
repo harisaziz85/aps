@@ -45,14 +45,17 @@ table tbody tr td {
   border: 1px solid rgba(164, 163, 162, 1) !important;
   border-radius: 15px;
 }
-app-svg-icons{
-    margin-right: 5px;
+
+app-svg-icons {
+  margin-right: 5px;
 }
+
 .chk {
   height: 17px;
   width: 17px;
 }
-.chk:checked{
+
+.chk:checked {
   accent-color: black;
 }
 
@@ -109,19 +112,19 @@ tbody, td, tfoot, th, thead, tr {
   border-radius: 15px;
 }
 
-
-
 .profile-img {
   border-radius: 50%;
   margin-right: 5px;
   height: 36px;
   width: 36px;
 }
-.bad{
+
+.bad {
   height: 37px;
   font-size: 14px;
   color: black;
 }
+
 .instance-badge {
   display: inline-block;
   border: 1px solid rgba(205, 204, 203, 1);
@@ -194,7 +197,7 @@ tbody, td, tfoot, th, thead, tr {
 
 .projbtn {
   height: 56px;
-  width: 147px;
+  width: 167px;
 }
 
 .note-card {
@@ -480,24 +483,27 @@ th:first-child {
   border-radius: 10px;
   background-color: transparent;
 }
-.btn-danger12{
-height: 56px;
-width: 148px;
-font-size: 16px;
-background-color: rgba(236, 25, 25, 1);
-display: flex;
-align-items: center;
-justify-content: center;
+
+.btn-danger12 {
+  height: 56px;
+  width: 148px;
+  font-size: 16px;
+  background-color: rgba(236, 25, 25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-primary12{
-height: 56px;
-width: 148px;
-font-size: 16px;
-display: flex;
-align-items: center;
-justify-content: center;
+
+.btn-primary12 {
+  height: 56px;
+  width: 148px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-secondary12{
+
+.btn-secondary12 {
   height: 56px;
   width: 148px;
   background-color: rgba(255, 255, 255, 0);
@@ -505,10 +511,9 @@ justify-content: center;
   border: 1px solid black;
   font-size: 16px;
   display: flex;
-align-items: center;
-justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
-
 
 .table-container {
   position: relative;
@@ -538,12 +543,14 @@ justify-content: center;
     background-position: 468px 0;
   }
 }
+
 /* Action Dropdown Styles */
 .action-dropdown {
   position: relative;
   display: inline-block;
 }
-.dropdown-content{
+
+.dropdown-content {
   position: absolute !important;
   z-index: 199;
   background-color: white !important;
@@ -552,10 +559,12 @@ justify-content: center;
   border-radius: 10px;
   font-size: 16px !important;
 }
-.text-danger{
+
+.text-danger {
   color: black !important;
   text-decoration: none !important;
 }
+
 .action-btn {
   background: none;
   border: none;
@@ -618,7 +627,6 @@ justify-content: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background-color: white !important; */
   z-index: 1000;
 }
 
@@ -632,20 +640,44 @@ justify-content: center;
   z-index: 1000;
   transition: opacity 0.3s ease;
 }
-.h2{
+
+.h2 {
   font-size: 21px !important;
   color: black !important;
 }
-.fp{
+
+.fp {
   font-size: 14px !important;
   color: black !important;
+  font-weight: 900 !important;
 }
+
 .confirm-action-content {
   background-color: #ffffff !important;
   color: black !important;
-  border-radius: 8px;
-  width: 420px;
+  border-radius: 15px;
+  width: 600px !important;
+  height: 206px;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
   max-width: 90%;
+  padding: 24px;
+  position: relative;
+  z-index: 1001;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+.confirm-action-content1 {
+  background-color: #ffffff !important;
+  color: black !important;
+  border-radius: 15px;
+  width: 600px !important;
+  height: fit-content !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
   padding: 24px;
   position: relative;
   z-index: 1001;
@@ -773,6 +805,7 @@ justify-content: center;
 
   .confirm-action-content {
     background-color: #2c2c2c;
+    width: 600px !important;
   }
 
   .confirm-action-header h3,
@@ -795,53 +828,74 @@ justify-content: center;
     background-color: #555;
   }
 }
-.inbr{
+
+.inbr {
   padding: 10px;
   color: rgba(15, 15, 15, 1) !important;
-  border:  1px solid rgba(205, 204, 203, 1);
+  border: 1px solid rgba(205, 204, 203, 1);
   border-radius: 10px;
 }
+
 .custom-dropdown {
-  position: relative; /* Ensures dropdown positions relative to this container */
+  position: relative;
   display: inline-block;
 }
 
-.dropdown-content1{
+.dropdown-content1 {
   height: 82px !important;
   position: absolute;
-  top: 100%; /* Positions dropdown below the button */
-  right: 0; /* Aligns to the right of the button */
-  transform: translateX(-30px); /* Shifts 30px to the left */
-  background-color: #fff; /* Example background */
-  border: 1px solid #ccc; /* Example border */
-  border-radius: 4px; /* Optional: rounded corners */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional: shadow for depth */
-  z-index: 1000; /* Ensures dropdown appears above other elements */
-  overflow: visible; /* Prevents clipping */
+  top: 100%;
+  right: 0;
+  transform: translateX(-30px);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  overflow: visible;
   width: 120px !important;
-  padding-left: 14px;
-
+  padding: 10px;
 }
 
-.dropdown-content a {
-  display: block;
-  padding: 0px !important;
+.dropdown-item-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dropdown-content1 a {
+  display: flex;
+  align-items: center;
+  padding: 5px 0 !important;
   text-decoration: none;
-  color: #333; /* Default link color */
+  color: #333;
 }
 
-.dropdown-content a.text-danger {
-  color: #dc3545; /* Bootstrap danger color for Delete */
+.dropdown-content1 a.text-danger {
+  color: #dc3545;
 }
 
-.dropdown-content a:hover {
-  background-color: #f8f9fa; /* Hover effect */
+.dropdown-content1 a:hover {
+  background-color: #f8f9fa;
 }
 
-/* Ensure parent table doesn't clip the dropdown */
+.icon {
+  width: 20%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.dropdown-text {
+  width: 80%;
+  display: inline-flex;
+  align-items: center;
+}
+
 td.text-center {
-  overflow: visible; /* Prevents table cell from clipping dropdown */
+  overflow: visible;
 }
+
 .custom-bg-yellow {
   background-color: rgba(255, 224, 102, 1) !important;
   color: black;

@@ -1,6 +1,6 @@
-// clients.component.ts
 import { Component, ViewChild, ElementRef, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as bootstrap from 'bootstrap';
 import { faSyncAlt, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { ClientService } from '../../core/services/client.service';
@@ -27,6 +27,7 @@ export class ClientsComponent implements OnInit {
   clients: Client[] = [];
   filteredClients: Client[] = [];
   selectedClient: Client | null = null;
+  selectedClients: Set<string> = new Set();
   isOpen = false;
   profileImage: string = 'assets/profile.jpg';
   totalClients: number = 0;
@@ -41,10 +42,13 @@ export class ClientsComponent implements OnInit {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
+  private apiUrl = 'https://vps.allpassiveservices.com.au/api/client/';
+
   constructor(
     private clientService: ClientService,
     private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {
     this.clientForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -53,7 +57,6 @@ export class ClientsComponent implements OnInit {
       address: ['', [Validators.required]],
     });
 
-    // Subscribe to form value changes to clear backend errors
     this.clientForm.valueChanges.subscribe(() => {
       this.backendErrors = {};
       this.cdr.detectChanges();
@@ -70,14 +73,13 @@ export class ClientsComponent implements OnInit {
       next: (response) => {
         this.clients = response.clients.map(client => ({
           ...client,
-          ongoing: 0, // Initialize to 0
-          completed: 0, // Initialize to 0
+          ongoing: 0,
+          completed: 0,
           projects: []
         }));
         this.filteredClients = [...this.clients];
         this.totalClients = response.totalClients;
 
-        // Fetch project counts for each client
         this.clients.forEach(client => {
           this.fetchClientProjectCounts(client._id);
         });
@@ -94,7 +96,6 @@ export class ClientsComponent implements OnInit {
   }
 
   fetchClientProjectCounts(clientId: string): void {
-    // Fetch ongoing projects (To-do and In progress)
     this.clientService.getClientProjects(clientId, 'To-do').subscribe({
       next: (todoProjects) => {
         const todoCount = todoProjects.length;
@@ -116,7 +117,6 @@ export class ClientsComponent implements OnInit {
       }
     });
 
-    // Fetch completed projects
     this.clientService.getClientProjects(clientId, 'Completed').subscribe({
       next: (completedProjects) => {
         this.updateClientProjectCounts(clientId, completedProjects.length, 'completed');
@@ -132,7 +132,6 @@ export class ClientsComponent implements OnInit {
   fetchClientProjects(clientId: string): void {
     this.ongoingProjects = [];
     this.completedProjects = [];
-    // Fetch ongoing projects (To-do and In progress)
     this.clientService.getClientProjects(clientId, 'To-do').subscribe({
       next: (todoProjects) => {
         this.ongoingProjects = [...todoProjects];
@@ -154,7 +153,6 @@ export class ClientsComponent implements OnInit {
       }
     });
 
-    // Fetch completed projects
     this.clientService.getClientProjects(clientId, 'Completed').subscribe({
       next: (completedProjects) => {
         this.completedProjects = completedProjects;
@@ -195,7 +193,75 @@ export class ClientsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  toggleClientSelection(clientId: string, event: Event): void {
+    event.stopPropagation();
+    if (this.selectedClients.has(clientId)) {
+      this.selectedClients.delete(clientId);
+    } else {
+      this.selectedClients.add(clientId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  get allSelected(): boolean {
+    return this.filteredClients.length > 0 && this.filteredClients.every(client => this.selectedClients.has(client._id));
+  }
+
+  toggleSelectAll(event: Event): void {
+    event.stopPropagation();
+    if (this.allSelected) {
+      this.selectedClients.clear();
+    } else {
+      this.filteredClients.forEach(client => this.selectedClients.add(client._id));
+    }
+    this.cdr.detectChanges();
+  }
+
+  cancelSelection(): void {
+    this.selectedClients.clear();
+    this.cdr.detectChanges();
+  }
+
+  deleteSelectedClients(): void {
+    const clientIds = Array.from(this.selectedClients);
+    if (clientIds.length === 0) return;
+
+    this.isLoading = true;
+    const deleteRequests = clientIds.map(clientId =>
+      this.http.delete(`${this.apiUrl}${clientId}`, {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }).subscribe({
+        next: () => {
+          this.clients = this.clients.filter(client => !this.selectedClients.has(client._id));
+          this.filteredClients = [...this.clients];
+          this.totalClients = this.clients.length;
+          this.selectedClients.delete(clientId);
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error deleting client:', error);
+          this.backendErrors['delete'] = error.error?.message || 'Failed to delete client';
+          this.cdr.detectChanges();
+        },
+        complete: () => {
+          if (this.selectedClients.size === 0) {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          }
+        }
+      })
+    );
+
+    Promise.all(deleteRequests).then(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    });
+  }
+
   openClientDetails(client: Client): void {
+    if (this.selectedClients.size > 0) return;
     this.selectedClient = client;
     this.isOpen = true;
     this.isAddingNewClient = false;
@@ -212,6 +278,7 @@ export class ClientsComponent implements OnInit {
   }
 
   openAddClientModal(): void {
+    if (this.selectedClients.size > 0) return;
     this.isOpen = true;
     this.isAddingNewClient = true;
     this.selectedClient = null;
@@ -281,20 +348,39 @@ export class ClientsComponent implements OnInit {
         formData.append('clientProfile', this.selectedFile);
       }
 
-      this.clientService.registerClient(formData).subscribe({
-        next: (response) => {
-          console.log('Client registered:', response);
-          this.fetchClients();
-          this.closeModal();
-        },
-        error: (error) => {
-          console.error('Error registering client:', error);
-          if (error.error && error.error.errors) {
-            this.backendErrors = error.error.errors;
-            this.cdr.detectChanges();
+      if (this.isAddingNewClient) {
+        // Add new client
+        this.clientService.registerClient(formData).subscribe({
+          next: (response) => {
+            console.log('Client registered:', response);
+            this.fetchClients();
+            this.closeModal();
+          },
+          error: (error) => {
+            console.error('Error registering client:', error);
+            if (error.error && error.error.errors) {
+              this.backendErrors = error.error.errors;
+              this.cdr.detectChanges();
+            }
           }
-        }
-      });
+        });
+      } else if (this.selectedClient) {
+        // Update existing client
+        this.http.put(`${this.apiUrl}${this.selectedClient._id}`, formData).subscribe({
+          next: (response: any) => {
+            console.log('Client updated:', response);
+            this.fetchClients();
+            this.closeModal();
+          },
+          error: (error) => {
+            console.error('Error updating client:', error);
+            if (error.error && error.error.errors) {
+              this.backendErrors = error.error.errors;
+              this.cdr.detectChanges();
+            }
+          }
+        });
+      }
     }
   }
 

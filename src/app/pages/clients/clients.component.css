@@ -538,6 +538,7 @@ input:focus {
 .custom-checkbox {
   width: 18px;
   height: 18px;
+  accent-color: black !important;
 }
 
 .table th, .table td {

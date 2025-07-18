@@ -38,6 +38,7 @@ input:-webkit-autofill:active {
   border-right: 0;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
+  height: 48px;
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   border-color: rgba(205, 204, 203, 1);

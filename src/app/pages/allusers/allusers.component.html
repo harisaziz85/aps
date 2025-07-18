@@ -1,6 +1,6 @@
 <div class="main">
   <app-topbar heading="Users"></app-topbar>
-  <div class="d-flex align-items-center mb-3 main1">
+  <div class="d-flex align-items-center mb-3 main1" >
     <div class="input-container search">
       <app-svg-icons icon="search" size="16"></app-svg-icons>
       <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="filterUsers()">
@@ -53,8 +53,8 @@
       </div>
     </div>
     <div class="row" *ngIf="!isLoading">
-      <div class="col-md-2 col-lg-3 col-xxl-2 mb-4" *ngFor="let user of filteredUsers; let i = index">
-        <div class="card card3 shadow-sm">
+      <div class="col-md-2 col-lg-3 col-xxl-2 mb-4"  style="padding-top: 16px !important;" *ngFor="let user of filteredUsers; let i = index">
+        <div class="card card3 shadow-sm " style="padding-top: 12px !important;">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center w-100">
               <span class="badge badge1 robotoregular bg-light text-dark d-flex align-items-center justify-content-center me-auto">

@@ -8,6 +8,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { FootComponent } from '../components/foot/foot.component';
 import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-projectbuilding',
@@ -37,7 +38,7 @@ export class ProjectbuildingComponent implements OnInit {
   selectedProjects: Set<string> = new Set();
   showDropdownIndex: number | null = null;
 
-  constructor(private projectService: ProjectService, private router: Router) {}
+  constructor(private projectService: ProjectService, private router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadProjects();
@@ -54,6 +55,7 @@ export class ProjectbuildingComponent implements OnInit {
           client: project.client?.clientName || 'N/A',
           status: this.normalizeStatus(project.status),
           instances: project.subProjects || 'No subprojects',
+          jobNotes: 'N/A', // Default value, will be updated after API call
           assignees: project.assignedEmployees
             ?.filter(emp => emp !== null && typeof emp === 'string')
             .map(emp => ({
@@ -63,10 +65,30 @@ export class ProjectbuildingComponent implements OnInit {
           hasValidAssignees: project.assignedEmployees?.filter(emp => emp !== null && typeof emp === 'string').length > 0,
           selected: false
         }));
-        this.applySearch();
-        this.isLoading = false;
-        console.log('API Response:', response);
-        console.log('Processed projects:', this.projects);
+
+        // Fetch job notes for each project
+        const jobNotesRequests = this.projects.map(project =>
+          this.http.get(`https://vps.allpassiveservices.com.au/api/jobNotes/project/${project.id}`).toPromise()
+            .then((response: any) => {
+              const notes = response?.data?.map((note: any) => note.title).join(', ') || 'N/A';
+              project.jobNotes = notes;
+            })
+            .catch(error => {
+              console.error(`Error fetching job notes for project ${project.id}:`, error);
+              project.jobNotes = 'N/A';
+            })
+        );
+
+        Promise.all(jobNotesRequests).then(() => {
+          this.applySearch();
+          this.isLoading = false;
+          console.log('API Response:', response);
+          console.log('Processed projects:', this.projects);
+        }).catch(error => {
+          console.error('Error fetching job notes:', error);
+          this.applySearch();
+          this.isLoading = false;
+        });
       },
       error: (error) => {
         console.error('Error fetching projects:', error);
@@ -86,7 +108,8 @@ export class ProjectbuildingComponent implements OnInit {
       this.filteredProjects = this.projects.filter(project =>
         (project.name || '').toLowerCase().includes(query) ||
         (project.building || '').toLowerCase().includes(query) ||
-        (project.client || '').toLowerCase().includes(query)
+        (project.client || '').toLowerCase().includes(query) ||
+        (project.jobNotes || '').toLowerCase().includes(query)
       );
     } else {
       this.filteredProjects = [...this.projects];
@@ -152,8 +175,12 @@ export class ProjectbuildingComponent implements OnInit {
   }
 
   confirmAction(): void {
-    if (!this.modalProject?.id || this.confirmInput.toLowerCase() !== this.modalAction.toLowerCase()) {
-      alert(`Please type "${this.modalAction}" to confirm.`);
+    if (!this.modalProject?.id) {
+      alert('No project selected.');
+      return;
+    }
+    if (this.modalAction === 'Delete' && this.confirmInput.toLowerCase() !== 'delete') {
+      alert('Please type "Delete" to confirm.');
       return;
     }
 
@@ -179,14 +206,13 @@ export class ProjectbuildingComponent implements OnInit {
   }
 
   confirmBulkAction(): void {
-    if (this.confirmInput.toLowerCase() !== this.modalAction.toLowerCase()) {
-      alert(`Please type "${this.modalAction}" to confirm.`);
-      return;
-    }
-
     const projectIds = Array.from(this.selectedProjects);
     if (projectIds.length === 0) {
       alert('No projects selected.');
+      return;
+    }
+    if (this.modalAction === 'Delete' && this.confirmInput.toLowerCase() !== 'delete') {
+      alert('Please type "Delete" to confirm.');
       return;
     }
 

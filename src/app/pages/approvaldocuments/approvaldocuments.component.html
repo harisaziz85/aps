@@ -38,7 +38,7 @@
     <!-- Shimmer Effect -->
     <div *ngIf="isLoading" class="shimmer-container">
       <div class="row">
-        <div class="col-md-2 col-sm-6 mb-3" *ngFor="let _ of [1, 2, 3, 4, 5, 6]">
+        <div class="col-md-1-33 mb-3" *ngFor="let _ of [1, 2, 3, 4, 5, 6, 7, 8, 9]">
           <div class="card p-3 shimmer-card">
             <div class="shimmer shimmer-icon"></div>
             <div class="shimmer shimmer-text"></div>
@@ -48,7 +48,7 @@
     </div>
     <!-- Document Cards -->
     <div class="row" *ngIf="!isLoading">
-      <div class="col-md-2 col-sm-6 mb-3" *ngFor="let doc of filteredDocuments">
+      <div class="col-md-1-33 mb-3" *ngFor="let doc of filteredDocuments">
         <div class="card p-3 text-center card1 justify-content-center align-center" (click)="openDocument(doc)" style="cursor: pointer;">
           <input type="checkbox" class="position-absolute namebox top-0 start-0 m-2"
                  [checked]="selectedDocumentIds.includes(doc._id)"
@@ -121,6 +121,6 @@
     </div>
   </div>
 </div>
-<div style="position: fixed; margin:auto; ">
-<app-foot></app-foot>
+<div style="position: fixed; margin: auto;">
+  <app-foot></app-foot>
 </div>

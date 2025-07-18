@@ -223,16 +223,18 @@
     </div>
     <div class="modal-body">
       <p class="robotobold cf">Are you sure you want to {{ modalAction }} the project <strong>{{ selectedProject?.name
-          }}</strong>?</p>
-      <p class="cf robotobold">Confirm by typing <strong>{{ modalAction }}</strong> below:</p>
-      <input type="text" class="form-control fm1" [(ngModel)]="confirmationInput"
-        placeholder="Type {{ modalAction }} here">
+          }}</strong></p>
+      <ng-container *ngIf="modalAction === 'delete'">
+        <p class="cf robotobold">Confirm by typing <strong>delete</strong> below:</p>
+        <input type="text" class="form-control fm1" [(ngModel)]="confirmationInput"
+          placeholder="Type delete here">
+      </ng-container>
     </div>
     <div class="modal-footer">
       <button class="btn ccl robotosemibold" (click)="closeModal()">Cancel</button>
       <button class="btn robotosemibold"
         [ngClass]="{'btn-archive': modalAction === 'archive', 'btn-delete': modalAction === 'delete'}"
-        (click)="confirmAction()" [disabled]="confirmationInput.toLowerCase() !== modalAction">
+        (click)="confirmAction()" [disabled]="modalAction === 'delete' && confirmationInput.toLowerCase() !== 'delete'">
         {{ modalAction === 'archive' ? 'Archive' : 'Delete' }}
       </button>
     </div>

@@ -6,7 +6,7 @@
   animation: shimmer 1.5s infinite linear;
   border-radius: 4px;
 }
-.remove-btn{
+.remove-btn {
   background-color: red;
 }
 .shimmer-checkbox {
@@ -14,25 +14,21 @@
   height: 15px;
   border-radius: 3px;
 }
-
 .shimmer-icon {
   width: 49px;
   height: 49px;
   border-radius: 8px;
 }
-
 .shimmer-name {
   width: 80px;
   height: 14px;
   border-radius: 4px;
 }
-
 .shimmer-documents {
   width: 120px;
   height: 12px;
   border-radius: 4px;
 }
-
 @keyframes shimmer {
   0% {
     background-position: -468px 0;
@@ -43,8 +39,16 @@
 }
 
 /* Remove Spinner and Old Shimmer Styles */
-.spinner-overlay, .spinner, .shimmer-card {
+.spinner-overlay,
+.spinner,
+.shimmer-card {
   display: none;
+}
+
+/* Custom column for 9 cards per row */
+.col-md-1-33 {
+  flex: 0 0 auto;
+  width: 11.11111111%; /* 100% / 9 */
 }
 
 /* Existing Styles */
@@ -67,12 +71,10 @@ option {
   margin-top: 4px !important;
   border: 1px solid rgba(205, 204, 203, 1);
 }
-
 .input-container span {
   color: white;
   margin-right: 10px;
 }
-
 .input-container input {
   background: none;
   border: none;
@@ -81,12 +83,10 @@ option {
   width: 100%;
   font-size: 16px;
 }
-
 .head2 a {
   text-decoration: none !important;
   color: #000 !important;
 }
-
 .crossmd {
   opacity: 1;
   background-color: white !important;
@@ -94,11 +94,9 @@ option {
   border-radius: 100%;
   border: 0px;
 }
-
 .head {
   font-size: 21px;
 }
-
 .head3 {
   font-size: 27px;
 }
@@ -110,7 +108,6 @@ option {
   background-color: rgba(255, 255, 255, 0);
   color: black;
 }
-
 .form-control {
   border-radius: 15px;
   border: 1px solid rgba(164, 163, 162, 1);
@@ -151,7 +148,6 @@ option {
   border-radius: 8px;
   padding: 8px;
 }
-
 .document-tags .badge {
   display: inline-flex;
   align-items: center;
@@ -168,27 +164,23 @@ option {
   overflow-x: hidden !important;
   min-height: 100vh;
   padding-bottom: 200px;
-  overflow-y: auto; /* Enable vertical scrolling */
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-
-/* Hide scrollbar for Chrome, Safari, and other Webkit browsers */
 .main::-webkit-scrollbar {
   display: none;
 }
 .sidebar {
-      display: none; /* Hide sidebar */
-    }
+  display: none;
+}
 .document-tags .btn-close {
   margin-left: 8px;
   font-size: 12px;
 }
-
 .name {
   font-size: 14px !important;
 }
-
 .buttons {
   border: 0px;
   width: fit-content;
@@ -213,7 +205,6 @@ option {
 .head {
   font-size: 27px;
 }
-
 .card {
   background-color: white;
   padding: 16px 16px;
@@ -244,16 +235,13 @@ option {
   border: 1px solid #ccc;
   padding: 10px;
   cursor: pointer;
-  box-sizing: border-box; /* Ensure padding and border are included in width */
+  box-sizing: border-box;
   transition: border-radius 0.2s ease;
 }
-
-/* When dropdown is open, remove bottom border and adjust border-radius */
 .custom-dropdown.active {
   border-bottom: none;
   border-radius: 15px 15px 0 0;
 }
-
 .custom-dropdown input {
   width: 100%;
   border: none;
@@ -263,40 +251,56 @@ option {
   font-size: 16px;
   cursor: pointer;
 }
-
 .icon {
   padding: 5px;
   font-size: 18px;
 }
-
 .arrow {
   margin-left: auto;
   font-size: 16px;
 }
-
 .dropdown-menu {
   position: absolute;
-  top: 100%; 
+  top: 100%;
   left: 0;
-  width: 100%; 
+  width: 100%;
   background: white;
   border: 1px solid #ccc;
-  border-top: none; 
+  border-top: none;
   border-radius: 0 0 10px 10px;
   display: flex;
   flex-direction: column;
   z-index: 10;
-  margin-top: 0; 
-  box-sizing: border-box; 
-  padding: 0; 
+  margin-top: 0;
+  box-sizing: border-box;
+  padding: 0;
 }
-
 .dropdown-menu div {
-  padding: 10px; 
+  padding: 10px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
-
-.cancelbtn1{
+.dropdown-menu input[type="checkbox"] {
+  width: 5%;
+  accent-color: black;
+  margin-right: 10px;
+}
+.cards12 {
+  height: 200px !important;
+  width: 198px !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 12px !important;
+  justify-content: center;
+  margin-right:8px 
+}
+.dropdown-menu span {
+  width: 90%;
+}
+.cancelbtn1 {
   background-color: #00000000 !important;
   height: 56px;
   border: 2px solid black;
@@ -304,8 +308,7 @@ option {
   font-size: 16px;
   width: 146px;
 }
-.delbtn1{
-  
+.delbtn1 {
   background-color: rgba(236, 25, 25, 1) !important;
   border: 0px !important;
   color: white;
@@ -313,16 +316,13 @@ option {
   border-radius: 20px;
   font-size: 16px;
   width: 146px;
-
 }
 .dropdown-menu div:hover {
   background: #f0f0f0;
 }
-
 .inpt1 {
   width: 100%;
 }
-
 .input-container {
   margin-right: 8px !important;
   background: rgba(0, 0, 0, 0);
@@ -332,7 +332,6 @@ option {
   border: 1px solid rgba(164, 163, 162, 1);
   width: 100%;
 }
-
 .input-container svg {
   color: white;
   margin-right: 10px !important;
@@ -343,14 +342,11 @@ option {
   outline: none;
   color: rgb(39, 39, 39);
   width: 100%;
-  /* margin-top: -3px; */
   font-size: 16px;
 }
-
 .search {
   width: 580px !important;
 }
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -374,12 +370,10 @@ option {
   justify-content: space-between;
   border-radius: 20px 0px 0px 20px;
 }
-
 .modal-header {
   margin-top: 8px;
   margin-bottom: 24px;
 }
-
 body.modal-open::before {
   content: "";
   position: fixed;
@@ -393,19 +387,16 @@ body.modal-open::before {
   border-radius: 20px !important;
   font-size: 16px;
 }
-
 .document-tags {
   margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
-
 .document-badge-wrapper {
   position: relative;
   display: inline-block;
 }
-
 .document-badge {
   border-radius: 10px !important;
   height: 40px;
@@ -419,28 +410,24 @@ body.modal-open::before {
   font-size: 14px;
   font-weight: 400;
 }
-
 .remove-btn {
   position: absolute;
-  top: -5px;          
-  right: -6px;         
-  border-radius: 50%;  
-  padding: 0px 4px 4px 4px !important;        
+  top: -5px;
+  right: -6px;
+  border-radius: 50%;
+  padding: 0px 4px 4px 4px !important;
   cursor: pointer;
-  display: flex;     
+  display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(236, 25, 25, 1);  
-  width: 20px;        
-  height: 20px;        
+  background-color: rgba(236, 25, 25, 1);
+  width: 20px;
+  height: 20px;
 }
-
-
-.confirmation-modal{
+.confirmation-modal {
   background-color: white !important;
   z-index: 100000000;
   position: absolute;
-  
 }
 .confirmation-modal-overlay {
   position: fixed;
@@ -451,7 +438,6 @@ body.modal-open::before {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
-
 .confirmation-modal {
   position: fixed;
   top: 50%;
@@ -463,14 +449,12 @@ body.modal-open::before {
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 .comodal-header {
   padding: 16px 16px 0px 16px;
   font-size: 21px !important;
   margin-bottom: 0px !important;
-  
 }
-.cll12{
+.cll12 {
   height: 40px;
   width: 88px;
   border-radius: 10px;
@@ -478,41 +462,35 @@ body.modal-open::before {
   margin-right: 8px;
   background-color: #00000000;
 }
-.del12{
+.del12 {
   height: 40px;
   width: 88px;
   border-radius: 10px;
-  border:0px !important;
+  border: 0px !important;
   margin-right: 8px;
   background-color: rgba(236, 25, 25, 1);
   color: white;
 }
-
 .modal-header .btn-close {
   font-size: 5px !important;
   height: 100px;
   cursor: pointer;
 }
-
 .confirmation-modal-body {
   padding: 16px;
   font-size: 14px;
 }
-
 .confirmation-modal-footer {
   padding: 16px;
 }
-
 .btn {
   padding: 8px 16px;
   border-radius: 4px;
 }
-
 .btn-outline-dark {
   border-color: #343a40;
   color: #343a40;
 }
-
 .btn-danger {
   background-color: #dc3545;
   border-color: #dc3545;

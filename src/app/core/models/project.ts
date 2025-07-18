@@ -10,6 +10,7 @@ export interface Employee {
 }
 
 export interface Project {
+  jobNotes: string;
   _id: string;
   projectAdministration: any;
   projectId: string;
