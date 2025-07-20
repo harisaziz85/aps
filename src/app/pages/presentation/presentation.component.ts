@@ -1,34 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { PresentationService } from '../../core/services/presentation.service';
 import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
 import { FootComponent } from '../components/foot/foot.component';
-import { ProjectResponse, InstanceResponse, Marker, Document, AttributeTemplateResponse } from '../../core/models/presentation';
-
-interface AttributeTemplate {
-  _id: string;
-  projectId: string;
-  templateName: string;
-  approvalDocumentId: string;
-  productId: string;
-  assignedEmployees: string[];
-  attributes: Array<{
-    conditionalAttribute: { isEnabled: boolean };
-    name: string;
-    type: string;
-    value: string | string[];
-    editableBackOffice: boolean;
-    hideForMobileUser: boolean;
-    _id: string;
-  }>;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  subProjects: string[];
-}
+import { ProjectResponse, InstanceResponse, Marker, Document } from '../../core/models/presentation';
 
 interface Instance {
   instanceId: string;
@@ -50,7 +29,9 @@ interface Report {
   templateUrl: './presentation.component.html',
   styleUrls: ['./presentation.component.css']
 })
-export class PresentationComponent implements OnInit {
+export class PresentationComponent implements OnInit, AfterViewInit {
+  @ViewChild('editCanvas') editCanvas!: ElementRef<HTMLCanvasElement>;
+
   isModalOpen = localStorage.getItem('isModalOpen') === 'true';
   isReportModalOpen = localStorage.getItem('isReportModalOpen') === 'true';
   isImageModalOpen = false;
@@ -70,36 +51,30 @@ export class PresentationComponent implements OnInit {
   dropdown1 = { isOpen: false, selected: 'Select an option', options: ['In progress', 'Completed', 'To-do'] };
   isDropdownOpen: boolean = false;
   selectedOption: string = 'Excel Reports';
-  options: string[] = ['Excel Reports', '2D Reports', 'Standard Reports'];
-  attributeTemplate: AttributeTemplate | null = null;
-  dynamicFields: { [key: string]: boolean } = {};
-  fields = {
-    productName: false,
-    approval: false,
-    building: false,
-    level: false,
-    itemNumber: false,
-    testReference: false,
-    location: false,
-    frl: false,
-    barrier: false,
-    description: false,
-    date: false,
-    installer: false,
-    inspector: false,
-    safetyMeasures: false,
-    relevanceToBuildingCode: false,
-    compliance: false,
-    comments: false,
-    notes: false,
-    time: false,
-    priceExcludingGST: false
-  };
-  isLoadingAttributes: boolean = false;
-  standardAttributes: AttributeTemplate | null = null;
-  selectedFields: { [key: string]: boolean } = {};
   reportTypes: string[] = ['Standard Reports', '2D Reports', 'Excel Reports'];
-  Array = Array;
+  selectedFields: { [key: string]: boolean } = {};
+  reportFields: { key: string; name: string }[] = [
+    { key: 'productName', name: 'Product Name' },
+    { key: 'approval', name: 'Approval' },
+    { key: 'building', name: 'Building' },
+    { key: 'level', name: 'Level' },
+    { key: 'itemNumber', name: 'Item #' },
+    { key: 'testReference', name: 'Test Reference' },
+    { key: 'location', name: 'Location' },
+    { key: 'frl', name: 'FRL' },
+    { key: 'barrier', name: 'Barrier' },
+    { key: 'description', name: 'Description' },
+    { key: 'date', name: 'Date' },
+    { key: 'installer', name: 'Installer' },
+    { key: 'inspector', name: 'Inspector' },
+    { key: 'safetyMeasures', name: 'Safety Measures' },
+    { key: 'relevanceToBuildingCode', name: 'Relevance to Building Code' },
+    { key: 'compliance', name: 'Compliance' },
+    { key: 'comments', name: 'Comments' },
+    { key: 'notes', name: 'Notes' },
+    { key: 'time', name: 'Time' },
+    { key: 'priceExcludingGST', name: 'Price Excluding GST' }
+  ];
   projectId: string = '';
   reportId: string | null = null;
   hierarchyLevelId: string = '';
@@ -112,6 +87,17 @@ export class PresentationComponent implements OnInit {
   reports: Report[] = [];
   isLoadingReports: boolean = false;
 
+  // Image Editing Properties
+  isEditing: boolean = false;
+  ctx!: CanvasRenderingContext2D;
+  drawColor: string = '#000000';
+  currentTool: string = 'line';
+  isDrawing: boolean = false;
+  startX: number = 0;
+  startY: number = 0;
+  currentX: number = 0;
+  currentY: number = 0;
+
   constructor(
     private route: ActivatedRoute,
     private presentationService: PresentationService,
@@ -121,6 +107,7 @@ export class PresentationComponent implements OnInit {
 
   ngOnInit(): void {
     window.scrollTo(0, 0);
+    this.initializeSelectedFields();
     this.route.queryParams.subscribe(params => {
       this.projectId = params['projectId'] || this.route.snapshot.paramMap.get('projectId') || '';
       this.instanceId = params['instanceId'] || localStorage.getItem('instanceId') || this.instanceId;
@@ -142,7 +129,6 @@ export class PresentationComponent implements OnInit {
 
       if (this.projectId) {
         this.fetchProjectDetails(this.projectId);
-        this.fetchProjectAttributes(this.projectId);
       }
       if (this.instanceId && this.projectId && this.hierarchyLevelId) {
         this.selectInstance(this.instanceId);
@@ -158,6 +144,14 @@ export class PresentationComponent implements OnInit {
         }
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.editCanvas) {
+      this.ctx = this.editCanvas.nativeElement.getContext('2d')!;
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = this.drawColor;
+    }
   }
 
   fetchProjectDetails(projectId: string): void {
@@ -208,37 +202,16 @@ export class PresentationComponent implements OnInit {
     });
   }
 
-  fetchProjectAttributes(projectId: string): void {
-    this.isLoadingAttributes = true;
-    this.presentationService.getProjectAttributes(projectId).subscribe({
-      next: (response: AttributeTemplateResponse) => {
-        this.standardAttributes = response.data;
-        console.log('Attributes:', response.data);
-        this.initializeSelectedFields();
-      },
-      error: (err: any) => {
-        console.error('Error fetching project attributes:', err);
-        this.standardAttributes = null;
-      },
-      complete: () => {
-        this.isLoadingAttributes = false;
-      }
+  initializeSelectedFields(): void {
+    this.selectedFields = {};
+    this.reportFields.forEach(field => {
+      this.selectedFields[field.key] = false;
     });
   }
 
-  initializeSelectedFields(): void {
-    this.selectedFields = {};
-    if (this.standardAttributes?.attributes) {
-      this.standardAttributes.attributes.forEach(attr => {
-        this.selectedFields[attr.name] = false;
-      });
-    }
-  }
-
   isSelectAllIndeterminate(): boolean {
-    if (!this.standardAttributes?.attributes) return false;
-    const checkedCount = this.standardAttributes.attributes.filter(attr => this.selectedFields[attr.name]).length;
-    return checkedCount > 0 && checkedCount < this.standardAttributes.attributes.length;
+    const checkedCount = this.reportFields.filter(field => this.selectedFields[field.key]).length;
+    return checkedCount > 0 && checkedCount < this.reportFields.length;
   }
 
   selectInstance(instanceId: string): void {
@@ -259,6 +232,7 @@ export class PresentationComponent implements OnInit {
       next: (instance: InstanceResponse) => {
         this.selectedInstance = instance || null;
         console.log('Instance Details:', this.selectedInstance);
+        console.log('Instance Attributes:', this.selectedInstance?.attributes?.map(attr => attr.name));
         if (instance?.projectId) {
           this.projectId = instance.projectId;
         }
@@ -419,11 +393,18 @@ export class PresentationComponent implements OnInit {
     this.selectedImage = imageUrl;
     this.isImageModalOpen = true;
     document.body.style.overflow = 'hidden';
+    this.initializeCanvas();
   }
 
   closeImageModal(): void {
     this.isImageModalOpen = false;
+    this.isEditing = false;
+    this.currentTool = 'line';
+    this.drawColor = '#000000';
     document.body.style.overflow = 'auto';
+    if (this.editCanvas && this.ctx) {
+      this.ctx.clearRect(0, 0, this.editCanvas.nativeElement.width, this.editCanvas.nativeElement.height);
+    }
   }
 
   openMarkerModal(): void {
@@ -470,57 +451,171 @@ export class PresentationComponent implements OnInit {
 
   toggleSelectAll(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-    if (this.standardAttributes?.attributes) {
-      this.standardAttributes.attributes.forEach(attr => {
-        this.selectedFields[attr.name] = checked;
-      });
-    }
+    this.reportFields.forEach(field => {
+      this.selectedFields[field.key] = checked;
+    });
     this.updateSelectAll();
   }
 
   updateSelectAll(): void {
     const selectAllCheckbox = document.getElementById('selectAll') as HTMLInputElement | null;
-    if (selectAllCheckbox && this.standardAttributes?.attributes) {
-      const allChecked = this.standardAttributes.attributes.every(attr => this.selectedFields[attr.name]);
-      const someChecked = this.standardAttributes.attributes.some(attr => this.selectedFields[attr.name]);
+    if (selectAllCheckbox) {
+      const allChecked = this.reportFields.every(field => this.selectedFields[field.key]);
+      const someChecked = this.reportFields.some(field => this.selectedFields[field.key]);
       selectAllCheckbox.checked = allChecked;
       selectAllCheckbox.indeterminate = someChecked && !allChecked;
     }
   }
 
   async generateReport(): Promise<void> {
-    const doc = new jsPDF();
-    doc.save(`Empty_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
-    alert('Empty report generated successfully!');
+    // Collect report data
+    const reportData = {
+      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.value || 'N/A',
+      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.value || 'N/A',
+      building: this.selectedInstance?.attributes.find(attr => attr.name === 'Building')?.value || 'N/A',
+      level: this.selectedInstance?.attributes.find(attr => attr.name === 'Level')?.value || 'N/A',
+      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Item #')?.value || 'N/A',
+      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test Reference')?.value || 'N/A',
+      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.value || 'N/A',
+      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.value || 'N/A',
+      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.value || 'N/A',
+      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.value || 'N/A',
+      date: this.selectedInstance?.attributes.find(attr => attr.name === 'Date')?.value || 'N/A',
+      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.value || 'N/A',
+      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.value || 'N/A',
+      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.value || 'N/A',
+      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Relevance to Building Code')?.value || 'N/A',
+      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.value || 'N/A',
+      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.value || 'N/A',
+      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.value || 'N/A',
+      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.value || 'N/A',
+      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.value || 'N/A'
+    };
+
+    const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
+    const includeFloorPlans = (document.getElementById('includeFloorPlans') as HTMLInputElement)?.checked;
+    const includeAdditionalDocs = (document.getElementById('includeAdditionalDocs') as HTMLInputElement)?.checked;
+    const excludeBlankFields = (document.getElementById('excludeBlankFields') as HTMLInputElement)?.checked;
+
+    if (this.selectedOption === 'Excel Reports') {
+      // Generate Excel Report
+      const data: any[] = [];
+
+      // Add all fields as rows
+      this.reportFields.forEach(field => {
+        const value = reportData[field.key as keyof typeof reportData];
+        const displayValue = Array.isArray(value) ? value.join(', ') : value?.toString() || 'N/A';
+        data.push({ Field: field.name, Value: displayValue });
+      });
+
+      // Add attachments as a row if selected
+      if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
+        let attachments: string[] = [];
+        if (includeTechnicalDocs) attachments.push('Technical Documents');
+        if (includeFloorPlans) attachments.push('Floor Plans');
+        if (includeAdditionalDocs) attachments.push('Additional Documents');
+        data.push({ Field: 'Attachments', Value: attachments.join(', ') });
+      }
+
+      // Create worksheet and workbook
+      const ws = XLSX.utils.json_to_sheet(data, { header: ['Field', 'Value'] });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
+
+      // Generate and download Excel file
+      XLSX.writeFile(wb, `Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    } else {
+      // Generate PDF Report (for Standard Reports and 2D Reports)
+      const doc = new jsPDF();
+      let y = 40; // Start content below the image to avoid overlap
+
+      // Load and add logo image to top-right
+      const loadImage = (url: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = url;
+          img.crossOrigin = 'Anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error(`Failed to load image at ${url}`));
+        });
+      };
+
+      try {
+        const img = await loadImage('/images/logo.png');
+        const imgWidth = 50; // Adjust width as needed
+        const imgHeight = 20; // Adjust height as needed
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const x = pageWidth - imgWidth - 10; // 10mm from right edge
+        doc.addImage(img, 'PNG', x, 10, imgWidth, imgHeight);
+      } catch (error) {
+        console.error('Error loading logo image:', error);
+        // Optionally add placeholder text or skip
+        doc.text('Logo not found', 160, 15);
+      }
+
+      // Include selected fields in the report
+      this.reportFields.forEach(field => {
+        if (this.selectedFields[field.key]) {
+          const value = reportData[field.key as keyof typeof reportData];
+          const displayValue = Array.isArray(value) ? value.join(', ') : value?.toString() || 'N/A';
+          if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
+            doc.text(`${field.name}: ${displayValue}`, 10, y);
+            y += 10;
+          }
+        }
+      });
+
+      // Include report attachments if selected
+      if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
+        doc.text('Report Attachments:', 10, y);
+        y += 10;
+        if (includeTechnicalDocs) {
+          doc.text('- Technical Documents', 10, y);
+          y += 10;
+        }
+        if (includeFloorPlans) {
+          doc.text('- Floor Plans', 10, y);
+          y += 10;
+        }
+        if (includeAdditionalDocs) {
+          doc.text('- Additional Documents', 10, y);
+          y += 10;
+        }
+      }
+
+      // Save the PDF
+      doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    }
+
+    alert('Report generated successfully!');
     this.closeReportModal();
   }
 
-  getAttributeDisplayValue(attr: { value: string | string[] }): string {
-    if (Array.isArray(attr.value) && attr.value.length > 0) {
-      return attr.value.join(', ');
-    }
-    return attr.value?.toString() || 'N/A';
-  }
-
-  getAttributeFieldKey(attrName: string): string {
-    return attrName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-  }
-
-  private loadImage(url: string): Promise<HTMLImageElement | null> {
-    return new Promise((resolve) => {
-      const img = new Image();
-      const proxiedUrl = `/api/images${new URL(url).pathname}${new URL(url).search}`;
-      img.src = proxiedUrl;
-      console.log('Loading image:', proxiedUrl);
-      img.onload = () => {
-        console.log('Image loaded successfully:', proxiedUrl);
-        resolve(img);
-      };
-      img.onerror = () => {
-        console.error('Failed to load image:', proxiedUrl);
-        resolve(null);
-      };
-    });
+  getAttributeDisplayValue(key: string): string {
+    const reportData = {
+      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.value || 'N/A',
+      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.value || 'N/A',
+      building: this.selectedInstance?.attributes.find(attr => attr.name === 'Building')?.value || 'N/A',
+      level: this.selectedInstance?.attributes.find(attr => attr.name === 'Level')?.value || 'N/A',
+      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Item #')?.value || 'N/A',
+      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test Reference')?.value || 'N/A',
+      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.value || 'N/A',
+      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.value || 'N/A',
+      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.value || 'N/A',
+      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.value || 'N/A',
+      date: this.selectedInstance?.attributes.find(attr => attr.name === 'Date')?.value || 'N/A',
+      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.value || 'N/A',
+      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.value || 'N/A',
+      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.value || 'N/A',
+      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Relevance to Building Code')?.value || 'N/A',
+      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.value || 'N/A',
+      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.value || 'N/A',
+      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.value || 'N/A',
+      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.value || 'N/A',
+      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.value || 'N/A'
+    };
+    const value = reportData[key as keyof typeof reportData];
+    return Array.isArray(value) ? value.join(', ') : value?.toString() || 'N/A';
   }
 
   fetchReports(): void {
@@ -563,5 +658,131 @@ export class PresentationComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  toggleEditMode(): void {
+    this.isEditing = !this.isEditing;
+    if (this.isEditing) {
+      this.initializeCanvas();
+      this.redrawImage();
+    } else {
+      if (this.editCanvas && this.ctx) {
+        this.ctx.clearRect(0, 0, this.editCanvas.nativeElement.width, this.editCanvas.nativeElement.height);
+        this.redrawImage();
+      }
+    }
+  }
+
+  initializeCanvas(): void {
+    if (this.editCanvas && this.ctx) {
+      const canvas = this.editCanvas.nativeElement;
+      canvas.width = 520;
+      canvas.height = 480;
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = this.drawColor;
+      canvas.addEventListener('mousedown', this.startDrawing.bind(this));
+      canvas.addEventListener('mousemove', this.draw.bind(this));
+      canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
+      canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
+    }
+  }
+
+  redrawImage(): void {
+    if (this.editCanvas && this.ctx) {
+      const canvas = this.editCanvas.nativeElement;
+      const img = new Image();
+      img.src = this.selectedImage;
+      img.onload = () => {
+        this.ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+    }
+  }
+
+  setTool(tool: string): void {
+    this.currentTool = tool;
+  }
+
+  updateDrawColor(): void {
+    if (this.ctx) {
+      this.ctx.strokeStyle = this.drawColor;
+    }
+  }
+
+  startDrawing(event: MouseEvent): void {
+    if (this.isEditing && this.ctx) {
+      this.isDrawing = true;
+      const canvas = this.editCanvas.nativeElement;
+      const rect = canvas.getBoundingClientRect();
+      this.startX = event.clientX - rect.left;
+      this.startY = event.clientY - rect.top;
+      this.ctx.beginPath();
+      this.redrawImage();
+    }
+  }
+
+  draw(event: MouseEvent): void {
+    if (this.isEditing && this.isDrawing && this.ctx) {
+      const canvas = this.editCanvas.nativeElement;
+      const rect = canvas.getBoundingClientRect();
+      this.currentX = event.clientX - rect.left;
+      this.currentY = event.clientY - rect.top;
+
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.redrawImage();
+
+      if (this.currentTool === 'line') {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.startX, this.startY);
+        this.ctx.lineTo(this.currentX, this.currentY);
+        this.ctx.stroke();
+      } else if (this.currentTool === 'circle') {
+        const radius = Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2));
+        this.ctx.beginPath();
+        this.ctx.arc(this.startX, this.startY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+      }
+    }
+  }
+
+  stopDrawing(event: MouseEvent): void {
+    if (this.isEditing && this.isDrawing && this.ctx) {
+      this.isDrawing = false;
+      const canvas = this.editCanvas.nativeElement;
+      const rect = canvas.getBoundingClientRect();
+      this.currentX = event.clientX - rect.left;
+      this.currentY = event.clientY - rect.top;
+
+      if (this.currentTool === 'line') {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.startX, this.startY);
+        this.ctx.lineTo(this.currentX, this.currentY);
+        this.ctx.stroke();
+      } else if (this.currentTool === 'circle') {
+        const radius = Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2));
+        this.ctx.beginPath();
+        this.ctx.arc(this.startX, this.startY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+      }
+    }
+  }
+
+  saveEditedImage(): void {
+    if (this.editCanvas && this.ctx) {
+      const canvas = this.editCanvas.nativeElement;
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `edited_image_${Date.now()}.png`;
+      link.click();
+    }
+    this.toggleEditMode();
+  }
+
+  cancelEditMode(): void {
+    this.isEditing = false;
+    if (this.editCanvas && this.ctx) {
+      this.ctx.clearRect(0, 0, this.editCanvas.nativeElement.width, this.editCanvas.nativeElement.height);
+      this.redrawImage();
+    }
   }
 }

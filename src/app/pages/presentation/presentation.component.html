@@ -202,126 +202,120 @@
   </div>
 
   <!-- Report Modal -->
-  <div class="modal-overlay" *ngIf="isReportModalOpen">
-    <div class="modal-content4 modal-content">
-      <div class="modal-header d-flex justify-content-between">
-        <p class="head1 onestbold">Report</p>
-        <button class="close-btn" (click)="closeReportModal()">×</button>
-      </div>
-      <div class="modal-body4 d-flex flex-column">
-        <!-- Report Type Dropdown -->
-        <div class="card card1" style="margin-bottom: 16px;">
-          <label for="" class="robotoregular tst1">Report Type</label>
-          <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
-            <span class="icon">
-              <app-svg-icons icon="rep" size="16"></app-svg-icons>
-            </span>
-            <input type="text" [value]="selectedOption" readonly />
-            <span class="arrow">
-              <app-svg-icons icon="down" size="16"></app-svg-icons>
-            </span>
-            <div class="dropdown-menu" *ngIf="isDropdownOpen">
-              <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Select All Checkbox -->
-        <div class="col-6 d-flex align-items-center gap-2 mt-3"
-          style="margin-top: 24px; padding-left:16px; margin-bottom:8px">
-          <input type="checkbox" class="check1" id="selectAll" (change)="toggleSelectAll($event)">
-          <p class="robotoregular txt2 mb-0">Select All</p>
-        </div>
-
-        <!-- Static Attributes Section -->
-        <div *ngIf="standardAttributes && standardAttributes.attributes && standardAttributes.attributes.length > 0">
-          <div *ngFor="let attr of standardAttributes.attributes" class="card1 card cd1" style="margin-bottom: 8px;">
-            <input type="checkbox" class="check1 mt-4" [(ngModel)]="selectedFields[attr.name]"
-              (change)="updateSelectAll()">
-            <div class="form-group w-100">
-              <label [for]="attr.name" class="robotoregular" style="font-size: 14px;">{{ attr.name }}</label>
-              <ng-container [ngSwitch]="attr.type">
-                <select *ngSwitchCase="'list'" class="form-control sle1" [id]="attr.name">
-                  <option value="">Select</option>
-                  <option *ngFor="let val of (Array.isArray(attr.value) ? attr.value : [attr.value])" [value]="val">
-                    {{val}}</option>
-                </select>
-                <input *ngSwitchCase="'string'" type="text" class="form-control sle1" [id]="attr.name"
-                  [value]="attr.value" readonly>
-                <input *ngSwitchCase="'number'" type="number" class="form-control sle1" [id]="attr.name"
-                  [value]="attr.value" readonly>
-                <input *ngSwitchCase="'date'" type="date" class="form-control sle1" [id]="attr.name"
-                  [value]="attr.value" readonly>
-                <input *ngSwitchDefault type="text" class="form-control sle1" [id]="attr.name" [value]="attr.value"
-                  readonly>
-              </ng-container>
-            </div>
-          </div>
-        </div>
-
-        <!-- No attributes message -->
-        <div *ngIf="!standardAttributes || !standardAttributes.attributes || standardAttributes.attributes.length === 0"
-          class="alert alert-info mt-3">
-          <p class="mb-0">No attributes available.</p>
-        </div>
-
-        <!-- Report Data Options -->
-        <div class="card card1" style="margin-top: 16px; margin-bottom: 16px;">
-          <label for="" class="robotoregular tst1">Report Data</label>
-          <div class="d-flex flex-column gap-2 mt-2">
-            <div class="d-flex align-items-center gap-2">
-              <input type="checkbox" class="check1" id="excludeBlankFields">
-              <p class="robotoregular txt2 mb-0">Exclude blank fields from report</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Report Attachment Options -->
-        <div class="card card1" style="margin-bottom: 16px;">
-          <label for="" class="robotoregular tst1">Report Attachment</label>
-          <div class="d-flex flex-column gap-2 mt-2">
-            <div class="d-flex align-items-center gap-2">
-              <input type="checkbox" class="check1" id="includeTechnicalDocs">
-              <p class="robotoregular txt2 mb-0">Include Technical Documents</p>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <input type="checkbox" class="check1" id="includeFloorPlans">
-              <p class="robotoregular txt2 mb-0">Include Floor Plans</p>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <input type="checkbox" class="check1" id="includeAdditionalDocs">
-              <p class="robotoregular txt2 mb-0">Include Additional Documents</p>
-            </div>
+<div class="modal-overlay" *ngIf="isReportModalOpen">
+  <div class="modal-content4 modal-content">
+    <div class="modal-header d-flex justify-content-between">
+      <p class="head1 onestbold">Report</p>
+      <button class="close-btn" (click)="closeReportModal()">×</button>
+    </div>
+    <div class="modal-body4 d-flex flex-column">
+      <!-- Report Type Dropdown -->
+      <div class="card card1" style="margin-bottom: 16px;">
+        <label for="" class="robotoregular tst1">Report Type</label>
+        <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
+          <span class="icon">
+            <app-svg-icons icon="rep" size="16"></app-svg-icons>
+          </span>
+          <input type="text" [value]="selectedOption" readonly />
+          <span class="arrow">
+            <app-svg-icons icon="down" size="16"></app-svg-icons>
+          </span>
+          <div class="dropdown-menu" *ngIf="isDropdownOpen">
+            <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
           </div>
         </div>
       </div>
 
-      <!-- Modal Footer -->
-      <div class="modal-footer mb">
-        <button class="my-2 btn1 robotoregular w-100" [routerLink]="['/pages/coverletter']" [queryParams]="{
-            returnTo: 'presentation',
-            projectId: projectId || project?.projectId,
-            instanceId: instanceId,
-            from: 'reports'
-          }">
-          Cover Letter
-        </button>
-        <button class="btn2 robotoregular w-100" (click)="generateReport()">
-          <span class="me-2"></span>
-          <span>Generate Report</span>
-        </button>
+      <!-- Select All Checkbox -->
+      <div class="col-6 d-flex align-items-center gap-2 mt-3"
+           style="margin-top: 24px; padding-left:16px; margin-bottom:8px">
+        <input type="checkbox" class="check1" id="selectAll" (change)="toggleSelectAll($event)">
+        <p class="robotoregular txt2 mb-0">Select All</p>
+      </div>
+
+      <!-- Report Fields Section -->
+      <div *ngFor="let field of reportFields" class="card1 card cd1" style="margin-bottom: 8px;">
+        <input type="checkbox" class="check1 mt-4" [(ngModel)]="selectedFields[field.key]" (change)="updateSelectAll()">
+        <div class="form-group w-100">
+          <label [for]="field.key" class="robotoregular" style="font-size: 14px;">{{ field.name }}</label>
+          <input type="text" class="form-control sle1" [id]="field.key"
+                 [value]="getAttributeDisplayValue(field.key)" readonly>
+        </div>
+      </div>
+
+      <!-- No fields message -->
+      <div *ngIf="reportFields.length === 0" class="alert alert-info mt-3">
+        <p class="mb-0">No fields available.</p>
+      </div>
+
+      <!-- Report Data Options -->
+      <div class="card card1" style="margin-top: 16px; margin-bottom: 16px;">
+        <label for="" class="robotoregular tst1">Report Data</label>
+        <div class="d-flex flex-column gap-2 mt-2">
+          <div class="d-flex align-items-center gap-2">
+            <input type="checkbox" class="check1" id="excludeBlankFields">
+            <p class="robotoregular txt2 mb-0">Exclude blank fields from report</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Attachment Options -->
+      <div class="card card1" style="margin-bottom: 16px;">
+        <label for="" class="robotoregular tst1">Report Attachment</label>
+        <div class="d-flex flex-column gap-2 mt-2">
+          <div class="d-flex align-items-center gap-2">
+            <input type="checkbox" class="check1" id="includeTechnicalDocs">
+            <p class="robotoregular txt2 mb-0">Include Technical Documents</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <input type="checkbox" class="check1" id="includeFloorPlans">
+            <p class="robotoregular txt2 mb-0">Include Floor Plans</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <input type="checkbox" class="check1" id="includeAdditionalDocs">
+            <p class="robotoregular txt2 mb-0">Include Additional Documents</p>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer mb">
+      <button class="my-2 btn1 robotoregular w-100" [routerLink]="['/pages/coverletter']" [queryParams]="{
+          returnTo: 'presentation',
+          projectId: projectId || project?.projectId,
+          instanceId: instanceId,
+          from: 'reports'
+        }">
+        Cover Letter
+      </button>
+      <button class="btn2 robotoregular w-100" (click)="generateReport()">
+        <span class="me-2"></span>
+        <span>Generate Report</span>
+      </button>
+    </div>
   </div>
+</div>
 
   <!-- Image Modal -->
   <div class="modal-overlay3" *ngIf="isImageModalOpen">
     <div class="modal-content3">
       <div class="modal-header3 text-end">
         <button class="close-btn3" (click)="closeImageModal()">×</button>
+        <button *ngIf="!isEditing" class="btn-edit" (click)="toggleEditMode()">Edit</button>
+        <button *ngIf="isEditing" class="btn-save" (click)="saveEditedImage()">Save</button>
+        <button *ngIf="isEditing" class="btn-cancel" (click)="cancelEditMode()">Cancel</button>
       </div>
       <div class="modal-body3">
-        <img [src]="selectedImage" alt="Selected Image" class="modal-img3" />
+        <div class="image-container">
+          <img [src]="selectedImage" alt="Selected Image" class="modal-img3" />
+          <canvas #editCanvas class="edit-canvas"></canvas>
+        </div>
+        <div *ngIf="isEditing" class="edit-controls">
+          <button class="edit-tool" (click)="setTool('line')">Line</button>
+          <button class="edit-tool" (click)="setTool('circle')">Circle</button>
+          <input type="color" [(ngModel)]="drawColor" (change)="updateDrawColor()" />
+        </div>
       </div>
     </div>
   </div>
