@@ -248,8 +248,8 @@ export class PresentationComponent implements OnInit, AfterViewInit {
           console.log('Pre-Install Photos:', this.preInstallPhotos);
           console.log('Post-Install Photos:', this.postInstallPhotos);
         }
-        if (this.projectId && this.hierarchyLevelId) {
-          this.fetchMarkers(this.projectId, this.hierarchyLevelId, instanceId);
+        if (this.projectId as string && this.hierarchyLevelId) {
+          this.fetchMarkers(this.projectId as string, this.hierarchyLevelId, instanceId);
         }
         this.isLoadingInstance = false;
         this.cdr.detectChanges();
@@ -468,28 +468,28 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   }
 
   async generateReport(): Promise<void> {
-    // Collect report data
-    const reportData = {
-      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.value || 'N/A',
-      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.value || 'N/A',
-      building: this.selectedInstance?.attributes.find(attr => attr.name === 'Building')?.value || 'N/A',
-      level: this.selectedInstance?.attributes.find(attr => attr.name === 'Level')?.value || 'N/A',
-      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Item #')?.value || 'N/A',
-      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test Reference')?.value || 'N/A',
-      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.value || 'N/A',
-      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.value || 'N/A',
-      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.value || 'N/A',
-      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.value || 'N/A',
-      date: this.selectedInstance?.attributes.find(attr => attr.name === 'Date')?.value || 'N/A',
-      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.value || 'N/A',
-      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.value || 'N/A',
-      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.value || 'N/A',
-      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Relevance to Building Code')?.value || 'N/A',
-      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.value || 'N/A',
-      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.value || 'N/A',
-      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.value || 'N/A',
-      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.value || 'N/A',
-      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.value || 'N/A'
+    // Collect report data dynamically from API response
+    const reportData: { [key: string]: string } = {
+      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.selectedValue || 'N/A',
+      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.selectedValue || 'N/A',
+      building: this.project?.buildingName || 'N/A',
+      level: this.selectedInstance?.hierarchyName || 'N/A',
+      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Sticker Number')?.selectedValue || 'N/A',
+      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test ID')?.selectedValue || 'N/A',
+      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.selectedValue || 'N/A',
+      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
+      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.selectedValue || 'N/A',
+      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.selectedValue || 'N/A',
+      // date: this.project?.createdAt ? new Date(this.project.createdAt).toISOString().slice(0, 10) : 'N/A',
+      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.selectedValue || 'N/A',
+      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.selectedValue || 'N/A',
+      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.selectedValue || 'N/A',
+      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Reference to Building Code')?.selectedValue || 'N/A',
+      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
+      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A',
+      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.selectedValue || 'N/A',
+      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.selectedValue || 'N/A',
+      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.selectedValue || 'N/A'
     };
 
     const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
@@ -503,9 +503,11 @@ export class PresentationComponent implements OnInit, AfterViewInit {
 
       // Add all fields as rows
       this.reportFields.forEach(field => {
-        const value = reportData[field.key as keyof typeof reportData];
-        const displayValue = Array.isArray(value) ? value.join(', ') : value?.toString() || 'N/A';
-        data.push({ Field: field.name, Value: displayValue });
+        const value = reportData[field.key];
+        const displayValue = Array.isArray(value) ? value.join(', ') : value || 'N/A';
+        if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
+          data.push({ Field: field.name, Value: displayValue });
+        }
       });
 
       // Add attachments as a row if selected
@@ -549,15 +551,14 @@ export class PresentationComponent implements OnInit, AfterViewInit {
         doc.addImage(img, 'PNG', x, 10, imgWidth, imgHeight);
       } catch (error) {
         console.error('Error loading logo image:', error);
-        // Optionally add placeholder text or skip
         doc.text('Logo not found', 160, 15);
       }
 
       // Include selected fields in the report
       this.reportFields.forEach(field => {
         if (this.selectedFields[field.key]) {
-          const value = reportData[field.key as keyof typeof reportData];
-          const displayValue = Array.isArray(value) ? value.join(', ') : value?.toString() || 'N/A';
+          const value = reportData[field.key];
+          const displayValue = Array.isArray(value) ? value.join(', ') : value || 'N/A';
           if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
             doc.text(`${field.name}: ${displayValue}`, 10, y);
             y += 10;
@@ -592,30 +593,30 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   }
 
   getAttributeDisplayValue(key: string): string {
-    const reportData = {
-      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.value || 'N/A',
-      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.value || 'N/A',
-      building: this.selectedInstance?.attributes.find(attr => attr.name === 'Building')?.value || 'N/A',
-      level: this.selectedInstance?.attributes.find(attr => attr.name === 'Level')?.value || 'N/A',
-      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Item #')?.value || 'N/A',
-      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test Reference')?.value || 'N/A',
-      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.value || 'N/A',
-      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.value || 'N/A',
-      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.value || 'N/A',
-      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.value || 'N/A',
-      date: this.selectedInstance?.attributes.find(attr => attr.name === 'Date')?.value || 'N/A',
-      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.value || 'N/A',
-      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.value || 'N/A',
-      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.value || 'N/A',
-      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Relevance to Building Code')?.value || 'N/A',
-      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.value || 'N/A',
-      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.value || 'N/A',
-      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.value || 'N/A',
-      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.value || 'N/A',
-      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.value || 'N/A'
+    const reportData: { [key: string]: string } = {
+      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.selectedValue || 'N/A',
+      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.selectedValue || 'N/A',
+      building: this.project?.buildingName || 'N/A',
+      level: this.selectedInstance?.hierarchyName || 'N/A',
+      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Sticker Number')?.selectedValue || 'N/A',
+      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test ID')?.selectedValue || 'N/A',
+      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.selectedValue || 'N/A',
+      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
+      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.selectedValue || 'N/A',
+      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.selectedValue || 'N/A',
+      // date: this.project?.createdAt ? new Date(this.project.createdAt).toISOString().slice(0, 10) : 'N/A',
+      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.selectedValue || 'N/A',
+      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.selectedValue || 'N/A',
+      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.selectedValue || 'N/A',
+      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Reference to Building Code')?.selectedValue || 'N/A',
+      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
+      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A',
+      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.selectedValue || 'N/A',
+      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.selectedValue || 'N/A',
+      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.selectedValue || 'N/A'
     };
-    const value = reportData[key as keyof typeof reportData];
-    return Array.isArray(value) ? value.join(', ') : value?.toString() || 'N/A';
+    const value = reportData[key];
+    return Array.isArray(value) ? value.join(', ') : value || 'N/A';
   }
 
   fetchReports(): void {
