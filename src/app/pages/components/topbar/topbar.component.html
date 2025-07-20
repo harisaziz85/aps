@@ -7,11 +7,11 @@
   <div class="d-flex align-items-center p-0">
     <button class="btn" (click)="openModal()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.33333 12.6667L3 8.33333L7.33333 4" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M3 8.33325H13.6667" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M16.666 19.9999L20.9993 15.6666L16.666 11.3333" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M21.0007 15.6667H10.334" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+        <path d="M7.33333 12.6667L3 8.33333L7.33333 4" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 8.33325H13.6667" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16.666 19.9999L20.9993 15.6666L16.666 11.3333" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M21.0007 15.6667H10.334" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>
     <div class="notification-wrapper" (click)="toggleNotificationDropdown()">
       <button
@@ -40,12 +40,13 @@
       <app-svg-icons icon="setting" size="16"></app-svg-icons>
     </button>
     <div class="ms-3 d-flex align-items-center" role="button">
-      <img src="images/pi.png" height="48" width="48" alt="">
+      <img [src]="imageUrl || 'images/pi1.png'" height="48" width="48" alt="User Image" style="border-radius: 50%;">
       <span class="user-name ms-2 onestmedium">{{ userName }}</span>
     </div>
   </div>
 </nav>
 
+<!-- Settings Modal -->
 <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-right">
     <div class="modal-content">
@@ -141,6 +142,7 @@
   </div>
 </div>
 
+<!-- Data Exchange Modal -->
 <div class="setting-modal-overlay zi" *ngIf="isModalOpen" (click)="closeModalIfOutside($event)">
   <div class="setting-modal-container" (click)="$event.stopPropagation()">
     <div class="setting-modal-header d-flex align-items-center">
@@ -190,7 +192,6 @@
                   <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;">
                   <div *ngIf="!selectedFileName" class="w-100 text-center">
                     <div></div>
-                    
                     <p class="txt3 robotoregular">Drag and Drop or <br> Browse</p>
                   </div>
                   <div *ngIf="selectedFileName" class="w-100 text-center">
@@ -207,6 +208,12 @@
             </div>
           </div>
           <div *ngIf="selectedOption === 'existing'">
+            <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
+  <div>
+    <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span>
+  </div>
+ 
+</div>
             <div class="checkbox-container">
               <p class="onestsemibold head2">Document Info</p>
               <div class="imgbr d-flex">
@@ -230,42 +237,53 @@
             </div>
           </div>
         </div>
-        <div class="tab-pane" [class.active]="activeTab === 'ongoingProjects'" id="ongoingProjects">
-          <div>
-            <div class="input-group" style="margin-bottom: 18px;">
-              <span class="input-group-text" style="border:1px solid #A4A3A2">
-                <!-- <fa-icon [icon]="faSearch"></fa-icon> -->
-              </span>
-              <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchQuery"
-                (ngModelChange)="onSearchChange()" style="background-color: rgba(0, 255, 255, 0);">
-            </div>
-          </div>
-          <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects">
-            <div class="project-header">
-              <input
-                type="checkbox"
-                class="cb1"
-                [checked]="selectedProjects.includes(project.projectId)"
-                (change)="toggleProjectSelection(project.projectId)"
-              />
-              <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
-              <span class="dropdown-icon" (click)="toggleDropdown1()">
-                <ng-container *ngIf="isOpen; else downArrow">
-                  <!-- <fa-icon [icon]="faAngleUp"></fa-icon> -->
-                </ng-container>
-                <ng-template #downArrow>
-                  <!-- <fa-icon [icon]="faAngleDown"></fa-icon> -->
-                </ng-template>
-              </span>
-            </div>
-            <div class="instance-list" *ngIf="isOpen">
-              <div class="instance-item" *ngFor="let subProject of project.subProjects || []">
-                <input type="checkbox" class="cbb1" />
-                <span class="robotoregular txt">{{ subProject || 'Unnamed Subproject' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+
+
+
+        
+      <div class="tab-pane" [class.active]="activeTab === 'ongoingProjects'" id="ongoingProjects">
+  <div>
+    <div class="input-group" style="margin-bottom: 18px;">
+      <span class="input-group-text" style="border:1px solid #A4A3A2">
+        <!-- <fa-icon [icon]="faSearch"></fa-icon> -->
+      </span>
+      <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()" style="background-color: rgba(0, 255, 255, 0);">
+    </div>
+  </div>
+  <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects">
+    <div class="project-header">
+      <input
+        type="checkbox"
+        class="cb1"
+        [checked]="selectedProjects.includes(project.projectId)"
+        (change)="toggleProjectSelection(project.projectId)"
+      />
+      <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
+      <span class="dropdown-icon" (click)="toggleProjectDropdown(project.projectId)">
+        <ng-container *ngIf="projectDropdownStates[project.projectId]; else downArrow">
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path d="M2 8l4-4 4 4H2z" />
+          </svg>
+        </ng-container>
+        <ng-template #downArrow>
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path d="M2 4l4 4 4-4H2z" />
+          </svg>
+        </ng-template>
+      </span>
+    </div>
+    <div class="instance-list" *ngIf="projectDropdownStates[project.projectId]">
+      <div class="instance-item" *ngFor="let instance of project.instances || []">
+        <input type="checkbox" class="cbb1" />
+        <span class="robotoregular txt">{{ instance.instanceName || 'Unnamed Instance' }} ({{ instance.subProjectCategory || 'No Category' }})</span>
+      </div>
+      <div class="instance-item" *ngIf="!project.instances || project.instances.length === 0">
+        <span class="robotoregular txt">No instances available</span>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
     </div>
     <div class="modal-footer w-100 mmm1" style="margin-top:24px;">

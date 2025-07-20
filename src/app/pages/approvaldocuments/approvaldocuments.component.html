@@ -85,11 +85,43 @@
         </div>
       </div>
       <div class="document-list">
+        <!-- Original document item -->
         <div class="document-item d-flex align-items-center" *ngIf="selectedFile">
           <app-svg-icons icon="doc"></app-svg-icons>
-          <input type="text" [(ngModel)]="documentName" placeholder="Document Name" class="inp">
+          <input type="text" [(ngModel)]="documentName" placeholder="Document Name" class="inp" disabled>
+          <button class="edit-btn" (click)="toggleEdit()" *ngIf="selectedFile && !isUploading">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
+<path d="M16.75 17.75H18.75" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16.75 20.75H21.25" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M26.16 17.2496H22.75C22.198 17.2496 21.75 16.8016 21.75 16.2496V12.8516" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M26.25 19.329V17.664C26.25 17.399 26.145 17.144 25.957 16.957L22.043 13.043C21.855 12.855 21.601 12.75 21.336 12.75H15.75C14.645 12.75 13.75 13.646 13.75 14.75V25.25C13.75 26.354 14.645 27.25 15.75 27.25H19.451" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M24.207 27.4011C24.35 27.3521 24.48 27.2701 24.587 27.1631L27.89 23.8601C28.373 23.3771 28.368 22.5991 27.885 22.1151C27.402 21.6321 26.624 21.6261 26.14 22.1101L22.837 25.4131C22.73 25.5201 22.648 25.6501 22.599 25.7931L21.75 28.2501L24.207 27.4011Z" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+          </button>
           <button class="delete-btn" (click)="deleteUploadedDocument()" *ngIf="selectedFile && !isUploading">
             <app-svg-icons icon="del"></app-svg-icons>
+          </button>
+        </div>
+        <!-- Edit card below original -->
+        <div class="document-item d-flex align-items-center" *ngIf="selectedFile && isEditing">
+          <app-svg-icons icon="doc"></app-svg-icons>
+          <input type="text" [(ngModel)]="documentName" placeholder="Document Name" class="inp">
+          <button class="save-btn" (click)="saveEdit()" *ngIf="selectedFile && !isUploading" style="border: 0px !important; background:rgba(255, 0, 0, 0)">
+           <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
+<path d="M13.75 20.25L17.75 25.25L26.25 14.75" stroke="#25EA8B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+          </button>
+          <button class="cancel-btn" (click)="cancelEdit()" *ngIf="selectedFile && !isUploading">
+           <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
+<path d="M14.9997 25.7517C14.8077 25.7517 14.6158 25.6787 14.4698 25.5317C14.1768 25.2387 14.1768 24.7637 14.4698 24.4707L24.4698 14.4717C24.7628 14.1787 25.2378 14.1787 25.5308 14.4717C25.8238 14.7647 25.8238 15.2397 25.5308 15.5327L15.5298 25.5317C15.3838 25.6777 15.1917 25.7517 14.9997 25.7517Z" fill="#EC1919"/>
+<path d="M24.9998 25.7507C24.8077 25.7507 24.6158 25.6777 24.4698 25.5307L14.4698 15.5308C14.1768 15.2378 14.1768 14.7628 14.4698 14.4698C14.7628 14.1768 15.2378 14.1768 15.5308 14.4698L25.5297 24.4707C25.8228 24.7638 25.8228 25.2387 25.5297 25.5317C25.3837 25.6777 25.1918 25.7517 24.9998 25.7517V25.7507Z" fill="#EC1919"/>
+</svg>
+
           </button>
         </div>
       </div>

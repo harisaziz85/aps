@@ -236,8 +236,7 @@
                             {{ project.projectAdministration.projectStatus }}
                           </button>
                           <ul class="dropdown-menu" [attr.aria-labelledby]="'statusDropdown-' + project._id">
-                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'To-do')">To-do</a></li>
-                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'In progress')">In progress</a></li>
+                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Active')">Active</a></li>
                             <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Completed')">Completed</a></li>
                           </ul>
                         </div>
@@ -256,14 +255,20 @@
                   <div *ngFor="let project of completedProjects; trackBy: trackByProjectId" class="col-md-12 mb-3 w-100">
                     <div class="card project-card w-100">
                       <div class="card-body d-flex justify-content-between align-items-center w-100">
-                        <span class="robotoregular">{{ project.projectName }}</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.33398 11.666C4.22865 12.4873 7.62198 13.67 12.0007 13.67C16.3793 13.67 19.7727 12.4873 21.6673 11.666" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 12.332V15.332" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.33398 6.33268V2.99935C8.33398 2.26335 8.93132 1.66602 9.66732 1.66602H14.334C15.07 1.66602 15.6673 2.26335 15.6673 2.99935V6.33268" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M19.0007 6.33203H5.00065C3.52789 6.33203 2.33398 7.52594 2.33398 8.9987V17.6654C2.33398 19.1381 3.52789 20.332 5.00065 20.332H19.0007C20.4734 20.332 21.6673 19.1381 21.6673 17.6654V8.9987C21.6673 7.52594 20.4734 6.33203 19.0007 6.33203Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+                        <span class="robotoregular" style="margin-left: 5px;">{{ project.projectName }}</span>
                         <div class="dropdown">
                           <button class="btn btn-sm btn-outline-dark dropdown-toggle status-dropdown {{ getStatusClass(project.projectAdministration.projectStatus) }}" type="button" [id]="'statusDropdown-' + project._id" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ project.projectAdministration.projectStatus }}
                           </button>
                           <ul class="dropdown-menu" [attr.aria-labelledby]="'statusDropdown-' + project._id">
-                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'To-do')">To-do</a></li>
-                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'In progress')">In progress</a></li>
+                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Active')">Active</a></li>
                             <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Completed')">Completed</a></li>
                           </ul>
                         </div>

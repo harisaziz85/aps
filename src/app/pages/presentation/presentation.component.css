@@ -93,7 +93,7 @@
 .attribute {
   background-color: white !important;
   color: black !important;
-  width: 33%;
+  width: 33.3%;
 }
 
 .attribute.active {
@@ -169,19 +169,23 @@
   font-size: 14px;
   margin-bottom: 16px;
 }
-.report-link{
+
+.report-link {
   font-size: 14px !important;
   color: black !important;
   font-weight: bold;
   text-decoration: none;
 }
-.repcard{
+
+.repcard {
   height: 200px;
 }
-.report-list{
+
+.report-list {
   display: flex;
   width: 100%;
 }
+
 .txt2 {
   font-size: 14px;
   margin-bottom: 8px;
@@ -295,6 +299,7 @@
 .form-group {
   margin-bottom: 0;
 }
+
 .pictures {
   display: flex;
   flex-direction: column;
@@ -323,6 +328,7 @@
   cursor: pointer;
   border-radius: 4px;
 }
+
 .card12 {
   height: 72px;
   padding: 16px;
@@ -618,7 +624,7 @@ span {
 
 .nav-btn {
   z-index: 2;
-  width: 25%;
+  width: 33.3%; /* Updated to 33.3% for three tabs */
   height: 48px;
   display: flex;
   align-items: center !important;
@@ -646,7 +652,7 @@ span {
   bottom: 0;
   left: 0;
   height: 100%;
-  width: 25%;
+  width: 33.3%; /* Updated to 33.3% for three tabs */
   background: #000000;
   z-index: 1;
   transition: left 0.4s ease;
@@ -656,6 +662,7 @@ span {
 .side-list {
   min-height: fit-content !important;
 }
+
 .sub-items {
   padding-left: 20px;
   margin-top: -28px !important;
@@ -744,15 +751,18 @@ span {
 .btn-dark1:hover {
   background-color: #333;
 }
-.bb{
+
+.bb {
   border: 1px solid rgba(205, 204, 203, 1);
   border-radius: 15px;
   width: 400px;
   height: 48px;
 }
+
 .bg-active {
   background-color: rgba(255, 224, 102, 1);
 }
+
 .bg-completed {
   background-color: rgba(115, 242, 181, 1);
 }

@@ -30,6 +30,8 @@ export class ApprovaldocumentsComponent implements OnInit {
   isLoading: boolean = true;
   selectedDocumentIds: string[] = [];
   isConfirmationModalOpen: boolean = false;
+  isEditing: boolean = false;
+  originalDocumentName: string = '';
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -158,6 +160,8 @@ export class ApprovaldocumentsComponent implements OnInit {
     this.documentName = '';
     this.uploadedDocument = null;
     this.isUploading = false;
+    this.isEditing = false;
+    this.originalDocumentName = '';
     document.body.classList.remove('modal-open');
   }
 
@@ -166,6 +170,8 @@ export class ApprovaldocumentsComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
       this.documentName = this.selectedFile.name;
+      this.originalDocumentName = this.documentName;
+      this.isEditing = false;
       console.log('Selected file:', this.selectedFile.name, 'Size:', this.selectedFile.size);
     }
   }
@@ -218,6 +224,8 @@ export class ApprovaldocumentsComponent implements OnInit {
     this.documentName = '';
     this.uploadedDocument = null;
     this.isUploading = false;
+    this.isEditing = false;
+    this.originalDocumentName = '';
     console.log('Selected file cleared locally');
   }
 
@@ -235,6 +243,29 @@ export class ApprovaldocumentsComponent implements OnInit {
     window.open(doc.fileUrl, '_blank');
     console.log(`Opened document in new tab: ${doc.name}, URL: ${doc.fileUrl}`);
   }
-}
 
-// 
+  toggleEdit(): void {
+    this.isEditing = !this.isEditing;
+    if (this.isEditing) {
+      this.originalDocumentName = this.documentName;
+    }
+    console.log('Edit mode toggled:', this.isEditing);
+  }
+
+  saveEdit(): void {
+    if (!this.documentName.trim()) {
+      alert('Document name cannot be empty.');
+      this.documentName = this.originalDocumentName;
+      this.isEditing = false;
+      return;
+    }
+    this.isEditing = false;
+    console.log('Document name saved:', this.documentName);
+  }
+
+  cancelEdit(): void {
+    this.documentName = this.originalDocumentName;
+    this.isEditing = false;
+    console.log('Edit canceled, document name restored:', this.documentName);
+  }
+}

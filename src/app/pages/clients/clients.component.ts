@@ -96,23 +96,13 @@ export class ClientsComponent implements OnInit {
   }
 
   fetchClientProjectCounts(clientId: string): void {
-    this.clientService.getClientProjects(clientId, 'To-do').subscribe({
-      next: (todoProjects) => {
-        const todoCount = todoProjects.length;
-        this.clientService.getClientProjects(clientId, 'In progress').subscribe({
-          next: (inprogressProjects) => {
-            const inprogressCount = inprogressProjects.length;
-            this.updateClientProjectCounts(clientId, todoCount + inprogressCount, 'ongoing');
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('Error fetching In progress projects:', error);
-            this.cdr.detectChanges();
-          }
-        });
+    this.clientService.getClientProjects(clientId, 'Active').subscribe({
+      next: (activeProjects) => {
+        this.updateClientProjectCounts(clientId, activeProjects.length, 'ongoing');
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error fetching To-do projects:', error);
+        console.error('Error fetching Active projects:', error);
         this.cdr.detectChanges();
       }
     });
@@ -123,7 +113,7 @@ export class ClientsComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error fetching completed projects:', error);
+        console.error('Error fetching Completed projects:', error);
         this.cdr.detectChanges();
       }
     });
@@ -132,23 +122,14 @@ export class ClientsComponent implements OnInit {
   fetchClientProjects(clientId: string): void {
     this.ongoingProjects = [];
     this.completedProjects = [];
-    this.clientService.getClientProjects(clientId, 'To-do').subscribe({
-      next: (todoProjects) => {
-        this.ongoingProjects = [...todoProjects];
-        this.clientService.getClientProjects(clientId, 'In progress').subscribe({
-          next: (inprogressProjects) => {
-            this.ongoingProjects = [...this.ongoingProjects, ...inprogressProjects];
-            this.updateClientProjectCounts(clientId, this.ongoingProjects.length, 'ongoing');
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('Error fetching In progress projects:', error);
-            this.cdr.detectChanges();
-          }
-        });
+    this.clientService.getClientProjects(clientId, 'Active').subscribe({
+      next: (activeProjects) => {
+        this.ongoingProjects = [...activeProjects];
+        this.updateClientProjectCounts(clientId, activeProjects.length, 'ongoing');
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error fetching To-do projects:', error);
+        console.error('Error fetching Active projects:', error);
         this.cdr.detectChanges();
       }
     });
@@ -160,7 +141,7 @@ export class ClientsComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error fetching completed projects:', error);
+        console.error('Error fetching Completed projects:', error);
         this.cdr.detectChanges();
       }
     });
@@ -256,7 +237,7 @@ export class ClientsComponent implements OnInit {
 
     Promise.all(deleteRequests).then(() => {
       this.isLoading = false;
-      this.cdr.detectChanges();
+     this.cdr.detectChanges();
     });
   }
 
@@ -401,9 +382,7 @@ export class ClientsComponent implements OnInit {
   getStatusClass(status: string): string {
     const normalizedStatus = status.toLowerCase().replace(/\s/g, '').replace(/-/g, '');
     switch (normalizedStatus) {
-      case 'todo':
-        return 'red-bg';
-      case 'inprogress':
+      case 'active':
         return 'yellow-bg';
       case 'completed':
         return 'green-bg';

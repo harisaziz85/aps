@@ -518,7 +518,7 @@ options: string[] = ['Active', 'Completed'];
       return;
     }
 
-    const reportsApiUrl = `https://aspbackend-production.up.railway.app/api/project/reports/${projectId}`;
+    const reportsApiUrl = `https://vps.allpassiveservices.com.au/api/project/reports/${projectId}`;
     this.http.get<{ message: string; data: Report[] }>(reportsApiUrl).subscribe({
       next: (response) => {
         this.reports = response.data || [];
@@ -531,8 +531,8 @@ options: string[] = ['Active', 'Completed'];
         } else {
           console.error('Failed to fetch project reports:', error);
           this.reports = [];
-          alert('Failed to load project reports.');
         }
+        
       }
     });
   }
@@ -920,7 +920,7 @@ options: string[] = ['Active', 'Completed'];
 
   onProductChange() {
     if (this.productId) {
-      this.http.get(`https://aspbackend-production.up.railway.app/api/product/list`).subscribe({
+      this.http.get(`https://vps.allpassiveservices.com.au/api/product/list`).subscribe({
         next: (response: any) => {
           const selectedProduct = response.find((product: any) => product._id === this.productId);
           if (selectedProduct && selectedProduct.approvalDocuments) {
@@ -965,7 +965,7 @@ options: string[] = ['Active', 'Completed'];
   onConditionalProductChange(attrIndex: number) {
     const productId = attrIndex === -1 ? this.mainAttribute.productId : this.additionalAttributes[attrIndex].productId;
     if (productId) {
-      this.http.get(`https://aspbackend-production.up.railway.app/api/product/list`).subscribe({
+      this.http.get(`hhttps://vps.allpassiveservices.com.au/api/product/list`).subscribe({
         next: (response: any) => {
           const selectedProduct = response.find((product: any) => product._id === productId);
           const filteredDocs = selectedProduct && selectedProduct.approvalDocuments
@@ -1079,7 +1079,7 @@ generateReport(): void {
   this.presentationService.getProjectDetails(projectId).subscribe({
     next: (projectResponse) => {
       // Fetch project reports to get the coverLetter data
-      const reportsApiUrl = `https://aspbackend-production.up.railway.app/api/project/reports/${projectId}`;
+      const reportsApiUrl = `https://vps.allpassiveservices.com.au/api/project/reports/${projectId}`;
       this.http.get<{ message: string; data: Report[] }>(reportsApiUrl).subscribe({
         next: (response) => {
           const reports = response.data || [];
@@ -1264,7 +1264,7 @@ private addHierarchyImages(doc: jsPDF, yPos: number, projectResponse: ProjectRes
 
   subProjects.forEach((level, index) => {
     this.http.get<{ message: string; data: any[] }>(
-      `https://aspbackend-production.up.railway.app/api/project/documents/${projectId}/${level.hierarchyLevelId}`
+      `https://vps.allpassiveservices.com.au/api/project/documents/${projectId}/${level.hierarchyLevelId}`
     ).subscribe({
       next: (response) => {
         const documentWithImage = response.data.find(doc => doc.documentUrl);
@@ -1377,7 +1377,7 @@ private saveAndUploadReport(doc: jsPDF, projectId: string, reportType: string): 
   }
   formData.append('reportPDF', pdfFile);
 
-  this.http.post('https://aspbackend-production.up.railway.app/api/project/uploadReportPDF', formData).subscribe({
+  this.http.post('https://vps.allpassiveservices.com.au/api/project/uploadReportPDF', formData).subscribe({
     next: (response: any) => {
       console.log('Report uploaded successfully:', response);
       doc.save(`${reportType}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -1491,7 +1491,7 @@ private dataURItoBlob(dataURI: string): Blob {
 
     console.log('Fetching project details for projectId:', projectId);
 
-    this.http.get(`https://aspbackend-production.up.railway.app/api/project/details/${projectId}`).subscribe({
+    this.http.get(`https://vps.allpassiveservices.com.au/api/project/details/${projectId}`).subscribe({
       next: (response: any) => {
         console.log('Project Details API Response:', response);
         if (response && response.subProjects && Array.isArray(response.subProjects)) {
@@ -2127,7 +2127,7 @@ private dataURItoBlob(dataURI: string): Blob {
           }));
           this.existingAttributes.forEach((attr, index) => {
             if (attr.isConditional && attr.productId) {
-              this.http.get(`https://aspbackend-production.up.railway.app/api/product/list`).subscribe({
+              this.http.get(`https://vps.allpassiveservices.com.au/api/product/list`).subscribe({
                 next: (response: any) => {
                   const selectedProduct = response.find((product: any) => product._id === attr.productId);
                   if (selectedProduct && selectedProduct.approvalDocuments) {

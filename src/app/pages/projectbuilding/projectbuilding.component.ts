@@ -148,6 +148,7 @@ export class ProjectbuildingComponent implements OnInit {
 
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
+    // If the clicked dropdown is already open, close it; otherwise, open it and close any other
     this.showDropdownIndex = this.showDropdownIndex === index ? null : index;
   }
 
@@ -158,6 +159,7 @@ export class ProjectbuildingComponent implements OnInit {
       this.modalProject = project;
       this.confirmInput = '';
       this.showBulkModal = false;
+      this.showDropdownIndex = null; // Close dropdown when opening modal
     }
   }
 
@@ -166,12 +168,14 @@ export class ProjectbuildingComponent implements OnInit {
     this.showBulkModal = true;
     this.modalProject = null;
     this.confirmInput = '';
+    this.showDropdownIndex = null; // Close dropdown when opening bulk modal
   }
 
   closeBulkModalAction(): void {
     this.showBulkModal = false;
     this.modalAction = '';
     this.confirmInput = '';
+    this.showDropdownIndex = null; // Close dropdown when closing bulk modal
   }
 
   confirmAction(): void {

@@ -389,7 +389,7 @@ outline: none !important;
 width: 23%;
 }
 .wid2{
-width: 27% !important;
+width: 33% !important;
 }
 .userimg{
 width: 45% !important;
@@ -406,12 +406,12 @@ height: 43px;
 margin-top:30px !important ;
 background-color: black !important;
 border-radius: 15px !important;
-width: fit-content;
+width: 100%;
 color: white;
 border: 0px !important;
 }
 .wid3{
-width: 10%;
+width: 15%;
 }
 .w3btn{
 background-color: black;
@@ -1741,4 +1741,56 @@ input:-webkit-autofill:active {
     right: -32.5%; /* adjust as needed */
   }
 }
+
+
+
+
+/* Method 1: Target specific select element */
+#attrType0 option,
+#attrType1 option,
+#attrType2 option {
+  border-radius: 20px !important;
+  margin: 2px;
+  padding: 8px 12px;
+}
+
+/* Method 2: Target all select options in your form */
+.custom-select-icon option {
+  border-radius: 20px !important;
+  margin: 2px;
+  padding: 8px 12px;
+}
+
+/* Method 3: More specific targeting */
+.form-group select.custom-select-icon option {
+  border-radius: 20px !important;
+  margin: 2px 0;
+  padding: 8px 12px;
+}
+
+/* Alternative approach - Style the select dropdown container */
+.custom-select-icon {
+  border-radius: 20px;
+}
+
+.custom-select-icon:focus {
+  border-radius: 20px;
+}
+
+/* If you want to style the dropdown list itself */
+.custom-select-icon option {
+  border-radius: 20px !important;
+  background-color: white;
+  color: #333;
+  padding: 10px 15px;
+  margin: 1px 0;
+}
+
+.custom-select-icon option:hover {
+  background-color: #f5f5f5;
+  border-radius: 20px !important;
+}
+
+
+
 

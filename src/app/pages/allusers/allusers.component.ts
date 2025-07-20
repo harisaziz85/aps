@@ -65,7 +65,9 @@ export class AllUsersComponent implements OnInit {
       },
     });
   }
-
+  getAsterisks(length: number): string {
+    return '*'.repeat(length);
+  }
   filterUsers(): void {
     this.filteredUsers = this.users.filter((user) => {
       const matchesSearch =

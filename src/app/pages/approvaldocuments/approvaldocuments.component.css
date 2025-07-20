@@ -172,6 +172,7 @@
 }
 .document-item input {
   flex: 1;
+  background-color: white;
   border: none;
   outline: none;
   padding: 5px;

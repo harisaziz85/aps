@@ -525,11 +525,11 @@
       <div class="card card1" *ngFor="let attr of additionalAttributes; let i = index">
         <div class="d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2 w-100">
-            <div class="wid2">
+            <div  style="width: 50% !important;">
               <label [for]="'attrName'+i" class="robotoregular txt mb">Attribute Name <span class="star">*</span></label>
               <input class="form-control" type="text" [id]="'attrName'+i" [(ngModel)]="attr.name" placeholder="Enter attribute name">
             </div>
-            <div class="wid2">
+            <div  style="width: 50% !important;">
               <label [for]="'attrType'+i" class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
               <div class="form-group position-relative">
                 <select class="form-control custom-select-icon" [id]="'attrType'+i" [(ngModel)]="attr.type">
@@ -543,7 +543,7 @@
                 </span>
               </div>
             </div>
-            <div class="wid2">
+            <div style="width: 50% !important;">
               <label class="robotoregular txt mb">Barrier Values</label>
               <div class="d-flex">
                 <input type="text" class="form-control" [(ngModel)]="attr.barrierInput" placeholder="Enter barrier value">
