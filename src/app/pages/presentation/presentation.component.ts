@@ -1060,7 +1060,7 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     }
     this.toggleEditMode();
   }
-
+// 123
   cancelEditMode(): void {
     this.isEditing = false;
     if (this.editCanvas && this.ctx) {
