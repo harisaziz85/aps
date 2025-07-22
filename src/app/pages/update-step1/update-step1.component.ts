@@ -14,7 +14,7 @@ import { FootComponent } from "../components/foot/foot.component";
   standalone: true,
   templateUrl: './update-step1.component.html',
   styleUrls: ['./update-step1.component.css'],
-  imports: [FormsModule, CommonModule, NavbarComponent, FootComponent]
+  imports: [FormsModule, CommonModule, NavbarComponent, FootComponent,TopbarComponent]
 })
 export class UpdateStep1Component implements OnInit {
   projectId: string | null = null;
