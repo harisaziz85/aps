@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { ProjectService } from '../../core/services/project.service';
 import { ProjectResponse } from '../../core/models/project';
 import { CommonModule } from '@angular/common';
@@ -42,7 +42,21 @@ export class ProjectbuildingComponent implements OnInit {
   selectedNote: string | null = null; // To store the selected note
   selectedProject: any = null; // To store the selected project for the note
 
-  constructor(private projectService: ProjectService, private router: Router, private http: HttpClient) {}
+  constructor(
+    private projectService: ProjectService,
+    private router: Router,
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown') && !target.closest('.dropdown-content1')) {
+      this.closeAllDropdowns();
+      this.cdr.detectChanges();
+    }
+  }
 
   ngOnInit(): void {
     this.loadProjects();
@@ -87,16 +101,19 @@ export class ProjectbuildingComponent implements OnInit {
           this.isLoading = false;
           console.log('API Response:', response);
           console.log('Processed projects:', this.projects);
+          this.cdr.detectChanges();
         }).catch(error => {
           console.error('Error fetching job notes:', error);
           this.applySearch();
           this.isLoading = false;
+          this.cdr.detectChanges();
         });
       },
       error: (error) => {
         console.error('Error fetching projects:', error);
         this.isLoading = false;
         alert('Failed to load projects: ' + (error.message || 'Unknown error'));
+        this.cdr.detectChanges();
       }
     });
   }
@@ -117,6 +134,7 @@ export class ProjectbuildingComponent implements OnInit {
     } else {
       this.filteredProjects = [...this.projects];
     }
+    this.cdr.detectChanges();
   }
 
   getInstanceBadges(instances: string): string[] {
@@ -135,7 +153,8 @@ export class ProjectbuildingComponent implements OnInit {
     return 'Active';
   }
 
-  changeStatus(project: any, newStatus: string): void {
+  changeStatus(project: any, newStatus: string, event: Event): void {
+    event.stopPropagation();
     if (!project?.id) {
       console.error('Invalid project ID');
       return;
@@ -145,26 +164,30 @@ export class ProjectbuildingComponent implements OnInit {
       next: () => {
         project.status = this.normalizeStatus(apiStatus);
         this.applySearch();
-        this.showStatusDropdownIndex = null; // Close status dropdown after selection
+        this.closeAllDropdowns();
+        setTimeout(() => this.cdr.detectChanges(), 0); // Force UI refresh
       },
       error: (error) => {
         console.error('Error updating status:', error);
         alert('Failed to update status: ' + (error.message || 'Unknown error'));
+        this.closeAllDropdowns();
+        setTimeout(() => this.cdr.detectChanges(), 0);
       }
     });
   }
 
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
-    this.showStatusDropdownIndex = null;
+    this.showStatusDropdownIndex = null; // Close status dropdown
     this.showDropdownIndex = this.showDropdownIndex === index ? null : index;
+    this.cdr.detectChanges();
   }
 
   toggleStatusDropdown(index: number, event: Event): void {
     event.stopPropagation();
-    console.log('Toggling status dropdown for index:', index, 'Current status:', this.showStatusDropdownIndex);
-    this.showDropdownIndex = null;
+    this.showDropdownIndex = null; // Close action dropdown
     this.showStatusDropdownIndex = this.showStatusDropdownIndex === index ? null : index;
+    this.cdr.detectChanges();
   }
 
   openModal(action: string, project: any, event: Event): void {
@@ -174,8 +197,8 @@ export class ProjectbuildingComponent implements OnInit {
       this.modalProject = project;
       this.confirmInput = '';
       this.showBulkModal = false;
-      this.showDropdownIndex = null;
-      this.showStatusDropdownIndex = null;
+      this.closeAllDropdowns();
+      this.cdr.detectChanges();
     }
   }
 
@@ -184,16 +207,16 @@ export class ProjectbuildingComponent implements OnInit {
     this.showBulkModal = true;
     this.modalProject = null;
     this.confirmInput = '';
-    this.showDropdownIndex = null;
-    this.showStatusDropdownIndex = null;
+    this.closeAllDropdowns();
+    this.cdr.detectChanges();
   }
 
   closeBulkModalAction(): void {
     this.showBulkModal = false;
     this.modalAction = '';
     this.confirmInput = '';
-    this.showDropdownIndex = null;
-    this.showStatusDropdownIndex = null;
+    this.closeAllDropdowns();
+    this.cdr.detectChanges();
   }
 
   openNoteModal(note: string, project: any, event: Event): void {
@@ -201,14 +224,29 @@ export class ProjectbuildingComponent implements OnInit {
     this.selectedNote = note;
     this.selectedProject = project;
     this.showNoteModal = true;
-    this.showDropdownIndex = null;
-    this.showStatusDropdownIndex = null;
+    this.closeAllDropdowns();
+    this.cdr.detectChanges();
   }
 
   closeNoteModal(): void {
     this.showNoteModal = false;
     this.selectedNote = null;
     this.selectedProject = null;
+    this.closeAllDropdowns();
+    this.cdr.detectChanges();
+  }
+
+  closeAllDropdowns(): void {
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
+  }
+
+  closeAllDropdownsOnOutsideClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown') && !target.closest('.dropdown-content1')) {
+      this.closeAllDropdowns();
+      this.cdr.detectChanges();
+    }
   }
 
   confirmAction(): void {
@@ -231,14 +269,15 @@ export class ProjectbuildingComponent implements OnInit {
         this.applySearch();
         this.modalProject = null;
         this.modalAction = '';
-        this.showDropdownIndex = null;
-        this.showStatusDropdownIndex = null;
+        this.closeAllDropdowns();
         this.selectedProjects.delete(this.modalProject.id);
         this.loadProjects();
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error(`Error ${this.modalAction.toLowerCase()} project:`, error);
         alert(`Failed to ${this.modalAction.toLowerCase()} project: ${error.message || 'Unknown error'}`);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -268,11 +307,13 @@ export class ProjectbuildingComponent implements OnInit {
           this.confirmInput = '';
           this.isLoading = false;
           this.loadProjects();
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error deleting projects:', error);
           alert(`Failed to delete projects: ${error.message || 'Unknown error'}`);
           this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
     } else if (this.modalAction === 'Archive') {
@@ -289,11 +330,13 @@ export class ProjectbuildingComponent implements OnInit {
           this.confirmInput = '';
           this.isLoading = false;
           this.loadProjects();
+          this.cdr.detectChanges();
         })
         .catch(error => {
           console.error('Error archiving projects:', error);
           alert(`Failed to archive projects: ${error.message || 'Unknown error'}`);
           this.isLoading = false;
+          this.cdr.detectChanges();
         });
     }
   }
@@ -302,8 +345,8 @@ export class ProjectbuildingComponent implements OnInit {
     this.selectedProjects.clear();
     this.selectAll = false;
     this.filteredProjects.forEach(p => p.selected = false);
-    this.showDropdownIndex = null;
-    this.showStatusDropdownIndex = null;
+    this.closeAllDropdowns();
+    this.cdr.detectChanges();
   }
 
   toggleSelectAll(): void {
@@ -316,6 +359,7 @@ export class ProjectbuildingComponent implements OnInit {
         this.selectedProjects.delete(project.id);
       }
     });
+    this.cdr.detectChanges();
   }
 
   toggleProjectSelection(project: any, event: Event): void {
@@ -327,20 +371,21 @@ export class ProjectbuildingComponent implements OnInit {
       this.selectedProjects.delete(project.id);
     }
     this.selectAll = this.filteredProjects.every(p => p.selected);
+    this.cdr.detectChanges();
   }
 
   navigateToPresentation(projectId: string, event: Event): void {
     event.stopPropagation();
-    this.showDropdownIndex = null;
-    this.showStatusDropdownIndex = null;
+    this.closeAllDropdowns();
     this.router.navigate(['/pages/presentation', projectId]);
+    this.cdr.detectChanges();
   }
 
   navigateToUpdate(projectId: string, event: Event): void {
     event.stopPropagation();
-    this.showDropdownIndex = null;
-    this.showStatusDropdownIndex = null;
+    this.closeAllDropdowns();
     console.log('Navigating to update project with ID:', projectId);
     this.router.navigate(['/pages/updateproject', projectId]);
+    this.cdr.detectChanges();
   }
 }

@@ -179,15 +179,16 @@
                   <app-svg-icons icon="status" size="16" class="mt-4"></app-svg-icons>
                 </span>
                 <button class="btn btn12 robotoregular dropdown-toggle w-100 text-start border-0" type="button"
-                  data-bs-toggle="dropdown" aria-expanded="false" [ngClass]="{
+                  data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" (click)="toggleStatusDropdown(i, $event)"
+                  [ngClass]="{
                     'custom-bg-success': project?.status === 'Completed',
                     'custom-bg-yellow': project?.status === 'Active'
                   }">
                   {{ project?.status || 'Active' }}
                 </button>
-                <ul class="dropdown-menu w-100">
-                  <li><a class="dropdown-item" (click)="changeStatus(project, 'Active')">Active</a></li>
-                  <li><a class="dropdown-item" (click)="changeStatus(project, 'Completed')">Completed</a></li>
+                <ul class="dropdown-menu w-100" [ngClass]="{'show': showStatusDropdownIndex === i}">
+                  <li><a class="dropdown-item" (click)="changeStatus(project, 'Active', $event)">Active</a></li>
+                  <li><a class="dropdown-item" (click)="changeStatus(project, 'Completed', $event)">Completed</a></li>
                 </ul>
               </div>
             </td>
@@ -268,7 +269,7 @@
       </div>
       <div class="confirm-action-footer">
         <button class="btn btn-secondary onestmedium" (click)="modalProject = null">Cancel</button>
-        <button class="btn  onestmedium" style="background-color: #EC1919;" (click)="confirmAction()">Confirm</button>
+        <button class="btn onestmedium" style="background-color: #EC1919;" (click)="confirmAction()">Confirm</button>
       </div>
     </div>
   </div>

@@ -851,7 +851,7 @@ th:first-child {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 10000000 !important;
   overflow: visible;
   width: 120px !important;
   padding: 10px;
@@ -860,6 +860,7 @@ th:first-child {
 .dropdown-item-container {
   display: flex;
   flex-direction: column;
+  /* background-color: red; */
   gap: 10px;
 }
 
@@ -900,3 +901,12 @@ td.text-center {
   background-color: rgba(255, 224, 102, 1) !important;
   color: black;
 }
+
+
+
+
+
+
+
+
+
