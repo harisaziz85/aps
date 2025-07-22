@@ -1,0 +1,95 @@
+.report-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.card {
+  width: 16%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  height: 200px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+.card-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.card-text {
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btncl {
+  background-color: black !important;
+  color: white;
+  height: 48px;
+  border-radius: 20px;
+}
+
+.btncl1 {
+  background-color: rgba(0, 0, 0, 0) !important;
+  color: black;
+  height: 48px;
+  border-radius: 20px;
+}
+
+.custom-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+
+.dropdown-menu {
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f8f8;
+}
+
+.badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 20px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.badge span {
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 12px;
+}

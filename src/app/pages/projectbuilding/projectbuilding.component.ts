@@ -36,7 +36,11 @@ export class ProjectbuildingComponent implements OnInit {
   isLoading: boolean = false;
   selectAll: boolean = false;
   selectedProjects: Set<string> = new Set();
-  showDropdownIndex: number | null = null;
+  showDropdownIndex: number | null = null; // For action dropdown (Archive/Delete)
+  showStatusDropdownIndex: number | null = null; // For status dropdown
+  showNoteModal: boolean = false; // For note modal visibility
+  selectedNote: string | null = null; // To store the selected note
+  selectedProject: any = null; // To store the selected project for the note
 
   constructor(private projectService: ProjectService, private router: Router, private http: HttpClient) {}
 
@@ -55,7 +59,7 @@ export class ProjectbuildingComponent implements OnInit {
           client: project.client?.clientName || 'N/A',
           status: this.normalizeStatus(project.status),
           instances: project.subProjects || 'No subprojects',
-          jobNotes: 'N/A', // Default value, will be updated after API call
+          jobNotes: 'N/A',
           assignees: project.assignedEmployees
             ?.filter(emp => emp !== null && typeof emp === 'string')
             .map(emp => ({
@@ -66,7 +70,6 @@ export class ProjectbuildingComponent implements OnInit {
           selected: false
         }));
 
-        // Fetch job notes for each project
         const jobNotesRequests = this.projects.map(project =>
           this.http.get(`https://vps.allpassiveservices.com.au/api/jobNotes/project/${project.id}`).toPromise()
             .then((response: any) => {
@@ -120,6 +123,10 @@ export class ProjectbuildingComponent implements OnInit {
     return instances ? instances.split(',').map(item => item.trim()) : [];
   }
 
+  getJobNotesBadges(jobNotes: string): string[] {
+    return jobNotes && jobNotes !== 'N/A' ? jobNotes.split(',').map(note => note.trim()) : [];
+  }
+
   normalizeStatus(status: string | undefined): string {
     if (!status) return 'Active';
     const normalized = status.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -138,6 +145,7 @@ export class ProjectbuildingComponent implements OnInit {
       next: () => {
         project.status = this.normalizeStatus(apiStatus);
         this.applySearch();
+        this.showStatusDropdownIndex = null; // Close status dropdown after selection
       },
       error: (error) => {
         console.error('Error updating status:', error);
@@ -148,8 +156,15 @@ export class ProjectbuildingComponent implements OnInit {
 
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
-    // If the clicked dropdown is already open, close it; otherwise, open it and close any other
+    this.showStatusDropdownIndex = null;
     this.showDropdownIndex = this.showDropdownIndex === index ? null : index;
+  }
+
+  toggleStatusDropdown(index: number, event: Event): void {
+    event.stopPropagation();
+    console.log('Toggling status dropdown for index:', index, 'Current status:', this.showStatusDropdownIndex);
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = this.showStatusDropdownIndex === index ? null : index;
   }
 
   openModal(action: string, project: any, event: Event): void {
@@ -159,7 +174,8 @@ export class ProjectbuildingComponent implements OnInit {
       this.modalProject = project;
       this.confirmInput = '';
       this.showBulkModal = false;
-      this.showDropdownIndex = null; // Close dropdown when opening modal
+      this.showDropdownIndex = null;
+      this.showStatusDropdownIndex = null;
     }
   }
 
@@ -168,14 +184,31 @@ export class ProjectbuildingComponent implements OnInit {
     this.showBulkModal = true;
     this.modalProject = null;
     this.confirmInput = '';
-    this.showDropdownIndex = null; // Close dropdown when opening bulk modal
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
   }
 
   closeBulkModalAction(): void {
     this.showBulkModal = false;
     this.modalAction = '';
     this.confirmInput = '';
-    this.showDropdownIndex = null; // Close dropdown when closing bulk modal
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
+  }
+
+  openNoteModal(note: string, project: any, event: Event): void {
+    event.stopPropagation();
+    this.selectedNote = note;
+    this.selectedProject = project;
+    this.showNoteModal = true;
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
+  }
+
+  closeNoteModal(): void {
+    this.showNoteModal = false;
+    this.selectedNote = null;
+    this.selectedProject = null;
   }
 
   confirmAction(): void {
@@ -199,6 +232,7 @@ export class ProjectbuildingComponent implements OnInit {
         this.modalProject = null;
         this.modalAction = '';
         this.showDropdownIndex = null;
+        this.showStatusDropdownIndex = null;
         this.selectedProjects.delete(this.modalProject.id);
         this.loadProjects();
       },
@@ -268,6 +302,8 @@ export class ProjectbuildingComponent implements OnInit {
     this.selectedProjects.clear();
     this.selectAll = false;
     this.filteredProjects.forEach(p => p.selected = false);
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
   }
 
   toggleSelectAll(): void {
@@ -295,11 +331,15 @@ export class ProjectbuildingComponent implements OnInit {
 
   navigateToPresentation(projectId: string, event: Event): void {
     event.stopPropagation();
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
     this.router.navigate(['/pages/presentation', projectId]);
   }
 
   navigateToUpdate(projectId: string, event: Event): void {
     event.stopPropagation();
+    this.showDropdownIndex = null;
+    this.showStatusDropdownIndex = null;
     console.log('Navigating to update project with ID:', projectId);
     this.router.navigate(['/pages/updateproject', projectId]);
   }

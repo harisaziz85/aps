@@ -1,14 +1,11 @@
 <div class="" style="padding: 24px; background:#EEF0F1; height: 100vh; padding-bottom:100px">
   <app-topbar heading="Projects and Buildings"></app-topbar>
-
   <app-navbar/>
   <div *ngIf="projectId">
-   
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <h3>Project Reports</h3>
-
-   <button type="button" class="btn me-4" style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="openRightModal()">Report</button>
-</div>
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h3>Project Reports</h3>
+      <button type="button" class="btn me-4" style="background: black; color:white; height:56px; width:128px; border-radius:20px" (click)="openRightModal()">Report</button>
+    </div>
     <div *ngIf="reports.length > 0; else noReports" class="report-cards">
       <div class="card col-2" *ngFor="let report of reports">
         <div class="card-body text-center">
@@ -26,18 +23,12 @@
     <ng-template #noReports>
       <p>No reports found for this project.</p>
     </ng-template>
-
-    <div class="button-group">
-  
-     
-    </div>
+    <div class="button-group"></div>
   </div>
   <div *ngIf="!projectId">
     <p>No project ID provided in route</p>
     <p><strong>Project ID (from service):</strong> {{ serviceProjectId || 'Not set in service' }}</p>
   </div>
-
-  <!-- Right-Aligned Modal -->
   <div #rightModal class="modal fade right-modal" id="rightModal" tabindex="-1" aria-labelledby="rightModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-right" style="margin: 0; position: fixed; right: 0; top: 0; bottom: 0; width: 600px;">
       <div class="modal-content" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px; height: 100%;">
@@ -51,7 +42,7 @@
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="reportType" style="margin-bottom: 5px;">Report Type</label>
-                  <select id="reportType" class="form-control" [value]="getAttributeValue('Report Type')" style="width: 100%;">
+                  <select id="reportType" class="form-control" [(ngModel)]="selectedAttributes['Report Type']" name="reportType" style="width: 100%;">
                     <option value="standard">Standard Reports</option>
                     <option value="excel">Excel Reports</option>
                     <option value="2dPlans">2D Plans</option>
@@ -63,7 +54,7 @@
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="subCategory" style="margin-bottom: 5px;">Sub-category</label>
-                  <select id="subCategory" class="form-control" [value]="getAttributeValue('Sub-category')" style="width: 100%;">
+                  <select id="subCategory" class="form-control" [(ngModel)]="selectedAttributes['Sub-category']" name="subCategory" style="width: 100%;">
                     <option value="items">Items</option>
                     <option value="fireDampers">Fire Dampers</option>
                   </select>
@@ -72,7 +63,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="penetrationCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="penetrationCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Penetration']" name="penetrationCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="penetration" style="margin-bottom: 5px;">Penetration</label>
                   <input type="text" id="penetration" class="form-control" [value]="getAttributeValue('Penetration')" style="width: 100%;">
@@ -81,21 +72,22 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="productNameCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="productNameCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Product Name']" name="productNameCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="productName" style="margin-bottom: 5px;">Product Name</label>
-                  <select id="productName" class="form-control" [value]="getAttributeValue('Product Name')" style="width: 100%;">
-                    <!-- Add product options as needed -->
+                  <select id="productName" class="form-control" [(ngModel)]="selectedAttributes['Product Name']" name="productName" style="width: 100%;">
+                    <option value="">Select a product</option>
+                    <option *ngFor="let product of products" [value]="product.name">{{ product.name }}</option>
                   </select>
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="approvalCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="approvalCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Approval']" name="approvalCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="approval" style="margin-bottom: 5px;">Approval</label>
-                  <select id="approval" class="form-control" [value]="getAttributeValue('Approval')" style="width: 100%;">
+                  <select id="approval" class="form-control" [(ngModel)]="selectedAttributes['Approval']" name="approval" style="width: 100%;">
                     <!-- Add approval options as needed -->
                   </select>
                 </div>
@@ -103,29 +95,25 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="buildingCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="buildingCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Building']" name="buildingCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="building" style="margin-bottom: 5px;">Building</label>
-                  <select id="building" class="form-control" [value]="getAttributeValue('Building')" style="width: 100%;">
-                    <!-- Add building options as needed -->
-                  </select>
+                  <input type="text" id="building" class="form-control" [value]="getAttributeValue('Building')" style="width: 100%;">
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="levelCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="levelCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Level']" name="levelCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="level" style="margin-bottom: 5px;">Level</label>
-                  <select id="level" class="form-control" [value]="getAttributeValue('Level')" style="width: 100%;">
-                    <!-- Add level options as needed -->
-                  </select>
+                  <input type="text" id="level" class="form-control" [value]="getAttributeValue('Level')" style="width: 100%;">
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="itemCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="itemCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Item #']" name="itemCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="item" style="margin-bottom: 5px;">Item #</label>
                   <input type="text" id="item" class="form-control" [value]="getAttributeValue('Item #')" style="width: 100%;">
@@ -134,7 +122,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="testReferenceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="testReferenceCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Test Reference']" name="testReferenceCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="testReference" style="margin-bottom: 5px;">Test Reference</label>
                   <input type="text" id="testReference" class="form-control" [value]="getAttributeValue('Test Reference')" style="width: 100%;">
@@ -143,7 +131,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="locationCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="locationCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Location']" name="locationCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="location" style="margin-bottom: 5px;">Location</label>
                   <input type="text" id="location" class="form-control" [value]="getAttributeValue('Location')" style="width: 100%;">
@@ -152,7 +140,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="frlCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="frlCheck" class="form-check-input" [(ngModel)]="selectedAttributes['FRL']" name="frlCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="frl" style="margin-bottom: 5px;">FRL</label>
                   <input type="text" id="frl" class="form-control" [value]="getAttributeValue('FRL')" style="width: 100%;">
@@ -161,7 +149,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="barrierCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="barrierCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Barrier']" name="barrierCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="barrier" style="margin-bottom: 5px;">Barrier</label>
                   <input type="text" id="barrier" class="form-control" [value]="getAttributeValue('Barrier')" style="width: 100%;">
@@ -170,7 +158,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="descriptionCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="descriptionCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Description']" name="descriptionCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="description" style="margin-bottom: 5px;">Description</label>
                   <input type="text" id="description" class="form-control" [value]="getAttributeValue('Description')" style="width: 100%;">
@@ -179,18 +167,16 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="installerCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="installerCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Installer']" name="installerCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="installer" style="margin-bottom: 5px;">Installer</label>
-                  <select id="installer" class="form-control" [value]="getAttributeValue('Installer')" style="width: 100%;">
-                    <!-- Add installer options as needed -->
-                  </select>
+                  <input type="text" id="installer" class="form-control" [value]="getAttributeValue('Installer')" style="width: 100%;">
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="inspectorCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="inspectorCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Inspector']" name="inspectorCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="inspector" style="margin-bottom: 5px;">Inspector</label>
                   <input type="text" id="inspector" class="form-control" [value]="getAttributeValue('Inspector')" style="width: 100%;">
@@ -199,7 +185,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="safetyMeasuresCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="safetyMeasuresCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Safety Measures']" name="safetyMeasuresCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="safetyMeasures" style="margin-bottom: 5px;">Safety Measures</label>
                   <input type="text" id="safetyMeasures" class="form-control" [value]="getAttributeValue('Safety Measures')" style="width: 100%;">
@@ -208,16 +194,16 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="relevanceToBuildingCodeCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="relevanceCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Relevance to Building Code']" name="relevanceCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
-                  <label for="relevanceToBuildingCode" style="margin-bottom: 5px;">Relevance to Building Code</label>
-                  <input type="text" id="relevanceToBuildingCode" class="form-control" [value]="getAttributeValue('Relevance to Building Code')" style="width: 100%;">
+                  <label for="relevance" style="margin-bottom: 5px;">Relevance to Building Code</label>
+                  <input type="text" id="relevance" class="form-control" [value]="getAttributeValue('Relevance to Building Code')" style="width: 100%;">
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="complianceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="complianceCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Compliance']" name="complianceCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="compliance" style="margin-bottom: 5px;">Compliance</label>
                   <input type="text" id="compliance" class="form-control" [value]="getAttributeValue('Compliance')" style="width: 100%;">
@@ -226,7 +212,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="commentsCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="commentsCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Comments']" name="commentsCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="comments" style="margin-bottom: 5px;">Comments</label>
                   <input type="text" id="comments" class="form-control" [value]="getAttributeValue('Comments')" style="width: 100%;">
@@ -235,7 +221,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="notesCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="notesCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Notes']" name="notesCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="notes" style="margin-bottom: 5px;">Notes</label>
                   <input type="text" id="notes" class="form-control" [value]="getAttributeValue('Notes')" style="width: 100%;">
@@ -244,16 +230,16 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="priceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="priceCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Price']" name="priceCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
-                  <label for="price" style="margin-bottom: 5px;">Price Excluding GST</label>
+                  <label for="price" style="margin-bottom: 5px;">Price</label>
                   <input type="text" id="price" class="form-control" [value]="getAttributeValue('Price')" style="width: 100%;">
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="stickerNoCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="stickerNoCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Sticker No']" name="stickerNoCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="stickerNo" style="margin-bottom: 5px;">Sticker No</label>
                   <input type="text" id="stickerNo" class="form-control" [value]="getAttributeValue('Sticker No')" style="width: 100%;">
@@ -262,7 +248,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="testIdCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="testIdCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Test ID']" name="testIdCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="testId" style="margin-bottom: 5px;">Test ID</label>
                   <input type="text" id="testId" class="form-control" [value]="getAttributeValue('Test ID')" style="width: 100%;">
@@ -271,7 +257,7 @@
             </div>
             <div class="form-group">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input type="checkbox" id="serviceCheck" class="form-check-input" style="width: 20px; height: 20px; margin-right: 10px;">
+                <input type="checkbox" id="serviceCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Service']" name="serviceCheck" style="width: 20px; height: 20px; margin-right: 10px;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="service" style="margin-bottom: 5px;">Service</label>
                   <input type="text" id="service" class="form-control" [value]="getAttributeValue('Service')" style="width: 100%;">
@@ -279,90 +265,35 @@
               </div>
             </div>
             <div class="form-group">
-              <label>For Reports longer than 500 items, separate the report into multiple parts</label>
-              <div class="form-check">
-                <input type="radio" id="noSeparate" name="separate" class="form-check-input" [(ngModel)]="selectedAttributes['Separate Report']" [value]="false" checked style="width: 20px; height: 20px; margin-right: 10px;">
-                <label for="noSeparate" class="form-check-label">No</label>
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="separateReportCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Separate Report']" name="separateReportCheck" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="separateReport" style="margin-bottom: 5px;">Separate Report</label>
+                  <input type="checkbox" id="separateReport" class="form-control" [(ngModel)]="selectedAttributes['Separate Report']" name="separateReport" style="width: 20px; height: 20px;">
+                </div>
               </div>
             </div>
             <div class="form-group">
-              <label>Email me a notification when report generation is complete</label>
-              <div class="form-check">
-                <input type="radio" id="yesNotify" name="notify" class="form-check-input" [(ngModel)]="selectedAttributes['Email Notification']" [value]="true" style="width: 20px; height: 20px; margin-right: 10px;">
-                <label for="yesNotify" class="form-check-label">Yes</label>
-              </div>
-              <div class="form-check">
-                <input type="radio" id="noNotify" name="notify" class="form-check-input" [(ngModel)]="selectedAttributes['Email Notification']" [value]="false" checked style="width: 20px; height: 20px; margin-right: 10px;">
-                <label for="noNotify" class="form-check-label">No</label>
+              <div class="field-group d-flex" style="align-items: flex-end;">
+                <input type="checkbox" id="emailNotificationCheck" class="form-check-input" [(ngModel)]="selectedAttributes['Email Notification']" name="emailNotificationCheck" style="width: 20px; height: 20px; margin-right: 10px;">
+                <div class="d-flex flex-column" style="flex: 1;">
+                  <label for="emailNotification" style="margin-bottom: 5px;">Email Notification</label>
+                  <input type="checkbox" id="emailNotification" class="form-control" [(ngModel)]="selectedAttributes['Email Notification']" name="emailNotification" style="width: 20px; height: 20px;">
+                </div>
               </div>
             </div>
+            <div class="form-group">
+              <label for="selectAll">Select All</label>
+              <input type="checkbox" id="selectAll" (change)="toggleSelectAll($event)">
+            </div>
           </form>
-          <div *ngIf="!projectAttributes">
-            <p>Loading project attributes...</p>
-          </div>
         </div>
-        <div class="modal-footer" style="position: sticky; bottom: 0; z-index: 1; background: #fff;">
-          <button type="button" class="btncl1" (click)="goToCoverLetter()" style="width: 100%;">Cover Letter</button>
-          <button type="button" class="btncl"  (click)="generateReport()" style="width: 100%;">Generate Report</button>
+        <div class="modal-footer" style="position: sticky; bottom: 0; background: #fff;">
+          <button type="button" class="btn btn-primary" style="background: #5CC96E; border: none; width: 200px; height: 48px; border-radius: 10px;" (click)="goToCoverLetter()">Cover Letter</button>
+          <button type="button" class="btn btn-primary" style="background: #5CC96E; border: none; width: 200px; height: 48px; border-radius: 10px;" (click)="generateReport()">Generate Report</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-<app-foot/>
-
-<style>
-.report-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.card {
-  width: 16%;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-  height: 200px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-}
-
-.card-body {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.card-text {
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.btncl{
-  background-color: black !important;
-  color: white;
-  height: 48px;
-  border-radius: 20px;
-}
-.btncl1{
-  background-color: rgba(0, 0, 0, 0) !important;
-  color: black;
-  height: 48px;
-  border-radius: 20px;
-}
-</style>
+<app-foot></app-foot>

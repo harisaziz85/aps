@@ -238,8 +238,15 @@
         <input type="checkbox" class="check1 mt-4" [(ngModel)]="selectedFields[field.key]" (change)="updateSelectAll()">
         <div class="form-group w-100">
           <label [for]="field.key" class="robotoregular" style="font-size: 14px;">{{ field.name }}</label>
-          <input type="text" class="form-control sle1" [id]="field.key"
-                 [value]="getAttributeDisplayValue(field.key)" readonly>
+          <ng-container *ngIf="getAttributeDisplayValues(field.key).length > 1; else singleValue">
+            <select class="form-control sle1" [id]="field.key" [(ngModel)]="selectedFieldValues[field.key]">
+              <option *ngFor="let value of getAttributeDisplayValues(field.key)" [value]="value">{{ value }}</option>
+            </select>
+          </ng-container>
+          <ng-template #singleValue>
+            <input type="text" class="form-control sle1" [id]="field.key"
+                   [value]="getAttributeDisplayValue(field.key)" readonly>
+          </ng-template>
         </div>
       </div>
 

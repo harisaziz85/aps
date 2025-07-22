@@ -11,7 +11,7 @@ export interface ProjectResponse {
     clientPhone: string;
   };
   clientName?: string;
-  date?: string;
+  createdAt?: string; // Added createdAt
   buildingType?: string;
   assignedEmployees?: Array<{
     employeeId?: string;
@@ -31,12 +31,14 @@ export interface ProjectResponse {
   }>;
   status?: string;
   project?: any;
-  hierarchyLevels?: Array<{ // Added for hierarchy level images
+  hierarchyLevels?: Array<{
     hierarchyLevelId: string;
     name: string;
     imageUrl?: string | null;
   }>;
+  documents?: Document[]; // Added documents
 }
+
 export interface InstanceResponse {
   name: string | undefined;
   instanceId: string;
@@ -47,7 +49,7 @@ export interface InstanceResponse {
   _id: string;
   projectId: string;
   hierarchyLevelId: string;
-  hierarchyName: string; // Used as hierarchyLevelName in generateReport
+  hierarchyName: string;
   subProjectCategory: string;
   createdBy: string;
   attributes: Array<{

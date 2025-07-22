@@ -9,7 +9,6 @@
     <div class="col-8">
       <div class="card" >
         <div class="card-body">
-          <!-- <p><strong>Project ID (from route):</strong> {{ projectId || 'Not provided in route' }}</p> -->
           <div *ngIf="projectData" class="row">
             <div class="col-12">
               <label for="templateSelect" class="onestbold" style="font-size: 21px; margin-bottom:24px">Template</label><br>
@@ -55,9 +54,7 @@
                 </ul>
               </div>
             </div>
-         
           </div>
-         
         </div>
       </div>
       <div *ngFor="let attr of attributes; let i = index" class="card attribute-card">
@@ -67,10 +64,6 @@
               <label>Attribute</label>
               <input type="text" class="" [(ngModel)]="attr.name" [disabled]="i === 0 && attr.name === 'FD No.'" class="atb">
             </div>
-            <!-- <div class="attr" *ngIf="i === 0 && attr.name === 'FD No.'">
-              <label>Combined Attributes</label>
-              <input type="text" class="" [value]="getCombinedAttributes(i)" disabled>
-            </div> -->
             <div class="attr">
               <label>Type</label>
               <select [(ngModel)]="attr.type" class="lib">
@@ -96,7 +89,6 @@
           </div>
           <div class="d-flex">  
             <div style="width: 56%;" class="d-flex flex-column">
-              <!-- First row with two checkboxes side by side -->
               <div class="d-flex flex-row gap-3 mt-4">
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <input type="checkbox" [(ngModel)]="attr.editableBackOffice" class="chk"> Editable Only in Back Office
@@ -105,13 +97,15 @@
                   <input type="checkbox" [(ngModel)]="attr.hideForMobileUser" class="chk"> Hide for Mobile User
                 </div>
               </div>
-              <!-- Second row with the third checkbox -->
               <div class="mt-2 d-flex align-items-center gap-2 mb-1">
                 <input type="checkbox" [(ngModel)]="attr.conditionalAttribute.isEnabled" class="chk"> Conditional Attribute
               </div>
             </div>
             <div class="badge-container" *ngIf="attr.values?.length">
-              <span *ngFor="let value of attr.values" class="badge">{{ value }}</span>
+              <span *ngFor="let value of attr.values; let valueIndex = index" class="badge">
+                {{ value }}
+                <span class="badge-close" (click)="removeAttributeValue(i, valueIndex)">×</span>
+              </span>
             </div>
           </div> 
         </div>
@@ -134,7 +128,10 @@
             </ul>
           </div>
           <div class="badge-container">
-            <span *ngFor="let name of getSelectedEmployeeNames()" class="badge">{{ name }}</span>
+            <span *ngFor="let name of getSelectedEmployeeNames(); let employeeIndex = index" class="badge">
+              {{ name }}
+         <span class="badge-close" (click)="removeEmployeeByName(name)">×</span>
+            </span>
           </div>
         </div>
       </div>

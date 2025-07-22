@@ -111,7 +111,7 @@ export class UpdateStep4Component implements OnInit {
     this.isLoadingHierarchy = true;
     this.errorMessage = null;
     this.successMessage = null;
-    this.http.get<any>(`https://aspbackend-production.up.railway.app/api/project/hierarchy/${projectId}`, {
+    this.http.get<any>(`https://vps.allpassiveservices.com.au/api/project/hierarchy/${projectId}`, {
       headers: { 'Accept': 'application/json' }
     }).subscribe({
       next: (response) => {

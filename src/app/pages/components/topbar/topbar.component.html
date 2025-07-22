@@ -158,13 +158,13 @@
           <ul class="nav nav-tabs w-100 d-flex align-items-center">
             <li class="nav-item w-50">
               <a class="nav-link robotobold" [class.active]="activeTab === 'tab1'" (click)="setActiveTab('tab1')"
-                href="javascript:void(0)">
+                 href="javascript:void(0)">
                 Import Projects
               </a>
             </li>
             <li class="nav-item w-50">
               <a class="nav-link robotobold" [class.active]="activeTab === 'ongoingProjects'"
-                (click)="setActiveTab('ongoingProjects')" href="javascript:void(0)">
+                 (click)="setActiveTab('ongoingProjects')" href="javascript:void(0)">
                 Export Projects
               </a>
             </li>
@@ -172,15 +172,16 @@
         </div>
       </div>
       <div class="tab-content mt-3">
-        <div class="tab-pane fade show" [class.active]="activeTab === 'tab1'" id="tab1">
+        <div class="tab-pane fade" [class.show]="activeTab === 'tab1'" [class.active]="activeTab === 'tab1'" id="tab1">
           <div class="checkbox-container d-flex">
             <label class="txt robotoregular d-flex align-items-center w-50">
-              <input type="checkbox" class="cbox" [checked]="selectedOption === 'new'" (change)="selectOption('new')" />
+              <input type="radio" name="importOption" class="cbox" [checked]="selectedOption === 'new'"
+                     (change)="selectOption('new')" />
               Import as a new project
             </label>
             <label class="txt robotoregular d-flex align-items-center">
-              <input type="checkbox" class="cbox" [checked]="selectedOption === 'existing'"
-                (change)="selectOption('existing')" />
+              <input type="radio" name="importOption" class="cbox" [checked]="selectedOption === 'existing'"
+                     (change)="selectOption('existing')" />
               Import into an existing project
             </label>
           </div>
@@ -189,9 +190,8 @@
               <p class="onestsemibold head2">Document Info</p>
               <div class="imgbr">
                 <div class="w-100 text-center" (click)="importFileInput.click()">
-                  <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;">
+                  <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;" />
                   <div *ngIf="!selectedFileName" class="w-100 text-center">
-                    <div></div>
                     <p class="txt3 robotoregular">Drag and Drop or <br> Browse</p>
                   </div>
                   <div *ngIf="selectedFileName" class="w-100 text-center">
@@ -204,23 +204,16 @@
               <div>
                 <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span>
               </div>
-              <span>{{ selectedFileName }}</span>
+              <span>{{ selectedFileName || 'No file selected' }}</span>
             </div>
           </div>
           <div *ngIf="selectedOption === 'existing'">
-            <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
-  <div>
-    <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span>
-  </div>
- 
-</div>
             <div class="checkbox-container">
               <p class="onestsemibold head2">Document Info</p>
               <div class="imgbr d-flex">
                 <div class="w-100 text-center" (click)="importFileInput.click()">
-                  <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;">
+                  <input #importFileInput type="file" (change)="onImportFileSelected($event)" style="display: none;" />
                   <div *ngIf="!selectedFileName" class="w-100 text-center">
-                    <div></div>
                     <p class="txt3 robotoregular">Drag and Drop or <br> Browse</p>
                   </div>
                   <div *ngIf="selectedFileName" class="w-100 text-center">
@@ -229,66 +222,58 @@
                 </div>
               </div>
             </div>
-            <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
-              <div>
-                <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span>
+          </div>
+        </div>
+        <div class="tab-pane fade" [class.show]="activeTab === 'ongoingProjects'" [class.active]="activeTab === 'ongoingProjects'" id="ongoingProjects">
+          <div class="input-group" style="margin-bottom: 18px;">
+            <span class="input-group-text" style="border: 1px solid #A4A3A2;">
+              <!-- <fa-icon [icon]="faSearch"></fa-icon> -->
+            </span>
+            <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchQuery"
+                   (ngModelChange)="onSearchChange()" style="background-color: transparent;" />
+          </div>
+          <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects">
+            <div class="project-header d-flex align-items-center">
+              <input type="checkbox" class="cb1" [checked]="selectedProjects.includes(project.projectId)"
+                     (change)="toggleProjectSelection(project.projectId)" />
+              <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
+              <span class="dropdown-icon" (click)="toggleProjectDropdown(project.projectId)">
+                <ng-container *ngIf="projectDropdownStates[project.projectId]; else downArrow">
+                  <svg width="12" height="12" viewBox="0 0 12 12">
+                    <path d="M2 8l4-4 4 4H2z" />
+                  </svg>
+                </ng-container>
+                <ng-template #downArrow>
+                  <svg width="12" height="12" viewBox="0 0 12 12">
+                    <path d="M2 4l4 4 4-4H2z" />
+                  </svg>
+                </ng-template>
+              </span>
+            </div>
+            <div class="instance-list" *ngIf="projectDropdownStates[project.projectId]">
+              <div class="hierarchy-level" *ngFor="let level of project.hierarchyLevels">
+                <div class="level-header">
+                  <!-- <span class="robotoregular txt">{{ level.levelName || 'Unnamed Level' }}</span> -->
+                </div>
+                <div class="instance-item" *ngFor="let instance of level.instances; let i = index">
+                  <input type="checkbox" class="cbb1" />
+                  <span class="robotoregular txt"> {{ instance.subProjectCategory || 'No Category' }}({{ i + 1 }})</span>
+                </div>
+                <div class="instance-item" *ngIf="!level.instances?.length">
+                  <!-- <span class="robotoregular txt">No instances available</span> -->
+                </div>
               </div>
-              <span>{{ selectedFileName }}</span>
+              <div class="instance-item" *ngIf="!project.hierarchyLevels?.length">
+                <span class="robotoregular txt">No hierarchy levels available</span>
+              </div>
             </div>
           </div>
         </div>
-
-
-
-        
-      <div class="tab-pane" [class.active]="activeTab === 'ongoingProjects'" id="ongoingProjects">
-  <div>
-    <div class="input-group" style="margin-bottom: 18px;">
-      <span class="input-group-text" style="border:1px solid #A4A3A2">
-        <!-- <fa-icon [icon]="faSearch"></fa-icon> -->
-      </span>
-      <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearchChange()" style="background-color: rgba(0, 255, 255, 0);">
-    </div>
-  </div>
-  <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects">
-    <div class="project-header">
-      <input
-        type="checkbox"
-        class="cb1"
-        [checked]="selectedProjects.includes(project.projectId)"
-        (change)="toggleProjectSelection(project.projectId)"
-      />
-      <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
-      <span class="dropdown-icon" (click)="toggleProjectDropdown(project.projectId)">
-        <ng-container *ngIf="projectDropdownStates[project.projectId]; else downArrow">
-          <svg width="12" height="12" viewBox="0 0 12 12">
-            <path d="M2 8l4-4 4 4H2z" />
-          </svg>
-        </ng-container>
-        <ng-template #downArrow>
-          <svg width="12" height="12" viewBox="0 0 12 12">
-            <path d="M2 4l4 4 4-4H2z" />
-          </svg>
-        </ng-template>
-      </span>
-    </div>
-    <div class="instance-list" *ngIf="projectDropdownStates[project.projectId]">
-      <div class="instance-item" *ngFor="let instance of project.instances || []">
-        <input type="checkbox" class="cbb1" />
-        <span class="robotoregular txt">{{ instance.instanceName || 'Unnamed Instance' }} ({{ instance.subProjectCategory || 'No Category' }})</span>
-      </div>
-      <div class="instance-item" *ngIf="!project.instances || project.instances.length === 0">
-        <span class="robotoregular txt">No instances available</span>
       </div>
     </div>
-  </div>
-</div>
-      </div>
-    </div>
-    <div class="modal-footer w-100 mmm1" style="margin-top:24px;">
+    <div class="modal-footer w-100 mmm1" style="margin-top: 24px;">
       <button type="button" class="w-100 btonn robotosemibold"
-        (click)="activeTab === 'tab1' ? importProject() : exportSelectedProjects()">
+              (click)="activeTab === 'tab1' ? importProject() : exportSelectedProjects()">
         {{ activeTab === 'tab1' ? 'Import' : 'Export' }}
       </button>
     </div>

@@ -14,7 +14,7 @@ import { FootComponent } from "../components/foot/foot.component";
   standalone: true,
   templateUrl: './update-step1.component.html',
   styleUrls: ['./update-step1.component.css'],
-  imports: [FormsModule, CommonModule, NavbarComponent, TopbarComponent, FootComponent]
+  imports: [FormsModule, CommonModule, NavbarComponent, FootComponent]
 })
 export class UpdateStep1Component implements OnInit {
   projectId: string | null = null;
@@ -39,12 +39,13 @@ export class UpdateStep1Component implements OnInit {
     this.route.params.subscribe(params => {
       console.log('Route Params:', params);
       this.projectId = params['id'] || null;
-      if (this.projectId) {
+      if (this.projectId && this.projectId !== 'undefined') {
         this.updateService.setProjectId(this.projectId);
         this.fetchProjectData(this.projectId);
         this.fetchClientNames();
       } else {
-        this.errorMessage = 'No project ID provided';
+        this.errorMessage = 'Invalid or missing project ID';
+        console.error('Project ID is missing or undefined');
       }
     });
   }
@@ -55,12 +56,18 @@ export class UpdateStep1Component implements OnInit {
         console.log('Project Data:', data);
         this.projectData = data.project;
         this.hierarchyLevelsChangeValue = this.projectData.projectAdministration.hierarchyLevelsChange ? 'Yes' : 'No';
-        this.selectedSubProject = this.projectData.subProjects[0] || '';
+        // subProjects is an array of strings
+        this.selectedSubProject = this.projectData.subProjects && this.projectData.subProjects.length > 0 
+          ? this.projectData.subProjects[0] 
+          : '';
+        console.log('subProjects format:', this.projectData.subProjects);
         console.log('Mapped Project Data:', this.projectData);
       },
       error: (error) => {
         console.error('Error fetching project data:', error);
-        this.errorMessage = 'Failed to load project data';
+        this.errorMessage = error.status === 404 
+          ? 'Project not found. Please check the project ID.' 
+          : 'Failed to load project data';
       }
     });
   }
@@ -81,8 +88,12 @@ export class UpdateStep1Component implements OnInit {
 
   saveAndNext() {
     if (this.projectId && this.projectData) {
-      this.projectData.subProjects = this.selectedSubProject ? [this.selectedSubProject] : this.projectData.subProjects;
+      // Keep subProjects as an array of strings
+      this.projectData.subProjects = this.selectedSubProject 
+        ? [this.selectedSubProject] 
+        : this.projectData.subProjects || [];
       this.projectData.projectAdministration.hierarchyLevelsChange = this.hierarchyLevelsChangeValue === 'Yes';
+      console.log('Payload being sent:', JSON.stringify(this.projectData, null, 2));
       this.updateService.saveProjectData(this.projectId, this.projectData).subscribe({
         next: (response) => {
           console.log('Project updated successfully:', response);
@@ -90,11 +101,12 @@ export class UpdateStep1Component implements OnInit {
         },
         error: (error) => {
           console.error('Error updating project:', error);
-          this.errorMessage = error.message;
+          this.errorMessage = error.message || 'Failed to update project: Invalid data format';
         }
       });
     } else {
       this.errorMessage = 'Project ID or data is missing';
+      console.error('Project ID or data is missing');
     }
   }
 

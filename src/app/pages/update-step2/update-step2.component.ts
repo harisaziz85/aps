@@ -3,9 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from "../components/navbar/navbar.component";
+import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
-import { FootComponent } from "../components/foot/foot.component";
+import { FootComponent } from '../components/foot/foot.component';
 
 interface Attribute {
   name: string;
@@ -36,7 +36,18 @@ interface StandardAttribute {
   approvalDocumentIds: string[];
   productId: string;
   assignedEmployees: string[];
-  attributes: Attribute[];
+  attributes: {
+    name: string;
+    type: string;
+    value: string | string[];
+    editableBackOffice: boolean;
+    hideForMobileUser: boolean;
+    conditionalAttribute: {
+      isEnabled: boolean;
+      approvalDocumentIds: string[];
+    };
+    _id?: string;
+  }[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -156,112 +167,110 @@ interface AttributeResponse {
 })
 export class UpdateStep2Component implements OnInit {
   projectId: string | null = null;
-  serviceProjectId: string | null = null;
   projectData: DownloadProject | null = null;
   errorMessage: string | null = null;
   selectedTemplate: string = '';
   selectedProductId: string = '';
-  selectedProductNameId: string = '';
   selectedApprovalDocumentIds: string[] = [];
   selectedEmployeeIds: string[] = [];
-  templateOptions: string[] = ['Penetration', 'Fire Dampers' ,'Annual Inspection', 'Scoping', 'Installation/Penetration Register', 'Third Party Certification'];
+  templateOptions: string[] = ['Penetration', 'Fire Dampers', 'Annual Inspection', 'Scoping', 'Installation/Penetration Register', 'Third Party Certification'];
   products: Product[] = [];
   employees: Employee[] = [];
   isTemplateDropdownOpen: boolean = false;
   isProductDropdownOpen: boolean = false;
   isApprovalDropdownOpen: boolean = false;
   isEmployeeDropdownOpen: boolean = false;
-  isProductNameDropdownOpen: boolean = false;
   attributes: Attribute[] = [];
   newAttributeValues: string[] = [];
 
   predefinedTemplates: { [key: string]: Attribute[] } = {
     'Scoping': [
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Inspector', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Notes', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Additional Requirements', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false , hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } }
+      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Inspector', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Notes', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Additional Requirements', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] }
     ],
     'Annual Inspection': [
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Safety Measures', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Relevance to Building Code', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: ['Pass', 'Fail'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Date Inspected', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Inspector', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } }
+      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Safety Measures', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Relevance to Building Code', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: ['Pass', 'Fail'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Date Inspected', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Inspector', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] }
     ],
     'Fire Dampers': [
-      { name: 'FD No.', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Location', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Year Inspected', type: 'string', barrierInput: '', barrierValues: ['2025', '2026', '2027', '2028', '2029'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Inspection Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Damper Accessible', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Damper Closes and fusable link ok', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Damper Installed Correctly', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Flanges or Retaining Angles Correct', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Substrate Type', type: 'string', barrierInput: '', barrierValues: ['Concrete Wall', 'Masonry Wall', 'Dincel', 'Hebel Wall', 'Fire Rated Plasterboard Wall', 'Speedpanel Wall', 'Hebel Powerpanel Wall'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Penetration Compliant', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Breakaway Connection', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Damper free from Corrosion', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Is this damper installed correctly', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Date of Repairs', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } }
+      { name: 'FD No.', type: 'list', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Location', type: 'list', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Year Inspected', type: 'string', barrierInput: '', barrierValues: ['2025', '2026', '2027', '2028', '2029'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Inspection Date', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Damper Accessible', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Damper Closes and fusable link ok', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Damper Installed Correctly', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Flanges or Retaining Angles Correct', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Substrate Type', type: 'string', barrierInput: '', barrierValues: ['Concrete Wall', 'Masonry Wall', 'Dincel', 'Hebel Wall', 'Fire Rated Plasterboard Wall', 'Speedpanel Wall', 'Hebel Powerpanel Wall'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Penetration Compliant', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Breakaway Connection', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Damper free from Corrosion', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Is this damper installed correctly', type: 'string', barrierInput: '', barrierValues: ['Yes', 'No'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Date of Repairs', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] }
     ],
     'Installation/Penetration Register': [
-      { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Materils', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Reference to Building Code', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: ['Pass', 'Fail'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } }
+      { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Reference to Building Code', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: ['Pass', 'Fail'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] }
     ],
     'Third Party Certification': [
-      { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Trade', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Date Inspected', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Inspector', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Notes', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } },
-      { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [], values: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] } }
+      { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Services', type: 'string', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'FRL', type: 'string', barrierInput: '', barrierValues: ['-/120-', '-/120/120', '-180/180', '-/60/60', '-/240/240', '-90/90', 'Smoke'], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Trade', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Compliance', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Date Inspected', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Inspector', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Notes', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableBackOffice: false, hideForMobileUser: false, conditionalAttribute: { isEnabled: false, approvalDocumentIds: [] }, values: [], productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] }
     ]
   };
 
-  private apiUrl = 'https://aspbackend-production.up.railway.app/api/project/download/';
+  private apiUrl = 'https://vps.allpassiveservices.com.au/api/project/download/';
   private attributesApiUrl = 'https://vps.allpassiveservices.com.au/api/project/attributes/';
-  private updateApiUrl = 'https://aspbackend-production.up.railway.app/api/updateProject/standard-attribute/';
-  private productApiUrl = 'https://aspbackend-production.up.railway.app/api/product/list';
-  private employeeApiUrl = 'https://aspbackend-production.up.railway.app/api/employees';
+  private updateApiUrl = 'https://vps.allpassiveservices.com.au/api/updateProject/standard-attribute/';
+  private productApiUrl = 'https://vps.allpassiveservices.com.au/api/product/list';
+  private employeeApiUrl = 'https://vps.allpassiveservices.com.au/api/employees';
+emp: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -296,17 +305,7 @@ export class UpdateStep2Component implements OnInit {
           reports: [],
           jobNotes: []
         };
-        if (standardAttribute) {
-          this.selectedTemplate = standardAttribute.templateName || '';
-          this.selectedProductId = standardAttribute.productId || '';
-          this.selectedApprovalDocumentIds = standardAttribute.approvalDocumentIds || [];
-          this.selectedEmployeeIds = standardAttribute.assignedEmployees || [];
-          this.selectedProductNameId = standardAttribute.productId || '';
-          
-          // Initialize attributes with API data or predefined template
-          this.attributes = this.initializeAttributes(standardAttribute);
-          this.newAttributeValues = new Array(this.attributes.length).fill('');
-        }
+        this.initializeForm(standardAttribute);
       },
       error: (error) => {
         console.error('Error fetching attributes data:', error);
@@ -314,17 +313,8 @@ export class UpdateStep2Component implements OnInit {
           next: (data: DownloadProject) => {
             console.log('Project Data:', data);
             this.projectData = data;
-            if (data.standardAttributes && data.standardAttributes.length > 0) {
-              this.selectedTemplate = data.standardAttributes[0].templateName || '';
-              this.selectedProductId = data.standardAttributes[0].productId || '';
-              this.selectedApprovalDocumentIds = data.standardAttributes[0].approvalDocumentIds || [];
-              this.selectedEmployeeIds = data.standardAttributes[0].assignedEmployees || [];
-              this.selectedProductNameId = data.standardAttributes[0].productId || '';
-              this.attributes = this.initializeAttributes(data.standardAttributes[0]);
-              this.newAttributeValues = new Array(this.attributes.length).fill('');
-            } else {
-              this.updateAttributes();
-            }
+            const standardAttribute = data.standardAttributes?.[0] || null;
+            this.initializeForm(standardAttribute);
           },
           error: (error) => {
             console.error('Error fetching project data:', error);
@@ -335,27 +325,42 @@ export class UpdateStep2Component implements OnInit {
     });
   }
 
-  private initializeAttributes(standardAttribute: StandardAttribute): Attribute[] {
-    // If API provides attributes and they are valid, use them
-    if (standardAttribute.attributes && standardAttribute.attributes.length > 0) {
+  private initializeForm(standardAttribute: StandardAttribute | null) {
+    if (standardAttribute) {
+      this.selectedTemplate = standardAttribute.templateName || '';
+      this.selectedProductId = standardAttribute.productId || '';
+      this.selectedApprovalDocumentIds = standardAttribute.approvalDocumentIds || [];
+      this.selectedEmployeeIds = standardAttribute.assignedEmployees || [];
+      this.attributes = this.initializeAttributes(standardAttribute);
+      this.newAttributeValues = new Array(this.attributes.length).fill('');
+    } else {
+      this.selectedTemplate = '';
+      this.selectedProductId = '';
+      this.selectedApprovalDocumentIds = [];
+      this.selectedEmployeeIds = [];
+      this.attributes = [];
+      this.newAttributeValues = [];
+    }
+  }
+
+  private initializeAttributes(standardAttribute: StandardAttribute | null): Attribute[] {
+    if (standardAttribute?.attributes?.length) {
       return standardAttribute.attributes.map(attr => ({
-        ...attr,
-        values: attr.values || [],
-        barrierValues: attr.barrierValues || [],
+        name: attr.name,
+        type: attr.type,
+        values: Array.isArray(attr.value) ? attr.value.filter(val => val != null && val !== '') : (typeof attr.value === 'string' && attr.value ? [attr.value] : []),
+        barrierInput: typeof attr.value === 'string' ? attr.value : '',
+        barrierValues: Array.isArray(attr.value) ? attr.value.filter(val => val != null && val !== '') : [],
         editableBackOffice: attr.editableBackOffice || false,
         hideForMobileUser: attr.hideForMobileUser || false,
         conditionalAttribute: attr.conditionalAttribute || { isEnabled: false, approvalDocumentIds: [] },
-        barrierInput: attr.barrierInput || '',
-        editableInBackOffice: attr.editableInBackOffice || false,
-        hideForMobile: attr.hideForMobile || false,
-        isConditional: attr.isConditional || false,
-        productId: attr.productId || '',
-        approvalDocumentId: attr.approvalDocumentId || '',
-        filteredApprovalDocuments: attr.filteredApprovalDocuments || [],
-        selectedApprovalDocuments: attr.selectedApprovalDocuments || []
+        _id: attr._id,
+        productId: '',
+        approvalDocumentId: '',
+        filteredApprovalDocuments: [],
+        selectedApprovalDocuments: []
       }));
     }
-    // Fallback to predefined template attributes if API attributes are empty
     return this.predefinedTemplates[this.selectedTemplate]?.map(attr => ({
       ...attr,
       values: [...(attr.barrierValues || [])],
@@ -364,9 +369,6 @@ export class UpdateStep2Component implements OnInit {
       editableBackOffice: attr.editableBackOffice || false,
       hideForMobileUser: attr.hideForMobileUser || false,
       conditionalAttribute: attr.conditionalAttribute || { isEnabled: false, approvalDocumentIds: [] },
-      editableInBackOffice: attr.editableInBackOffice || false,
-      hideForMobile: attr.hideForMobile || false,
-      isConditional: attr.isConditional || false,
       productId: attr.productId || '',
       approvalDocumentId: attr.approvalDocumentId || '',
       filteredApprovalDocuments: attr.filteredApprovalDocuments || [],
@@ -405,7 +407,6 @@ export class UpdateStep2Component implements OnInit {
     this.isProductDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
     this.isEmployeeDropdownOpen = false;
-    this.isProductNameDropdownOpen = false;
   }
 
   toggleProductDropdown() {
@@ -413,7 +414,6 @@ export class UpdateStep2Component implements OnInit {
     this.isTemplateDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
     this.isEmployeeDropdownOpen = false;
-    this.isProductNameDropdownOpen = false;
   }
 
   toggleApprovalDropdown() {
@@ -421,7 +421,6 @@ export class UpdateStep2Component implements OnInit {
     this.isTemplateDropdownOpen = false;
     this.isProductDropdownOpen = false;
     this.isEmployeeDropdownOpen = false;
-    this.isProductNameDropdownOpen = false;
   }
 
   toggleEmployeeDropdown() {
@@ -429,57 +428,31 @@ export class UpdateStep2Component implements OnInit {
     this.isTemplateDropdownOpen = false;
     this.isProductDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
-    this.isProductNameDropdownOpen = false;
-  }
-
-  toggleProductNameDropdown() {
-    this.isProductNameDropdownOpen = !this.isProductNameDropdownOpen;
-    this.isTemplateDropdownOpen = false;
-    this.isProductDropdownOpen = false;
-    this.isApprovalDropdownOpen = false;
-    this.isEmployeeDropdownOpen = false;
   }
 
   selectTemplate(template: string) {
     this.selectedTemplate = template;
     this.isTemplateDropdownOpen = false;
-    this.updateAttributes();
-  }
-
-  private updateAttributes() {
-    if (this.selectedTemplate && this.predefinedTemplates[this.selectedTemplate]) {
-      this.attributes = this.predefinedTemplates[this.selectedTemplate].map(attr => ({
-        ...attr,
-        values: [...(attr.barrierValues || [])],
-        barrierInput: attr.barrierInput || '',
-        barrierValues: attr.barrierValues || [],
-        editableBackOffice: attr.editableBackOffice || false,
-        hideForMobileUser: attr.hideForMobileUser || false,
-        conditionalAttribute: attr.conditionalAttribute || { isEnabled: false, approvalDocumentIds: [] },
-        editableInBackOffice: attr.editableInBackOffice || false,
-        hideForMobile: attr.hideForMobile || false,
-        isConditional: attr.isConditional || false,
-        productId: attr.productId || '',
-        approvalDocumentId: attr.approvalDocumentId || '',
-        filteredApprovalDocuments: attr.filteredApprovalDocuments || [],
-        selectedApprovalDocuments: attr.selectedApprovalDocuments || []
-      }));
-      this.newAttributeValues = new Array(this.attributes.length).fill('');
-    } else {
-      this.attributes = [];
-      this.newAttributeValues = [];
-    }
+    this.attributes = this.predefinedTemplates[template]?.map(attr => ({
+      ...attr,
+      values: [...(attr.barrierValues || [])],
+      barrierInput: attr.barrierInput || '',
+      barrierValues: attr.barrierValues || [],
+      editableBackOffice: attr.editableBackOffice || false,
+      hideForMobileUser: attr.hideForMobileUser || false,
+      conditionalAttribute: attr.conditionalAttribute || { isEnabled: false, approvalDocumentIds: [] },
+      productId: attr.productId || '',
+      approvalDocumentId: attr.approvalDocumentId || '',
+      filteredApprovalDocuments: attr.filteredApprovalDocuments || [],
+      selectedApprovalDocuments: attr.selectedApprovalDocuments || []
+    })) || [];
+    this.newAttributeValues = new Array(this.attributes.length).fill('');
   }
 
   selectProduct(productId: string) {
     this.selectedProductId = productId;
     this.selectedApprovalDocumentIds = [];
     this.isProductDropdownOpen = false;
-  }
-
-  selectProductName(productId: string) {
-    this.selectedProductNameId = productId;
-    this.isProductNameDropdownOpen = false;
   }
 
   toggleApprovalDocument(documentId: string) {
@@ -529,7 +502,12 @@ export class UpdateStep2Component implements OnInit {
       .filter(emp => this.selectedEmployeeIds.includes(emp._id))
       .map(emp => emp.name);
   }
-
+removeEmployeeByName(name: string) {
+  const employee = this.employees.find(emp => emp.name === name);
+  if (employee) {
+    this.toggleEmployee(employee._id);
+  }
+}
   isEmployeeSelected(employeeId: string): boolean {
     return this.selectedEmployeeIds.includes(employeeId);
   }
@@ -543,9 +521,18 @@ export class UpdateStep2Component implements OnInit {
   }
 
   removeAttribute(index: number) {
-    this.attributes.splice(index, 1);
-    this.newAttributeValues.splice(index, 1);
-    this.newAttributeValues = [...this.newAttributeValues];
+    if (this.attributes[index].name !== 'FD No.' || index !== 0) {
+      this.attributes.splice(index, 1);
+      this.newAttributeValues.splice(index, 1);
+      this.newAttributeValues = [...this.newAttributeValues];
+    }
+  }
+
+  removeAttributeValue(attrIndex: number, valueIndex: number) {
+    if (this.attributes[attrIndex]?.values) {
+      this.attributes[attrIndex].values.splice(valueIndex, 1);
+      this.attributes = [...this.attributes];
+    }
   }
 
   saveAndNext() {
@@ -559,19 +546,11 @@ export class UpdateStep2Component implements OnInit {
         attributes: this.attributes.map(attr => ({
           name: attr.name,
           type: attr.type,
-          values: attr.values || [],
-          barrierInput: attr.barrierInput || '',
-          barrierValues: attr.barrierValues || [],
+          value: attr.type === 'list' ? attr.values : attr.values[0] || '',
           editableBackOffice: attr.editableBackOffice || false,
           hideForMobileUser: attr.hideForMobileUser || false,
           conditionalAttribute: attr.conditionalAttribute || { isEnabled: false, approvalDocumentIds: [] },
-          editableInBackOffice: attr.editableInBackOffice || false,
-          hideForMobile: attr.hideForMobile || false,
-          isConditional: attr.isConditional || false,
-          productId: attr.productId || '',
-          approvalDocumentId: attr.approvalDocumentId || '',
-          filteredApprovalDocuments: attr.filteredApprovalDocuments || [],
-          selectedApprovalDocuments: attr.selectedApprovalDocuments || []
+          _id: attr._id
         }))
       };
 
@@ -587,21 +566,6 @@ export class UpdateStep2Component implements OnInit {
       });
     } else {
       this.errorMessage = 'Project ID or standard attributes are missing';
-    }
-  }
-
-  getCombinedAttributes(index: number): string {
-    if (index !== 0 || this.attributes.length <= 1) return '';
-    return this.attributes
-      .slice(1)
-      .map(attr => attr.name)
-      .join(', ');
-  }
-
-  removeBadge(index: number) {
-    if (this.attributes[index] && this.attributes[index].values) {
-      this.attributes[index].values.splice(index, 1);
-      this.attributes = [...this.attributes];
     }
   }
 }

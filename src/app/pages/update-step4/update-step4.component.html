@@ -133,12 +133,11 @@
           </select>
         </div>
         <div *ngIf="selectedFiles.length > 0">
-          <p>Selected Files:</p>
-          <ul>
-            <li *ngFor="let file of selectedFiles; let i = index">
-              {{ file.name }} ({{ file.size | number }} bytes)
+        
+            <li *ngFor="let file of selectedFiles; let i = index" style="list-style: none;">
+             
               <div class="form-group">
-                <label [for]="'documentName' + i">Document Name:</label>
+                <!-- <label [for]="'documentName' + i">Document Name:</label> -->
                 <input
                   [id]="'documentName' + i"
                   type="text"
@@ -149,7 +148,6 @@
                 />
               </div>
             </li>
-          </ul>
         </div>
       </div>
       <div style="padding: 20px 20px 0;">

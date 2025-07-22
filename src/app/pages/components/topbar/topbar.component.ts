@@ -2,7 +2,6 @@ import { Component, ViewChild, ElementRef, Input, AfterViewInit } from '@angular
 import { faRightLeft, faBell, faGear, faUser, faEnvelope, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import * as bootstrap from 'bootstrap';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { filter, map } from 'rxjs/operators';
@@ -19,11 +18,16 @@ export interface Instance {
   subProjectCategory: string;
 }
 
+export interface HierarchyLevel {
+  levelId: string;
+  levelName: string;
+  instances: Instance[];
+}
+
 export interface ProjectExport {
   projectId: string;
   projectName: string;
-  instances?: Instance[];
-  [key: string]: any;
+  hierarchyLevels: HierarchyLevel[];
 }
 
 @Component({
@@ -45,7 +49,7 @@ export class TopbarComponent implements AfterViewInit {
   confirmPassword: string = '';
   imageUrl: string = 'images/pi1.png';
   showDropdown = false;
-  activeTab: string = 'ongoingProjects'; // Set to 'ongoingProjects' to show the tab by default
+  activeTab: string = 'ongoingProjects';
   selectedOption: 'new' | 'existing' = 'existing';
   isModalOpen = false;
   pageTitle: string = 'Welcome';
@@ -56,20 +60,18 @@ export class TopbarComponent implements AfterViewInit {
   searchQuery: string = '';
   selectedFile: File | null = null;
   selectedFileName: string = '';
-  importApiUrl = 'https://aspbackend-production.up.railway.app/api/exchangeData/import';
-  exportApiUrl = 'https://aspbackend-production.up.railway.app/api/exchangeData/export';
+  importApiUrl = 'https://vps.allpassiveservices.com.au/api/exchangeData/import';
+  exportApiUrl = 'https://vps.allpassiveservices.com.au/api/exchangeData/export';
   isProjectDropdownOpen: boolean = false;
   selectedProjectId: string = '';
   selectedProjectName: string = 'Selected Project';
   activities: Activity[] = [];
-
-  // Track dropdown state for each project
   projectDropdownStates: { [key: string]: boolean } = {};
 
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('importFileInput') importFileInput!: ElementRef;
 
   constructor(
-    private sanitizer: DomSanitizer,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
@@ -103,7 +105,7 @@ export class TopbarComponent implements AfterViewInit {
       filter(event => event instanceof NavigationEnd),
       map(() => this.getDeepestChild(this.activatedRoute))
     ).subscribe(title => {
-      this.pageTitle = title;
+      this.pageTitle = title || 'Welcome';
     });
 
     this.loadProjects();
@@ -127,10 +129,11 @@ export class TopbarComponent implements AfterViewInit {
   }
 
   getDeepestChild(route: ActivatedRoute): string {
-    while (route.firstChild) {
-      route = route.firstChild;
+    let currentRoute = route;
+    while (currentRoute.firstChild) {
+      currentRoute = currentRoute.firstChild;
     }
-    return route.snapshot.data['title'] || 'Welcome';
+    return currentRoute.snapshot.data['title'] || 'Welcome';
   }
 
   toggleDropdown() {
@@ -138,12 +141,12 @@ export class TopbarComponent implements AfterViewInit {
   }
 
   toggleProjectDropdown(projectId: string): void {
-    // Close all dropdowns
-    Object.keys(this.projectDropdownStates).forEach(key => {
-      this.projectDropdownStates[key] = false;
-    });
-    // Toggle the clicked project's dropdown
     this.projectDropdownStates[projectId] = !this.projectDropdownStates[projectId];
+    Object.keys(this.projectDropdownStates).forEach(key => {
+      if (key !== projectId) {
+        this.projectDropdownStates[key] = false;
+      }
+    });
   }
 
   toggleNotificationDropdown(): void {
@@ -156,7 +159,7 @@ export class TopbarComponent implements AfterViewInit {
 
   openSettings(event: Event) {
     event.stopPropagation();
-    let settingsModal = new bootstrap.Modal(document.getElementById('settingsModal')!);
+    const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal')!, { backdrop: 'static' });
     settingsModal.show();
   }
 
@@ -206,22 +209,24 @@ export class TopbarComponent implements AfterViewInit {
     this.selectedProjectId = '';
     this.selectedProjectName = 'Selected Project';
     this.isProjectDropdownOpen = false;
+    this.projectDropdownStates = {};
   }
 
   closeModalIfOutside(event: MouseEvent) {
-    this.isModalOpen = false;
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('setting-modal-overlay')) {
+      this.closeModal();
+    }
   }
 
   saveSettings() {
     const formData = new FormData();
     formData.append('username', this.userName);
     formData.append('email', this.email);
-    if (this.currentPassword && this.newPassword) {
+    if (this.currentPassword && this.newPassword && this.confirmPassword) {
       formData.append('oldPassword', this.currentPassword);
       formData.append('newPassword', this.newPassword);
-      if (this.confirmPassword) {
-        formData.append('confirmPassword', this.confirmPassword);
-      }
+      formData.append('confirmPassword', this.confirmPassword);
     }
     if (this.fileInput.nativeElement.files[0]) {
       formData.append('profilePic', this.fileInput.nativeElement.files[0]);
@@ -233,7 +238,7 @@ export class TopbarComponent implements AfterViewInit {
           this.userName = response.profile.username || '';
           this.email = response.profile.email || '';
           this.imageUrl = response.profile.profilePic || 'images/pi1.png';
-          let settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal')!);
+          const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal')!);
           settingsModal?.hide();
         } else {
           console.error('TopbarComponent: Profile update failed:', response.message);
@@ -252,26 +257,54 @@ export class TopbarComponent implements AfterViewInit {
       next: (response: any) => {
         if (Array.isArray(response.projects)) {
           this.projects = response.projects.map((p: any) => ({
-            projectId: p._id,
-            projectName: p.projectName,
-            instances: [] // Initialize empty instances array
+            projectId: p._id || p.projectId || '',
+            projectName: p.projectName || 'Unnamed Project',
+            hierarchyLevels: []
           }));
           this.filteredProjects = [...this.projects];
-          
-          // Fetch details for each project using the provided API
+
           this.projects.forEach(project => {
-            const projectDetailsUrl = `https://vps.allpassiveservices.com.au/api/project/details/${project.projectId}`;
-            this.http.get(projectDetailsUrl).subscribe({
-              next: (details: any) => {
-                // Extract instances from all subProjects
-                const instances = details.subProjects?.flatMap((sub: any) => sub.instances || []) || [];
-                project.instances = instances;
-                this.filteredProjects = [...this.projects]; // Update filtered projects
+            if (!project.projectId) {
+              console.error('Project ID is missing:', project);
+              return;
+            }
+            const hierarchyUrl = `https://vps.allpassiveservices.com.au/api/project/hierarchy/${project.projectId}`;
+            this.http.get(hierarchyUrl).subscribe({
+              next: (hierarchyResponse: any) => {
+                const levels = hierarchyResponse.hierarchyData?.levels || [];
+                project.hierarchyLevels = levels.map((level: any) => ({
+                  levelId: level._id || '',
+                  levelName: level.name || 'Unnamed Level',
+                  instances: []
+                }));
+
+                project.hierarchyLevels.forEach(level => {
+                  if (!level.levelId) {
+                    console.error('Level ID is missing:', level);
+                    return;
+                  }
+                  const instancesUrl = `https://vps.allpassiveservices.com.au/api/project/instances/list/${level.levelId}`;
+                  this.http.get(instancesUrl).subscribe({
+                    next: (instancesResponse: any) => {
+                      level.instances = (instancesResponse.instances || []).map((instance: any) => ({
+                        instanceId: instance.instanceId || '',
+                        instanceName: instance.instanceName || '',
+                        subProjectCategory: instance.subProjectCategory || 'No Category'
+                      }));
+                      this.filteredProjects = [...this.projects];
+                    },
+                    error: (err) => {
+                      console.error(`Error fetching instances for hierarchy level ${level.levelId}:`, err);
+                      level.instances = [];
+                      this.filteredProjects = [...this.projects];
+                    }
+                  });
+                });
               },
               error: (err) => {
-                console.error(`Error fetching details for project ${project.projectId}:`, err);
-                project.instances = [];
-                this.filteredProjects = [...this.projects]; // Update filtered projects even on error
+                console.error(`Error fetching hierarchy for project ${project.projectId}:`, err);
+                project.hierarchyLevels = [];
+                this.filteredProjects = [...this.projects];
               }
             });
           });
@@ -292,22 +325,27 @@ export class TopbarComponent implements AfterViewInit {
   }
 
   onSearchChange() {
-    if (!this.searchQuery) {
+    if (!this.searchQuery.trim()) {
       this.filteredProjects = [...this.projects];
-    } else {
-      this.filteredProjects = this.projects.map(project => ({
-        ...project,
-        instances: project.instances?.filter(instance =>
-          instance.instanceName?.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          instance.subProjectCategory?.toLowerCase().includes(this.searchQuery.toLowerCase())
-        ) || []
-      })).filter(project => project.instances && project.instances.length > 0);
+      return;
     }
+    const query = this.searchQuery.toLowerCase();
+    this.filteredProjects = this.projects.filter(project => {
+      const matchesProject = project.projectName.toLowerCase().includes(query);
+      const matchesLevel = project.hierarchyLevels.some(level => 
+        level.levelName.toLowerCase().includes(query) ||
+        level.instances.some(instance => 
+          instance.instanceName.toLowerCase().includes(query) ||
+          instance.subProjectCategory.toLowerCase().includes(query)
+        )
+      );
+      return matchesProject || matchesLevel;
+    });
   }
 
-  toggleProjectSelection(projectId: string | undefined) {
+  toggleProjectSelection(projectId: string) {
     if (!projectId) {
-      console.error('Cannot select project: projectId is null or undefined');
+      console.error('Cannot select project: projectId is empty');
       return;
     }
     const index = this.selectedProjects.indexOf(projectId);
@@ -329,7 +367,7 @@ export class TopbarComponent implements AfterViewInit {
   }
 
   exportSelectedProjects() {
-    if (!Array.isArray(this.selectedProjects) || this.selectedProjects.length === 0) {
+    if (!this.selectedProjects.length) {
       alert('Please select at least one project to export.');
       return;
     }
@@ -339,12 +377,6 @@ export class TopbarComponent implements AfterViewInit {
     const totalExports = this.selectedProjects.length;
 
     this.selectedProjects.forEach(projectId => {
-      if (!projectId) {
-        failedExports++;
-        checkAllCompleted();
-        return;
-      }
-
       const url = `${this.exportApiUrl}/${projectId}`;
       this.http.get(url, { responseType: 'blob' }).subscribe({
         next: (blob) => {
@@ -356,7 +388,6 @@ export class TopbarComponent implements AfterViewInit {
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
-          
           completedExports++;
           checkAllCompleted();
         },
@@ -371,11 +402,9 @@ export class TopbarComponent implements AfterViewInit {
     const checkAllCompleted = () => {
       if (completedExports + failedExports === totalExports) {
         if (failedExports > 0) {
-          if (completedExports > 0) {
-            alert(`Completed ${completedExports} exports with ${failedExports} failures.`);
-          } else {
-            alert('Failed to export any projects.');
-          }
+          alert(completedExports > 0 
+            ? `Completed ${completedExports} exports with ${failedExports} failures.` 
+            : 'Failed to export any projects.');
         } else {
           alert('All projects exported successfully');
         }
@@ -384,11 +413,11 @@ export class TopbarComponent implements AfterViewInit {
     };
   }
 
-  onImportFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      this.selectedFileName = file.name;
+  onImportFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedFile = input.files[0];
+      this.selectedFileName = input.files[0].name;
     }
   }
 
@@ -413,11 +442,9 @@ export class TopbarComponent implements AfterViewInit {
     const url = `${this.importApiUrl}?mode=${mode}`;
 
     this.http.post(url, formData).subscribe({
-      next: (response: any) => {
+      next: () => {
         alert('Project imported successfully');
         this.closeModal();
-        this.selectedFile = null;
-        this.selectedFileName = '';
       },
       error: (error) => {
         console.error('Import failed:', error);

@@ -45,6 +45,21 @@ interface TableRow {
   Comments: string;
 }
 
+interface Product {
+  _id: string;
+  name: string;
+  approvalDocuments: {
+    _id: string;
+    name: string;
+    fileUrl: string;
+    createdAt: string;
+    __v: number;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 @Component({
   selector: 'app-update-step5',
   standalone: true,
@@ -60,7 +75,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   errorMessage: string | null = null;
   projectAttributes: any = {};
   private rightModalInstance: Modal | null = null;
-  selectedAttributes: { [key: string]: boolean } = {};
+  selectedAttributes: { [key: string]: any } = {};
+  products: Product[] = [];
+  selectedApprovalDocuments: { name: string; fileUrl: string }[] = [];
   coverLetterData: ProjectReport['coverLetter'] = {
     address: '123 Main St, Suite 200, New York, NY, 10001',
     date: new Date().toISOString().split('T')[0],
@@ -73,6 +90,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   };
   isModalOpen: boolean = false;
   projectData: any = null;
+  subCategoryOptions: string[] = ['Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'];
+  selectedSubCategories: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -82,7 +101,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || '6876470af2107c98777291b0';
+      this.projectId = params['id'] || '6832c8192a8695feaec680d3';
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -90,6 +109,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         this.fetchProjectAttributes(this.projectId);
         this.fetchCoverLetterData(this.projectId);
         this.fetchProjectData(this.projectId);
+        this.fetchProducts();
       }
     });
 
@@ -100,6 +120,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         this.isModalOpen = true;
         setTimeout(() => this.openRightModal(), 0);
       }
+    });
+
+    // Initialize selectedAttributes
+    ['Report Type', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference', 
+     'Location', 'FRL', 'Barrier', 'Description', 'Installer', 'Inspector', 'Safety Measures', 
+     'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Price', 'Sticker No', 
+     'Test ID', 'Service', 'Separate Report', 'Email Notification', 'Penetration', 'Joints', 
+     'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
+      this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
   }
 
@@ -114,8 +143,28 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     }
   }
 
+  fetchProducts() {
+    this.http.get<Product[]>('https://vps.allpassiveservices.com.au/api/product/list')
+      .subscribe({
+        next: (response) => {
+          this.products = response;
+        },
+        error: (err) => {
+          this.errorMessage = 'Failed to load products. Please try again later.';
+          console.error('Error fetching products:', err);
+        }
+      });
+  }
+
+  updateApprovalDocuments() {
+    const selectedProductName = this.selectedAttributes['Product Name'];
+    const selectedProduct = this.products.find(product => product.name === selectedProductName);
+    this.selectedApprovalDocuments = selectedProduct ? selectedProduct.approvalDocuments : [];
+    this.selectedAttributes['Approval'] = ''; // Reset approval selection when product changes
+  }
+
   fetchProjectData(projectId: string) {
-    this.http.get<any>(`https://aspbackend-production.up.railway.app/api/project/download/${projectId}`)
+    this.http.get<any>(`https://vps.allpassiveservices.com.au/api/project/download/${projectId}`)
       .subscribe({
         next: (response) => {
           if (response) {
@@ -123,6 +172,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             if (response.reports?.length > 0) {
               this.coverLetterData = response.reports[response.reports.length - 1].coverLetter || this.coverLetterData;
             }
+            this.selectedSubCategories = response.project?.subProjects || [];
           }
         },
         error: (err) => {
@@ -156,9 +206,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         next: (response) => {
           if (response?.data) {
             this.projectAttributes = response.data;
-            ['Report Type', 'Sub-category', 'Penetration', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference', 'Location', 'FRL', 'Barrier', 'Description', 'Date', 'Installer', 'Inspector', 'Safety Measures', 'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Price', 'Report Data', 'Report Attachment', 'Separate Report', 'Email Notification', 'Cover Letter', 'Sticker No', 'Test ID', 'Service'].forEach(field => {
-              this.selectedAttributes[field] = false;
-            });
           }
         },
         error: (err) => {
@@ -201,7 +248,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       return 'N/A';
     }
     const attr = this.projectAttributes.attributes.find((a: any) => a.name === attributeName);
-    return attr ? (Array.isArray(attr.value) ? attr.value.join(', ') : attr.value || 'N/A') : 'N/A';
+    if (attr) {
+      return Array.isArray(attr.value) ? attr.value.join(', ') : attr.value || 'N/A';
+    }
+    return 'N/A';
   }
 
   openRightModal() {
@@ -217,12 +267,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     if (this.rightModalInstance) {
       this.rightModalInstance.hide();
       this.isModalOpen = false;
-    }
-  }
-
-  goToStep4() {
-    if (this.projectId) {
-      this.router.navigate(['/pages/updateproject4', this.projectId]);
     }
   }
 
@@ -244,37 +288,52 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   toggleSelectAll(event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
     Object.keys(this.selectedAttributes).forEach(field => {
-      this.selectedAttributes[field] = checked;
+      if (field !== 'Separate Report' && field !== 'Email Notification') {
+        this.selectedAttributes[field] = checked ? this.getAttributeValue(field) : '';
+      } else {
+        this.selectedAttributes[field] = checked;
+      }
     });
   }
 
+  addSubCategory(category: string, field: string) {
+    if (category && !this.selectedSubCategories.includes(category)) {
+      this.selectedSubCategories = [...this.selectedSubCategories, category];
+      this.selectedAttributes[field] = category;
+      this.selectedAttributes['Sub-category'] = this.selectedSubCategories.join(', ');
+    }
+  }
+
+  removeSubCategory(category: string, field: string) {
+    this.selectedSubCategories = this.selectedSubCategories.filter(item => item !== category);
+    this.selectedAttributes[field] = '';
+    this.selectedAttributes['Sub-category'] = this.selectedSubCategories.join(', ');
+  }
+
   async generateReport() {
-    // Constants for layout
     const margin = 10;
     const lineHeight = 10;
-    const imageWidth = 52.92; // 200px ≈ 52.92mm
-    const imageHeight = 52.92; // 200px ≈ 52.92mm
-    const docImageHeight = 132.29; // 500px ≈ 132.29mm
-    const photoImageHeight = 30; // Height for photos in table
-    const baseRowHeight = 30; // Minimum row height
-    const pageWidth = 297; // A3 width (mm)
-    const pageHeight = 420; // A3 height (mm)
+    const imageWidth = 52.92;
+    const imageHeight = 52.92;
+    const docImageHeight = 132.29;
+    const photoImageHeight = 30;
+    const baseRowHeight = 30;
+    const pageWidth = 297;
+    const pageHeight = 420;
     const contentWidth = pageWidth - 2 * margin;
     const bottomMargin = 40;
     const logoWidth = 40;
     const logoHeight = 20;
-    const textMargin = 7.94; // 30px ≈ 7.94mm
-    const clientNameMarginBottom = 10.58; // 40px ≈ 10.58mm
+    const textMargin = 7.94;
+    const clientNameMarginBottom = 10.58;
     const headerHeight = 10;
     const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
-    const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42]; // Total: 277
+    const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
 
-    // Initialize PDF with A3 size
     const doc = new jsPDF({ format: 'a3' });
     let yOffset = margin;
     const maxContentHeight = pageHeight - margin - bottomMargin;
 
-    // Helper function to check and add new page if needed
     const checkPageBreak = (requiredHeight: number) => {
       if (yOffset + requiredHeight > maxContentHeight) {
         doc.addPage();
@@ -284,7 +343,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       return false;
     };
 
-    // Add Logo
     try {
       const logoUrl = '/images/logo.png';
       const logoData = await this.getImageData(logoUrl);
@@ -302,22 +360,19 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       yOffset += logoHeight + lineHeight;
     }
 
-    // Add Project Name
     checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.text(`Project Name: ${this.projectData?.project?.projectName || 'N/A'}`, margin, yOffset);
     yOffset += lineHeight;
 
-    // Add Client Name
     checkPageBreak(lineHeight + clientNameMarginBottom);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text(`Client Name: ${this.projectData?.project?.clientInfo?.name || this.coverLetterData?.clientName || 'N/A'}`, margin, yOffset);
     yOffset += lineHeight + clientNameMarginBottom;
 
-    // Add Project Image and Text
-    const textX = 105.6; // 400px ≈ 105.6mm
+    const textX = 105.6;
     checkPageBreak(lineHeight + imageHeight + lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
@@ -366,10 +421,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       yOffset += imageHeight + lineHeight;
     }
 
-    // Add margin before Inspection Overview
     yOffset += 13.2;
 
-    // Inspection Report Overview and Additional Information
     const overviewX = margin;
     const additionalInfoX = 105.6;
     const columnWidth = (contentWidth - 10) / 2;
@@ -380,7 +433,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     const textLines = tempDoc.splitTextToSize(additionalInfo, columnWidth - 10);
     const textHeight = textLines.length * lineHeight;
     const boxHeight = textHeight + 10;
-    const overviewHeight = lineHeight * 2; // Reduced height for tighter layout
+    const overviewHeight = lineHeight * 2;
     checkPageBreak(Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3);
 
     doc.setFont('helvetica', 'bold');
@@ -410,7 +463,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     doc.setTextColor(0, 0, 0);
     doc.text(`${this.coverLetterData?.inspectionOverview?.tbcItems || '0'}`, overviewX + 35, overviewYOffset);
 
-    // Additional Information Box
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setLineWidth(0.5);
@@ -422,7 +474,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
     yOffset += Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3;
 
-    // Add Hierarchy Document Images
     if (this.projectData?.documents?.length > 0) {
       for (const docItem of this.projectData.documents) {
         if (docItem.files?.length > 0) {
@@ -454,7 +505,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       yOffset += lineHeight * 2;
     }
 
-    // Prepare Table Data
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.projectData?.instances?.length > 0) {
@@ -463,7 +513,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           'Ref No': index.toString(),
           'Location': instance.hierarchyName || this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
           'Plan': 'N/A',
-          'Type': instance.subProjectCategory || this.projectData?.project?.subProjects?.join(', ') || 'N/A',
+          'Type': instance.subProjectCategory || this.selectedSubCategories.join(', ') || 'N/A',
           'Substrate': 'N/A',
           'FRL': 'N/A',
           'Result': 'N/A',
@@ -472,7 +522,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         };
         if (instance.attributes) {
           instance.attributes.forEach((attr: any) => {
-            if (attr.name === 'Materils') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
+            if (attr.name === 'Materials') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
             if (attr.name === 'FRL') row['FRL'] = attr.selectedValue || attr.value || 'N/A';
             if (attr.name === 'Compliance') row['Result'] = attr.selectedValue || attr.value || 'N/A';
             if (attr.name === 'Comments') row['Comments'] = attr.selectedValue || attr.value || 'N/A';
@@ -484,10 +534,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     } else {
       tableData.push({
         'Ref No': '1',
-        'Location': this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
+        'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
         'Plan': 'N/A',
-        'Type': this.projectData?.project?.subProjects?.join(', ') || 'N/A',
-        'Substrate': this.getAttributeValue('Materils'),
+        'Type': this.selectedSubCategories.join(', ') || this.getAttributeValue('Sub-category'),
+        'Substrate': this.getAttributeValue('Materials'),
         'FRL': this.getAttributeValue('FRL'),
         'Result': this.getAttributeValue('Compliance'),
         'Photos': [],
@@ -495,13 +545,11 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       });
     }
 
-    // Add Attributes Table
     checkPageBreak(lineHeight * 3 + headerHeight);
     yOffset += lineHeight * 3;
     const tableX = margin;
     const tableStartY = yOffset;
 
-    // Draw table headers
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     let xOffset = tableX;
@@ -519,7 +567,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     doc.setTextColor(0, 0, 0);
     yOffset += headerHeight;
 
-    // Draw table rows
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     let tableEndY = yOffset;
@@ -596,12 +643,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       tableEndY = yOffset;
     }
 
-    // Draw outer table border
     doc.setLineWidth(0.5);
     doc.setDrawColor(0, 0, 0);
     doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-    // Save the PDF
     doc.save('ASP Report.pdf');
   }
 
