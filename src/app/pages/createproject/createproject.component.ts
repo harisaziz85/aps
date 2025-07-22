@@ -819,16 +819,20 @@ options: string[] = ['Active', 'Completed'];
     this.saveFormData();
   }
 
-  selectOption7(option: string) {
-    this.selectedOption7 = option;
-    const selectedClient = this.clients.find(client => client.name === option);
-    if (selectedClient) {
-      this.clientId = selectedClient.id;
-      this.clientName = selectedClient.name;
-    }
-    this.isDropdownOpen7 = false;
-    this.saveFormData();
+ selectOption7(option: string): void {
+  this.selectedOption7 = option;
+
+  const selectedClient = this.clients.find(client => client.name === option);
+  if (selectedClient) {
+    this.clientId = selectedClient.id;
+    this.clientName = selectedClient.name;
   }
+
+  this.isDropdownOpen7 = false; // ✅ Close the dropdown
+
+  this.saveFormData(); // Optional: save changes
+}
+
 
   selectOption8(dropdown: any, option: string, event: Event) {
     event.stopPropagation();

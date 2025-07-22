@@ -291,7 +291,10 @@
     <app-svg-icons icon="down" size="16"></app-svg-icons>
   </span>
   <div class="dropdown-menu" *ngIf="isDropdownOpen7">
-    <div *ngFor="let option of options7" (click)="selectOption7(option)">{{ option }}</div>
+    <div *ngFor="let option of options7" 
+     (click)="selectOption7(option); $event.stopPropagation()">
+  {{ option }}
+</div>
   </div>
 </div>
               </div>
