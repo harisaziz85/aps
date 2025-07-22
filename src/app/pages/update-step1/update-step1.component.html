@@ -1,6 +1,8 @@
-<div class="container" style="padding: 24px; background:#EEF0F1; padding-bottom:100px">
+<div class="container" style="padding: 24px; background:#EEF0F1; padding-bottom:100px; min-height:150vh">
   <!-- <app-topbar heading="Projects and Buildings"></app-topbar> -->
+   <div style="display: flex; justify-content:space-between">
   <app-navbar/>
+     <button type="button" class="btn btn-primary" (click)="saveAndNext()">Save and Next</button></div>
   <div *ngIf="errorMessage" class="alert alert-danger">
     {{ errorMessage }}
   </div>
@@ -344,7 +346,7 @@
     </div>
   </div>
   <!-- Buttons -->
-  <button type="button" class="btn btn-primary bts1" (click)="saveAndNext()">Save and Next</button>
+ 
   <div *ngIf="!projectId">
     <p>No project ID provided</p>
   </div>

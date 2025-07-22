@@ -33,6 +33,11 @@
             "assets": [
               {
                 "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*",
                 "input": "public"
               }
             ],
@@ -67,20 +72,19 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "asp:build:production"
-            },
-            "development": {
-              "buildTarget": "asp:build:development",
-              "proxyConfig": "proxy.conf.json" 
-
-            }
-          },
-          "defaultConfiguration": "development"
-        },
+       "serve": {
+  "builder": "@angular-devkit/build-angular:dev-server",
+  "configurations": {
+    "production": {
+      "buildTarget": "asp:build:production"
+    },
+    "development": {
+      "buildTarget": "asp:build:development",
+      "proxyConfig": "proxy.conf.json"
+    }
+  },
+  "defaultConfiguration": "development"
+},
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
         },
@@ -93,6 +97,11 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
               {
                 "glob": "**/*",
                 "input": "public"
@@ -111,4 +120,3 @@
     "analytics": false
   }
 }
-

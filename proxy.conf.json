@@ -1,10 +1,11 @@
 {
-  "/api/images": {
-    "target": "https://firebasestorage.googleapis.com",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/images": ""
-    }
-  }
-}
+     "/uploads/*": {
+       "target": "https://vps.allpassiveservices.com.au",
+       "secure": true,
+       "changeOrigin": true,
+       "pathRewrite": {
+         "^/uploads": "/uploads"
+       },
+       "logLevel": "debug"
+     }
+   }

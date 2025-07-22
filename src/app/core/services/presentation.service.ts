@@ -8,6 +8,12 @@ import { ProjectResponse, InstanceResponse, Marker, AttributeTemplateResponse } 
   providedIn: 'root'
 })
 export class PresentationService {
+  getCoverLetter(projectId: string) {
+    throw new Error('Method not implemented.');
+  }
+  getProjectReports(projectId: string) {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = 'https://vps.allpassiveservices.com.au/api/project';
 
   constructor(private http: HttpClient) {}

@@ -115,7 +115,9 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       this.hierarchyLevelId = params['hierarchyLevelId'] || '';
       const from: string | undefined = params['from'];
 
-      console.log('ngOnInit - Query Params:', { projectId: this.projectId, instanceId: this.instanceId, reportId: this.reportId, hierarchyLevelId: this.hierarchyLevelId, from });
+      console.log('ngOnInit - Query Params:', { projectId: this.projectId, instanceId: this
+
+.instanceId, reportId: this.reportId, hierarchyLevelId: this.hierarchyLevelId, from });
 
       if (this.instanceId) {
         localStorage.setItem('instanceId', this.instanceId);
@@ -493,6 +495,82 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     let yOffset = margin;
     const maxContentHeight = pageHeight - margin - bottomMargin;
 
+    // Helper function to normalize URLs for API-based images
+    const normalizeUrl = (url: string): string => {
+      if (!url) {
+        console.warn('Image URL is empty, using placeholder');
+        return 'https://via.placeholder.com/200x200?text=No+Image';
+      }
+      // Extract the file path by removing the domain and normalizing uploads
+      const cleanPath = url
+        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '') // Remove domain
+        .replace(/^\/*uploads\/*/i, '') // Remove leading /uploads/
+        .replace(/^\/+/, ''); // Remove any remaining leading slashes
+      const normalized = `/uploads/${cleanPath}`;
+      console.log(`Normalized URL: ${url} → ${normalized}`);
+      return normalized;
+    };
+
+    // Helper function to load image data with CORS handling for API-based images
+    const loadImage = async (url: string): Promise<string> => {
+      const normalizedUrl = normalizeUrl(url);
+      console.log(`Attempting to load image: ${normalizedUrl}`);
+      return new Promise((resolve) => {
+        fetch(normalizedUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'image/*'
+          },
+          credentials: 'same-origin'
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}, URL: ${normalizedUrl}`);
+            }
+            console.log(`Image fetched successfully: ${normalizedUrl}`);
+            return response.blob();
+          })
+          .then(blob => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              console.log(`Image converted to Data URL: ${normalizedUrl}`);
+              resolve(reader.result as string);
+            };
+            reader.onerror = () => {
+              console.error(`Failed to read blob for: ${normalizedUrl}`);
+              resolve('https://via.placeholder.com/200x200?text=Read+Error');
+            };
+            reader.readAsDataURL(blob);
+          })
+          .catch(error => {
+            console.error(`Failed to load image: ${normalizedUrl}, Error: ${error.message}`);
+            resolve('https://via.placeholder.com/200x200?text=Image+Error');
+          });
+      });
+    };
+
+    // Helper function to load local image
+    const loadLocalImage = async (url: string): Promise<string> => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0);
+          const dataUrl = canvas.toDataURL('image/png');
+          console.log(`Local image loaded: ${url}`);
+          resolve(dataUrl);
+        };
+        img.onerror = () => {
+          console.error(`Failed to load local image: ${url}`);
+          resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+        };
+      });
+    };
+
     // Helper function to check and add new page if needed
     const checkPageBreak = (requiredHeight: number) => {
       if (yOffset + requiredHeight > maxContentHeight) {
@@ -503,38 +581,16 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       return false;
     };
 
-    // Helper function to load image data
-    const loadImage = async (url: string): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-          } else {
-            reject('Failed to create canvas context');
-          }
-        };
-        img.onerror = () => reject('Failed to load image');
-        img.src = url;
-      });
-    };
-
-    // Add Logo
+    // Add Logo (Local Asset)
     try {
-      const logoUrl = '/images/logo.png';
-      const logoData = await loadImage(logoUrl);
+      const logoUrl = 'images/logo.png'; // Local path
+      const logoData = await loadLocalImage(logoUrl);
       const logoX = pageWidth - margin - logoWidth;
       checkPageBreak(logoHeight + lineHeight);
       doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
       yOffset += logoHeight + lineHeight;
     } catch (error) {
-      console.error('Error loading logo image:', error);
+      console.error('Error loading local logo image:', error);
       checkPageBreak(lineHeight * 2);
       doc.setFontSize(10);
       doc.setTextColor(255, 0, 0);
@@ -547,14 +603,14 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text(`Project Name: ${this.project?.projectName || '12'}`, margin, yOffset);
+    doc.text(`Project Name: ${this.project?.projectName || 'Unknown Project'}`, margin, yOffset);
     yOffset += lineHeight;
 
     // Add Client Name
     checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.text(`Client Name: ${this.project?.client?.clientName || this.project?.clientName || 'Astute Fire123'}`, margin, yOffset);
+    doc.text(`Client Name: ${this.project?.client?.clientName || this.project?.clientName || 'Unknown Client'}`, margin, yOffset);
     yOffset += lineHeight + 10;
 
     // Add Site Photos Heading
@@ -565,7 +621,7 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     yOffset += lineHeight;
 
     // Add Project Image
-    const projectImageUrl = this.project?.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
+    const projectImageUrl = normalizeUrl(this.project?.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
     try {
       const imgData = await loadImage(projectImageUrl);
       checkPageBreak(imageHeight + lineHeight);
@@ -588,14 +644,14 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       for (const instance of this.instances) {
         const row: TableRow = {
           'Ref No': index.toString(),
-          'Location': instance.hierarchyName || this.project?.hierarchyLevels?.[0]?.name || 'N/A',
-          'Plan': 'N/A',
-          'Type': instance.subProjectCategory || this.project?.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-          'Substrate': instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || 'N/A',
-          'FRL': instance.attributes?.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
-          'Result': instance.attributes?.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
-          'Photos': instance.photos?.map(p => p.url) || [],
-          'Comments': instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A'
+          Location: instance.hierarchyName || this.project?.hierarchyLevels?.[0]?.name || 'N/A',
+          Plan: 'N/A',
+          Type: instance.subProjectCategory || this.project?.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+          Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || 'N/A',
+          FRL: instance.attributes?.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
+          Result: instance.attributes?.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
+          Photos: (instance.photos || []).map(p => normalizeUrl(p.url)),
+          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A'
         };
         tableData.push(row);
         index++;
@@ -603,14 +659,14 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     } else {
       tableData.push({
         'Ref No': '1',
-        'Location': this.project?.hierarchyLevels?.[0]?.name || 'N/A',
-        'Plan': 'N/A',
-        'Type': this.project?.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-        'Substrate': this.getAttributeDisplayValue('Materils'),
-        'FRL': this.getAttributeDisplayValue('FRL'),
-        'Result': this.getAttributeDisplayValue('Compliance'),
-        'Photos': [],
-        'Comments': this.getAttributeDisplayValue('Comments')
+        Location: this.project?.hierarchyLevels?.[0]?.name || 'N/A',
+        Plan: 'N/A',
+        Type: this.project?.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+        Substrate: this.getAttributeDisplayValue('Materils'),
+        FRL: this.getAttributeDisplayValue('FRL'),
+        Result: this.getAttributeDisplayValue('Compliance'),
+        Photos: [],
+        Comments: this.getAttributeDisplayValue('Comments')
       });
     }
 
@@ -656,7 +712,7 @@ export class PresentationComponent implements OnInit, AfterViewInit {
         const colIndex = headers.indexOf(header);
         if (header === 'Plan' && this.project?.documents?.[0]?.documentUrl) {
           try {
-            const imgData = await loadImage(this.project.documents[0].documentUrl);
+            const imgData = await loadImage(normalizeUrl(this.project.documents[0].documentUrl));
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
             doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
@@ -668,7 +724,8 @@ export class PresentationComponent implements OnInit, AfterViewInit {
           }
         } else if (header === 'Photos' && row['Photos'].length > 0) {
           try {
-            const imgData = await loadImage(row['Photos'][0]);
+            const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
+            const [imgData] = await Promise.all(photoPromises);
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
             doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
@@ -801,7 +858,6 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
       barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.selectedValue || 'N/A',
       description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.selectedValue || 'N/A',
-      // date: this.project?.createdAt ? new Date(this.project.createdAt).toISOString().slice(0, 10) : '2025-07-21',
       installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.selectedValue || 'N/A',
       inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.selectedValue || 'N/A',
       safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.selectedValue || 'N/A',
@@ -828,7 +884,6 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
       barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.selectedValue || 'N/A',
       description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.selectedValue || 'N/A',
-      // date: this.project?.createdAt ? new Date(this.project.createdAt).toISOString().slice(0, 10) : '2025-07-21',
       installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.selectedValue || 'N/A',
       inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.selectedValue || 'N/A',
       safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.selectedValue || 'N/A',
