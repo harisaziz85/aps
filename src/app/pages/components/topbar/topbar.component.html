@@ -226,6 +226,13 @@
             <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
               <div>
                 <!-- <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span> -->
+                 <span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.25 4.75049H3.75C2.64543 4.75049 1.75 5.64592 1.75 6.75049V13.2505C1.75 14.3551 2.64543 15.2505 3.75 15.2505H14.25C15.3546 15.2505 16.25 14.3551 16.25 13.2505V6.75049C16.25 5.64592 15.3546 4.75049 14.25 4.75049Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</span>
                 <span style="margin-left: 8px;" class="robotoregular txt">{{ newProjectFileName || 'No file selected' }}</span>
               </div>
               <div class="d-flex align-items-center" *ngIf="newProjectFileName">
@@ -256,6 +263,13 @@
             <div *ngIf="isEditingNewProjectName" class="card" style="margin-top: 16px;">
               <div class="form-group">
                 <div class="d-flex align-items-center">
+                    <span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.25 4.75049H3.75C2.64543 4.75049 1.75 5.64592 1.75 6.75049V13.2505C1.75 14.3551 2.64543 15.2505 3.75 15.2505H14.25C15.3546 15.2505 16.25 14.3551 16.25 13.2505V6.75049C16.25 5.64592 15.3546 4.75049 14.25 4.75049Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</span>
                   <input type="text" class="form-control" style="border: 0px;" [(ngModel)]="tempNewProjectName" placeholder="Enter project name" />
                   <button class="" (click)="confirmNewProjectName()" style="margin-left: 6px;border: 0px; background:rgba(255, 0, 0, 0)">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -329,7 +343,13 @@
             </div>
             <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;" *ngIf="existingProjectFileName">
                 <div>
-                  <span style="margin-left: 8px;" class="robotoregular txt">{{ existingProjectFileName }}</span>
+                  <span style="margin-left: 8px;" class="robotoregular txt"><span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.25 4.75049H3.75C2.64543 4.75049 1.75 5.64592 1.75 6.75049V13.2505C1.75 14.3551 2.64543 15.2505 3.75 15.2505H14.25C15.3546 15.2505 16.25 14.3551 16.25 13.2505V6.75049C16.25 5.64592 15.3546 4.75049 14.25 4.75049Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</span>{{ existingProjectFileName }}</span>
                 </div>
                 <div class="d-flex align-items-center">
                   <button class="btn" (click)="editExistingProjectName()" style="border: 0px;">
@@ -360,6 +380,13 @@
               <div *ngIf="isEditingExistingProjectName" class="card" style="margin-top: 16px;">
               <div class="form-group">
                 <div class="d-flex align-items-center">
+                   <span class="me-0 ps-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.25 4.75049H3.75C2.64543 4.75049 1.75 5.64592 1.75 6.75049V13.2505C1.75 14.3551 2.64543 15.2505 3.75 15.2505H14.25C15.3546 15.2505 16.25 14.3551 16.25 13.2505V6.75049C16.25 5.64592 15.3546 4.75049 14.25 4.75049Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</span>
                   <input type="text" class="form-control" [(ngModel)]="tempExistingProjectName" style="border: 0px;" placeholder="Enter project name" />
                   <button class="btn" (click)="confirmExistingProjectName()" style="margin-right: 5px; border:0px">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
