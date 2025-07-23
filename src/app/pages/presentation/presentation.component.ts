@@ -62,6 +62,7 @@ export class PresentationComponent implements OnInit {
   reportTypes: string[] = ['Standard Reports', '2D Reports', 'Excel Reports'];
   selectedFields: { [key: string]: boolean } = {};
   selectedFieldValues: { [key: string]: string } = {};
+  dropdownStates: { [key: string]: boolean } = {}; // Track dropdown open state for each field
   reportFields: { key: string; name: string }[] = [
     { key: 'building', name: 'Building' },
     { key: 'level', name: 'Level' },
@@ -104,6 +105,7 @@ export class PresentationComponent implements OnInit {
   isProductSelected: boolean = false;
   selectApproval: boolean = false;
   hierarchyLevels: string[] = [];
+  attributeValues: { [key: string]: string[] } = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -186,11 +188,15 @@ export class PresentationComponent implements OnInit {
   toggleProductDropdown(): void {
     this.isProductDropdownOpen = !this.isProductDropdownOpen;
     this.isApprovalDropdownOpen = false;
+    this.isDropdownOpen = false;
+    this.closeAllFieldDropdowns();
   }
 
   toggleApprovalDropdown(): void {
     this.isApprovalDropdownOpen = !this.isApprovalDropdownOpen;
     this.isProductDropdownOpen = false;
+    this.isDropdownOpen = false;
+    this.closeAllFieldDropdowns();
   }
 
   selectApprovalDocument(documentUrl: string): void {
@@ -217,10 +223,31 @@ export class PresentationComponent implements OnInit {
       next: (response) => {
         const attributes = response.data.attributes || [];
         this.initializeSelectedFields(attributes);
+        this.attributeValues = {};
+        attributes.forEach((attr: any) => {
+          this.attributeValues[attr.name.toLowerCase()] = Array.isArray(attr.value) ? attr.value : [attr.value || 'N/A'];
+          this.dropdownStates[attr.name.toLowerCase()] = false; // Initialize dropdown state
+        });
+        this.hierarchyLevels = response.data.subProjects || [];
+        this.attributeValues['level'] = this.hierarchyLevels;
+        this.dropdownStates['level'] = false;
+        // Initialize dropdown states for fields not in API (installer, inspector, safetyMeasures)
+        ['installer', 'inspector', 'safetyMeasures'].forEach(field => {
+          if (!this.attributeValues[field]) {
+            this.attributeValues[field] = ['N/A']; // Default for fields without API values
+            this.dropdownStates[field] = false;
+          }
+        });
         this.cdr.detectChanges();
       },
       error: () => {
         this.initializeSelectedFields([]);
+        this.attributeValues = {};
+        this.hierarchyLevels = [];
+        ['level', 'frl', 'barrier', 'installer', 'inspector', 'safetyMeasures'].forEach(field => {
+          this.attributeValues[field] = ['N/A'];
+          this.dropdownStates[field] = false;
+        });
         this.cdr.detectChanges();
       }
     });
@@ -232,6 +259,8 @@ export class PresentationComponent implements OnInit {
         this.project = data;
         this.instances = data.instances || [];
         this.hierarchyLevels = data.subProjects?.map(sp => sp.hierarchyName) || [];
+        this.attributeValues['level'] = this.hierarchyLevels;
+        this.dropdownStates['level'] = false;
         this.dropdown1.selected = data.status || 'Select an option';
         if (data.subProjects && data.subProjects.length > 0) {
           const queryHierarchyLevelId = this.hierarchyLevelId;
@@ -250,6 +279,8 @@ export class PresentationComponent implements OnInit {
         this.project = null;
         this.instances = [];
         this.hierarchyLevels = [];
+        this.attributeValues['level'] = ['N/A'];
+        this.dropdownStates['level'] = false;
         this.cdr.detectChanges();
       }
     });
@@ -470,6 +501,7 @@ export class PresentationComponent implements OnInit {
     this.isReportModalOpen = false;
     localStorage.setItem('isReportModalOpen', 'false');
     document.body.style.overflow = 'auto';
+    this.closeAllFieldDropdowns();
   }
 
   openImageModal(imageUrl: string): void {
@@ -519,6 +551,7 @@ export class PresentationComponent implements OnInit {
     this.isDropdownOpen = !this.isDropdownOpen;
     this.isProductDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
+    this.closeAllFieldDropdowns();
   }
 
   selectOption1(option: string, event: Event): void {
@@ -555,6 +588,34 @@ export class PresentationComponent implements OnInit {
       selectAllCheckbox.checked = allChecked;
       selectAllCheckbox.indeterminate = someChecked && !allChecked;
     }
+  }
+
+  toggleFieldDropdown(fieldKey: string): void {
+    this.dropdownStates[fieldKey] = !this.dropdownStates[fieldKey];
+    // Close other dropdowns
+    Object.keys(this.dropdownStates).forEach(key => {
+      if (key !== fieldKey) {
+        this.dropdownStates[key] = false;
+      }
+    });
+    this.isDropdownOpen = false;
+    this.isProductDropdownOpen = false;
+    this.isApprovalDropdownOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  closeAllFieldDropdowns(): void {
+    Object.keys(this.dropdownStates).forEach(key => {
+      this.dropdownStates[key] = false;
+    });
+    this.cdr.detectChanges();
+  }
+
+  selectFieldValue(fieldKey: string, value: string, event: Event): void {
+    event.stopPropagation();
+    this.selectedFieldValues[fieldKey] = value;
+    this.dropdownStates[fieldKey] = false;
+    this.cdr.detectChanges();
   }
 
   async generateReport(): Promise<void> {
@@ -749,7 +810,7 @@ export class PresentationComponent implements OnInit {
     }
 
     checkPageBreak(lineHeight * 6);
-    const inspectionStartY = yOffset; // Store the starting yOffset for alignment
+    const inspectionStartY = yOffset;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text('Inspection Report Overview', margin, yOffset);
@@ -760,12 +821,10 @@ export class PresentationComponent implements OnInit {
     const report = projectDetails.reports && projectDetails.reports.length > 0 ? projectDetails.reports[0] : null;
     const inspectionStats = report?.coverLetter?.inspectionOverview || { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' };
     
-    // Total number of items (black text)
     doc.setTextColor(0, 0, 0);
     doc.text(`Total number of items: ${inspectionStats.totalItems}`, margin, yOffset);
     yOffset += lineHeight;
 
-    // Number of PASS (only "PASS" in green)
     const passText = `Number of PASS: `;
     const passValue = `${inspectionStats.passedItems}`;
     doc.setTextColor(0, 0, 0);
@@ -776,7 +835,6 @@ export class PresentationComponent implements OnInit {
     doc.text(`: ${passValue}`, margin + doc.getTextWidth(passText + 'PASS'), yOffset);
     yOffset += lineHeight;
 
-    // Number of FAIL (only "FAIL" in red)
     const failText = `Number of FAIL: `;
     const failValue = `${inspectionStats.failedItems}`;
     doc.setTextColor(0, 0, 0);
@@ -787,7 +845,6 @@ export class PresentationComponent implements OnInit {
     doc.text(`: ${failValue}`, margin + doc.getTextWidth(failText + 'FAIL'), yOffset);
     yOffset += lineHeight;
 
-    // Number of TBC (only "TBC" in gray)
     const tbcText = `Number of TBC: `;
     const tbcValue = `${inspectionStats.tbcItems}`;
     doc.setTextColor(0, 0, 0);
@@ -798,7 +855,6 @@ export class PresentationComponent implements OnInit {
     doc.text(`: ${tbcValue}`, margin + doc.getTextWidth(tbcText + 'TBC'), yOffset);
     const inspectionHeight = lineHeight * 4;
 
-    // Additional Info box aligned with Inspection Report Overview
     const infoBoxX = pageWidth * 0.4;
     const infoBoxWidth = contentWidth * 0.6 - margin;
     const infoBoxHeight = 40;
@@ -1070,14 +1126,7 @@ export class PresentationComponent implements OnInit {
   }
 
   getAttributeDisplayValues(key: string): string[] {
-    if (key === 'level') {
-      return this.hierarchyLevels.length > 0 ? this.hierarchyLevels : ['N/A'];
-    }
-    const value = this.selectedFieldValues[key] || 'N/A';
-    if (Array.isArray(value) && value.length > 0) {
-      return value.filter((v: string) => v !== '');
-    }
-    return [typeof value === 'string' && value !== '' ? value : 'N/A'];
+    return this.attributeValues[key.toLowerCase()] || ['N/A'];
   }
 
   fetchReports(): void {
@@ -1102,6 +1151,7 @@ export class PresentationComponent implements OnInit {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
     this.isProductDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
+    this.closeAllFieldDropdowns();
   }
 
   getReportCount(projectId: string): number {

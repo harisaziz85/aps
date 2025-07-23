@@ -202,142 +202,142 @@
   </div>
 
   <!-- Report Modal -->
- <div class="modal-overlay" *ngIf="isReportModalOpen">
-  <div class="modal-content4 modal-content">
-    <div class="modal-header d-flex justify-content-between">
-      <p class="head1 onestbold">Report</p>
-      <button class="close-btn" (click)="closeReportModal()">×</button>
-    </div>
-    <div class="modal-body4 d-flex flex-column">
-      <!-- Report Type Dropdown -->
-      <div class="card card1" style="margin-bottom: 16px;">
-        <label for="" class="robotoregular tst1">Report Type</label>
-        <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
-          <input type="text" [value]="selectedOption" readonly />
-          <div class="dropdown-menu" *ngIf="isDropdownOpen">
-            <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
+  <div class="modal-overlay" *ngIf="isReportModalOpen">
+    <div class="modal-content4 modal-content">
+      <div class="modal-header d-flex justify-content-between">
+        <p class="head1 onestbold">Report</p>
+        <button class="close-btn" (click)="closeReportModal()">×</button>
+      </div>
+      <div class="modal-body4 d-flex flex-column">
+        <!-- Report Type Dropdown -->
+        <div class="card card1" style="margin-bottom: 16px;">
+          <label for="" class="robotoregular tst1">Report Type</label>
+          <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
+            <input type="text" [value]="selectedOption" readonly />
+            <div class="dropdown-menu" *ngIf="isDropdownOpen">
+              <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Select All Checkbox -->
+        <div class="col-6 d-flex align-items-center gap-2 mt-3"
+             style="margin-top: 24px; padding-left:16px; margin-bottom:8px">
+          <input type="checkbox" style="accent-color: black;" class="check1" id="selectAll" (change)="toggleSelectAll($event)">
+          <p class="robotoregular txt2 mb-0">Select All</p>
+        </div>
+
+        <!-- Product Name Checkbox and Dropdown -->
+        <div class="col-6 d-flex align-items-center gap-2"
+             style="padding-left:16px; margin-bottom:8px">
+        </div>
+        <div class="card card1" style="margin-bottom: 16px;">
+          <label for="productNameDropdown" class="robotoregular tst1">Product Name</label>
+          <div class="d-flex align-items-end">
+            <input type="checkbox" style="accent-color: black;" class="check1 mb-3 me-2" id="selectProduct" [(ngModel)]="isProductSelected" (change)="toggleSelectProduct($event)">
+            <div class="custom-dropdown w-100 p-2" (click)="toggleProductDropdown()">
+              <input type="text" [value]="selectedProductName" readonly />
+              <div class="dropdown-menu" *ngIf="isProductDropdownOpen">
+                <div *ngFor="let product of products" (click)="selectProduct(product._id)">{{ product.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approval Checkbox and Dropdown -->
+        <div class="col-6 d-flex align-items-center gap-2"
+             style="padding-left:16px; margin-bottom:8px" *ngIf="approvalDocuments.length > 0">
+        </div>
+        <div class="card card1" style="margin-bottom: 16px;" *ngIf="approvalDocuments.length > 0">
+          <label for="approvalDropdown" class="robotoregular tst1">Approval</label>
+          <div class="d-flex align-items-end">
+            <input type="checkbox" style="accent-color: black;" class="check1 me-2 mb-3" id="selectApproval" [(ngModel)]="selectApproval" (change)="toggleSelectApproval($event)">
+            <div class="custom-dropdown w-100 p-2" (click)="toggleApprovalDropdown()">
+              <input type="text" [value]="selectedApprovalDocumentName" readonly />
+              <div class="dropdown-menu" *ngIf="isApprovalDropdownOpen">
+                <div *ngFor="let doc of approvalDocuments" (click)="selectApprovalDocument(doc.fileUrl)">{{ doc.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Fields Section -->
+        <div *ngFor="let field of reportFields" class="card1 card " style="margin-bottom: 8px;">
+          <div class="d-flex align-items-center">
+            <input type="checkbox" style="accent-color: black;" class="check1 mt-4 me-2" [(ngModel)]="selectedFields[field.key]" (change)="updateSelectAll()">
+            <div class="form-group w-100">
+              <label [for]="field.key" class="robotoregular" style="font-size: 14px;">{{ field.name }}</label>
+              <ng-container *ngIf="['level', 'frl', 'barrier', 'installer', 'inspector', 'safetyMeasures'].includes(field.key) && getAttributeDisplayValues(field.key).length > 1; else singleValue">
+                <div class="custom-dropdown w-100 p-2" (click)="toggleFieldDropdown(field.key)">
+                  <input type="text" [value]="selectedFieldValues[field.key] || 'Select an option'" readonly />
+                  <div class="dropdown-menu" *ngIf="dropdownStates[field.key]">
+                    <div *ngFor="let value of getAttributeDisplayValues(field.key)" (click)="selectFieldValue(field.key, value, $event)">
+                      {{ value }}
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #singleValue>
+                <input type="text" class="form-control sle1" [id]="field.key"
+                       [value]="getAttributeDisplayValue(field.key)" readonly>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- No fields message -->
+        <div *ngIf="reportFields.length === 0" class="alert alert-info mt-3">
+          <p class="mb-0">No fields available.</p>
+        </div>
+
+        <!-- Report Data Options -->
+        <div class="card card1" style="margin-top: 16px; margin-bottom: 16px;">
+          <label for="" class="robotoregular tst1">Report Data</label>
+          <div class="d-flex flex-column gap-2 mt-2">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" style="accent-color: black;" class="check1" id="excludeBlankFields">
+              <p class="robotoregular txt2 mb-0">Exclude blank fields from report</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Attachment Options -->
+        <div class="card card1" style="margin-bottom: 16px;">
+          <label for="" class="robotoregular tst1">Report Attachment</label>
+          <div class="d-flex flex-column gap-2 mt-2">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" style="accent-color: black;" class="check1" id="includeTechnicalDocs">
+              <p class="robotoregular txt2 mb-0">Include Technical Documents</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" style="accent-color: black;" class="check1" id="includeFloorPlans">
+              <p class="robotoregular txt2 mb-0">Include Floor Plans</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="check1" style="accent-color: black;" id="includeAdditionalDocs">
+              <p class="robotoregular txt2 mb-0">Include Additional Documents</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Select All Checkbox -->
-      <div class="col-6 d-flex align-items-center gap-2 mt-3"
-           style="margin-top: 24px; padding-left:16px; margin-bottom:8px">
-        <input type="checkbox" class="check1" id="selectAll" (change)="toggleSelectAll($event)">
-        <p class="robotoregular txt2 mb-0">Select All</p>
+      <!-- Modal Footer -->
+      <div class="modal-footer mb">
+        <button class="my-2 btn1 robotoregular w-100" [routerLink]="['/pages/coverletter']" [queryParams]="{
+            returnTo: 'presentation',
+            projectId: projectId || project?.projectId,
+            instanceId: instanceId,
+            from: 'reports'
+          }">
+          Cover Letter
+        </button>
+        <button class="btn2 robotoregular w-100" (click)="generateReport()">
+          <span class="me-2"></span>
+          <span>Generate Report</span>
+        </button>
       </div>
-
-      <!-- Product Name Checkbox and Dropdown -->
-      <div class="col-6 d-flex align-items-center gap-2"
-           style="padding-left:16px; margin-bottom:8px">
-        
-      </div>
-      <div class="card card1" style="margin-bottom: 16px;">
-        <label for="productNameDropdown" class="robotoregular tst1">Product Name</label>
-        <div class="d-flex align-items-end">
-        <input type="checkbox" class="check1 mb-3 me-2" id="selectProduct" [(ngModel)]="selectProduct" (change)="toggleSelectProduct($event)">
-        <div class="custom-dropdown w-100 p-2" (click)="toggleProductDropdown()">
-          <input type="text" [value]="selectedProductName" readonly />
-          <div class="dropdown-menu" *ngIf="isProductDropdownOpen">
-            <div *ngFor="let product of products" (click)="selectProduct(product._id)">{{ product.name }}</div>
-          </div>
-        </div></div>
-      </div>
-
-      <!-- Approval Checkbox and Dropdown -->
-      <div class="col-6 d-flex align-items-center gap-2"
-           style="padding-left:16px; margin-bottom:8px" *ngIf="approvalDocuments.length > 0">
-     
-      </div>
-      <div class="card card1" style="margin-bottom: 16px;" *ngIf="approvalDocuments.length > 0">
-        <label for="approvalDropdown" class="robotoregular tst1">Approval</label>
-<div class="d-flex align-items-end">
-           <input type="checkbox" class="check1 me-2 mb-3" id="selectApproval" [(ngModel)]="selectApproval" (change)="toggleSelectApproval($event)">
-        <div class="custom-dropdown w-100 p-2" (click)="toggleApprovalDropdown()">
-          <input type="text" [value]="selectedApprovalDocumentName" readonly />
-          <div class="dropdown-menu" *ngIf="isApprovalDropdownOpen">
-            <div *ngFor="let doc of approvalDocuments" (click)="selectApprovalDocument(doc.fileUrl)">{{ doc.name }}</div>
-          </div></div>
-        </div>
-      </div>
-
-      <!-- Report Fields Section -->
-      <div *ngFor="let field of reportFields" class="card1 card cd1" style="margin-bottom: 8px;">
-        <input type="checkbox" class="check1 mt-4" [(ngModel)]="selectedFields[field.key]" (change)="updateSelectAll()">
-        <div class="form-group w-100">
-          <label [for]="field.key" class="robotoregular" style="font-size: 14px;">{{ field.name }}</label>
-          <ng-container *ngIf="field.key === 'level' && hierarchyLevels.length > 1; else defaultField">
-            <select class="form-control sle1" [id]="field.key" [(ngModel)]="selectedFieldValues[field.key]">
-              <option *ngFor="let level of hierarchyLevels" [value]="level">{{ level }}</option>
-            </select>
-          </ng-container>
-          <ng-template #defaultField>
-            <ng-container *ngIf="getAttributeDisplayValues(field.key).length > 1; else singleValue">
-              <select class="form-control sle1" [id]="field.key" [(ngModel)]="selectedFieldValues[field.key]">
-                <option *ngFor="let value of getAttributeDisplayValues(field.key)" [value]="value">{{ value }}</option>
-              </select>
-            </ng-container>
-            <ng-template #singleValue>
-              <input type="text" class="form-control sle1" [id]="field.key"
-                     [value]="getAttributeDisplayValue(field.key)" readonly>
-            </ng-template>
-          </ng-template>
-        </div>
-      </div>
-
-      <!-- No fields message -->
-      <div *ngIf="reportFields.length === 0" class="alert alert-info mt-3">
-        <p class="mb-0">No fields available.</p>
-      </div>
-
-      <!-- Report Data Options -->
-      <div class="card card1" style="margin-top: 16px; margin-bottom: 16px;">
-        <label for="" class="robotoregular tst1">Report Data</label>
-        <div class="d-flex flex-column gap-2 mt-2">
-          <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" class="check1" id="excludeBlankFields">
-            <p class="robotoregular txt2 mb-0">Exclude blank fields from report</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Report Attachment Options -->
-      <div class="card card1" style="margin-bottom: 16px;">
-        <label for="" class="robotoregular tst1">Report Attachment</label>
-        <div class="d-flex flex-column gap-2 mt-2">
-          <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" class="check1" id="includeTechnicalDocs">
-            <p class="robotoregular txt2 mb-0">Include Technical Documents</p>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" class="check1" id="includeFloorPlans">
-            <p class="robotoregular txt2 mb-0">Include Floor Plans</p>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" class="check1" id="includeAdditionalDocs">
-            <p class="robotoregular txt2 mb-0">Include Additional Documents</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Footer -->
-    <div class="modal-footer mb">
-      <button class="my-2 btn1 robotoregular w-100" [routerLink]="['/pages/coverletter']" [queryParams]="{
-          returnTo: 'presentation',
-          projectId: projectId || project?.projectId,
-          instanceId: instanceId,
-          from: 'reports'
-        }">
-        Cover Letter
-      </button>
-      <button class="btn2 robotoregular w-100" (click)="generateReport()">
-        <span class="me-2"></span>
-        <span>Generate Report</span>
-      </button>
     </div>
   </div>
-</div>
 
   <!-- Image Modal -->
   <div class="modal-overlay3" *ngIf="isImageModalOpen">
