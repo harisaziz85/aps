@@ -15,13 +15,13 @@
 .custom-dropdown {
   position: relative;
   width: 100%;
-  border-radius: 20px !important;
+  border-radius: 15px !important;
 }
 
 .selected-option {
   padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 15px;
   height: 48px;
   cursor: pointer;
   background-color: #fff;
@@ -71,7 +71,8 @@
   right: 0;
   background-color: #fff;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 15px !important;
+  margin-top: 4px !important;
   list-style: none;
   padding: 0;
   margin: 0;

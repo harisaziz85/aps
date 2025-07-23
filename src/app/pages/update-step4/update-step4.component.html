@@ -12,12 +12,12 @@
       <div class="d-flex itms mb-3">
         <h3 style="width: 325%;">2D Plans ({{ documentCounts['2D Plan'] || 0 }})</h3>
         <div class="custom-dropdown ms-auto">
-          <button class="dropdown-btn" style="background-color: black; color:white; height:48px; border-radius:15px" (click)="toggleDropdown('2D Plan')">
-            <span class="me-2">+</span> {{ fileSelectionMode['2D Plan'] }}
+          <button class="dropdown-btn " style="background-color: black; color:white; height:48px; border-radius:15px; padding-left:20px; padding-right:20px" (click)="toggleDropdown('2D Plan')">
+            <span class="me-2">+</span> Add
           </button>
           <div class="dropdown-content" *ngIf="showDropdown['2D Plan']">
             <a (click)="selectMode('2D Plan', 'Single File')">Single File</a>
-            <a (click)="selectMode('2D Plan', 'Bulk Files')">Bulk Files</a>
+            <a (click)="selectMode('2D Plan', 'Multiple Files')">Multiple Files</a>
           </div>
         </div>
       </div>
@@ -41,12 +41,12 @@
       <div class="heading-dropdown-container">
         <h3 style="width: 325%;">Technical Documents ({{ documentCounts['Technical Document'] || 0 }})</h3>
         <div class="custom-dropdown">
-          <button class="dropdown-btn" style="background-color: black; color:white; height:48px; border-radius:15px" (click)="toggleDropdown('Technical Document')">
-            {{ fileSelectionMode['Technical Document'] }}
+          <button class="dropdown-btn" style="background-color: black; color:white; height:48px; border-radius:15px; padding-left:20px; padding-right:20px" (click)="toggleDropdown('Technical Document')">
+            <span class="me-2">+</span> Add
           </button>
           <div class="dropdown-content" *ngIf="showDropdown['Technical Document']">
             <a (click)="selectMode('Technical Document', 'Single File')">Single File</a>
-            <a (click)="selectMode('Technical Document', 'Bulk Files')">Bulk Files</a>
+            <a (click)="selectMode('Technical Document', 'Multiple Files')">Multiple Files</a>
           </div>
         </div>
       </div>
@@ -70,12 +70,12 @@
       <div class="itms">
         <h3 style="width: 325%;">Additional Documents ({{ documentCounts['Additional Document'] || 0 }})</h3>
         <div class="custom-dropdown">
-          <button class="dropdown-btn" style="background-color: black; color:white; height:48px; border-radius:15px" (click)="toggleDropdown('Additional Document')">
-            {{ fileSelectionMode['Additional Document'] }}
+          <button class="dropdown-btn" style="background-color: black; color:white;padding-left:20px; padding-right:20px; height:48px; border-radius:15px" (click)="toggleDropdown('Additional Document')">
+            <span class="me-2">+</span> Add
           </button>
           <div class="dropdown-content" *ngIf="showDropdown['Additional Document']">
             <a (click)="selectMode('Additional Document', 'Single File')">Single File</a>
-            <a (click)="selectMode('Additional Document', 'Bulk Files')">Bulk Files</a>
+            <a (click)="selectMode('Additional Document', 'Multiple Files')">Multiple Files</a>
           </div>
         </div>
       </div>
@@ -127,17 +127,22 @@
         </div>
         <div class="form-group">
           <label for="hierarchyLevel">Hierarchy Level:</label>
-          <select id="hierarchyLevel" [(ngModel)]="selectedHierarchyLevel" class="form-control">
-            <option value="" disabled>Select a hierarchy level</option>
-            <option *ngFor="let level of hierarchyLevels" [value]="level._id">{{ level.name }} ({{ level.instanceCount }} instances)</option>
-          </select>
+          <div class="custom-dropdown">
+            <div class="selected-option" (click)="toggleHierarchyDropdown()">
+              {{ getHierarchyName(selectedHierarchyLevel) || 'Select a hierarchy level' }}
+              <span class="arrow" [ngClass]="{'open': isHierarchyDropdownOpen}">▾</span>
+            </div>
+            <ul class="dropdown-options" [ngClass]="{'open': isHierarchyDropdownOpen}">
+              <li *ngFor="let level of hierarchyLevels" (click)="selectHierarchyLevel(level._id)">
+                {{ level.name }} ({{ level.instanceCount }} instances)
+              </li>
+            </ul>
+          </div>
         </div>
         <div *ngIf="selectedFiles.length > 0">
-        
-            <li *ngFor="let file of selectedFiles; let i = index" style="list-style: none;">
-             
+          <ul style="list-style: none; padding: 0;">
+            <li *ngFor="let file of selectedFiles; let i = index">
               <div class="form-group">
-                <!-- <label [for]="'documentName' + i">Document Name:</label> -->
                 <input
                   [id]="'documentName' + i"
                   type="text"
@@ -148,6 +153,7 @@
                 />
               </div>
             </li>
+          </ul>
         </div>
       </div>
       <div style="padding: 20px 20px 0;">

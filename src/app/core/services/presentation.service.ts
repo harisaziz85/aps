@@ -2,18 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ProjectResponse, InstanceResponse, Marker, AttributeTemplateResponse } from '../models/presentation';
+import { ProjectResponse, InstanceResponse, Marker, Document, AttributeTemplateResponse } from '../models/presentation';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PresentationService {
-  getCoverLetter(projectId: string) {
-    throw new Error('Method not implemented.');
-  }
-  getProjectReports(projectId: string) {
-    throw new Error('Method not implemented.');
-  }
   private apiUrl = 'https://vps.allpassiveservices.com.au/api/project';
 
   constructor(private http: HttpClient) {}
@@ -31,7 +25,7 @@ export class PresentationService {
           clientPhone: response.project.clientInfo?.phone || ''
         },
         clientName: response.project.clientInfo?.name || '',
-        date: response.project.createdAt || '',
+        createdAt: response.project.createdAt || '',
         buildingType: response.project.buildingType || '',
         assignedEmployees: response.project.subcontractorInfo ? [{
           employeeId: '',
@@ -55,14 +49,35 @@ export class PresentationService {
           _id: inst._id || '',
           projectId: inst.projectId || '',
           instanceNumber: inst.instanceNumber || 0,
-          location: inst.location || '',
-          type: inst.type || '',
+          location: inst.attributes?.find((attr: any) => attr.name === 'Location')?.selectedValue || '',
+          type: inst.subProjectCategory || '',
           status: inst.status || '',
-          comments: inst.comments || '',
+          comments: inst.attributes?.find((attr: any) => attr.name === 'Comments')?.selectedValue || '',
           photos: inst.photos || [],
           hierarchyLevelId: inst.hierarchyLevelId || '',
-          hierarchyLevelName: response.hierarchy?.levels?.find((level: any) => level._id === inst.hierarchyLevelId)?.name || '',
-          subProjectCategory: inst.subProjectCategory || ''
+          hierarchyName: response.hierarchy?.levels?.find((level: any) => level._id === inst.hierarchyLevelId)?.name || '',
+          subProjectCategory: inst.subProjectCategory || '',
+          attributes: inst.attributes || []
+        })) || [],
+        documents: response.documents?.map((doc: any) => ({
+          _id: doc._id || '',
+          projectId: doc.projectId || '',
+          documentType: doc.documentType || '',
+          hierarchyLevel: doc.hierarchyLevel || '',
+          files: doc.files?.map((file: any) => ({
+            documentName: file.documentName || '',
+            documentUrl: file.documentUrl || '',
+            version: file.version || 0,
+            _id: file._id || '',
+            markers: file.markers || []
+          })) || [],
+          createdAt: doc.createdAt || '',
+          updatedAt: doc.updatedAt || '',
+          __v: doc.__v || 0
+        })) || [],
+        hierarchyLevels: response.hierarchy?.levels?.map((level: any) => ({
+          hierarchyLevelId: level._id || '',
+          hierarchyName: level.name || ''
         })) || []
       }))
     );
@@ -79,8 +94,8 @@ export class PresentationService {
     return this.http.get<InstanceResponse[]>(`${this.apiUrl}/instances/hierarchy/${hierarchyLevelId}`);
   }
 
-  getInstanceMarkers(projectId: string, hierarchyLevelId: string, instanceId: string, markers: Marker[]): Observable<{ message: string; data: any[] }> {
-    return this.http.get<{ message: string; data: any[] }>(
+  getInstanceMarkers(projectId: string, hierarchyLevelId: string, instanceId: string, markers: Marker[]): Observable<{ message: string; data: Document[] }> {
+    return this.http.get<{ message: string; data: Document[] }>(
       `${this.apiUrl}/getInstanceMarkers/${projectId}/${hierarchyLevelId}/${instanceId}`
     );
   }
@@ -102,13 +117,12 @@ export class PresentationService {
     );
   }
 
-  getDocumentByHierarchy(projectId: string, hierarchyLevelId: string): Observable<{ message: string; data: any[] }> {
-    return this.http.get<{ message: string; data: any[] }>(
+  getDocumentByHierarchy(projectId: string, hierarchyLevelId: string): Observable<{ message: string; data: Document[] }> {
+    return this.http.get<{ message: string; data: Document[] }>(
       `${this.apiUrl}/documents/${projectId}/${hierarchyLevelId}`
     );
   }
 
-  // New method to fetch reports
   getReportsByInstance(projectId: string, instanceId: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/reports/${projectId}?instanceId=${instanceId}`);
   }

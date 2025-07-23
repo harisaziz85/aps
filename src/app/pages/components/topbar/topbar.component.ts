@@ -39,7 +39,7 @@ export interface ProjectExport {
 })
 export class TopbarComponent implements AfterViewInit {
   @Input() heading: string = '';
- 
+
   faSyncAlt = faSyncAlt;
   isDropdownOpen = false;
   userName: string = '';
@@ -57,19 +57,26 @@ export class TopbarComponent implements AfterViewInit {
   projects: ProjectExport[] = [];
   filteredProjects: ProjectExport[] = [];
   selectedProjects: string[] = [];
+  selectedInstances: { [projectId: string]: string[] } = {};
   searchQuery: string = '';
-  selectedFile: File | null = null;
-  selectedFileName: string = '';
+  newProjectFile: File | null = null;
+  newProjectFileName: string = '';
+  existingProjectFile: File | null = null;
+  existingProjectFileName: string = '';
+  isEditingNewProjectName: boolean = false;
+  isEditingExistingProjectName: boolean = false;
+  tempNewProjectName: string = '';
+  tempExistingProjectName: string = '';
   importApiUrl = 'https://vps.allpassiveservices.com.au/api/exchangeData/import';
   exportApiUrl = 'https://vps.allpassiveservices.com.au/api/exchangeData/export';
-  isProjectDropdownOpen: boolean = false;
   selectedProjectId: string = '';
-  selectedProjectName: string = 'Selected Project';
+  selectedProjectName: string = 'Select a Project';
   activities: Activity[] = [];
   projectDropdownStates: { [key: string]: boolean } = {};
 
   @ViewChild('fileInput') fileInput!: ElementRef;
-  @ViewChild('importFileInput') importFileInput!: ElementRef;
+  @ViewChild('newProjectFileInput') newProjectFileInput!: ElementRef;
+  @ViewChild('existingProjectFileInput') existingProjectFileInput!: ElementRef;
 
   constructor(
     private router: Router,
@@ -82,7 +89,8 @@ export class TopbarComponent implements AfterViewInit {
 
   ngOnInit(): void {
     this.selectedProjects = [];
-    
+    this.selectedInstances = {};
+
     this.authService.getProfile().subscribe({
       next: (response: ProfileResponse) => {
         if (!response.error && response.profile) {
@@ -203,13 +211,20 @@ export class TopbarComponent implements AfterViewInit {
     this.isModalOpen = false;
     document.body.classList.remove('no-scroll');
     document.documentElement.classList.remove('no-scroll');
-    this.selectedFile = null;
-    this.selectedFileName = '';
+    this.newProjectFile = null;
+    this.newProjectFileName = '';
+    this.existingProjectFile = null;
+    this.existingProjectFileName = '';
+    this.isEditingNewProjectName = false;
+    this.isEditingExistingProjectName = false;
+    this.tempNewProjectName = '';
+    this.tempExistingProjectName = '';
     this.selectedOption = 'existing';
     this.selectedProjectId = '';
-    this.selectedProjectName = 'Selected Project';
-    this.isProjectDropdownOpen = false;
+    this.selectedProjectName = 'Select a Project';
     this.projectDropdownStates = {};
+    this.selectedProjects = [];
+    this.selectedInstances = {};
   }
 
   closeModalIfOutside(event: MouseEvent) {
@@ -287,7 +302,7 @@ export class TopbarComponent implements AfterViewInit {
                   this.http.get(instancesUrl).subscribe({
                     next: (instancesResponse: any) => {
                       level.instances = (instancesResponse.instances || []).map((instance: any) => ({
-                        instanceId: instance.instanceId || '',
+                        instanceId: instance._id || '',
                         instanceName: instance.instanceName || '',
                         subProjectCategory: instance.subProjectCategory || 'No Category'
                       }));
@@ -351,19 +366,98 @@ export class TopbarComponent implements AfterViewInit {
     const index = this.selectedProjects.indexOf(projectId);
     if (index === -1) {
       this.selectedProjects = [...this.selectedProjects, projectId];
+      this.selectedInstances[projectId] = this.selectedInstances[projectId] || [];
     } else {
       this.selectedProjects = this.selectedProjects.filter(id => id !== projectId);
+      delete this.selectedInstances[projectId];
     }
   }
 
-  toggleProjectDropdownMenu(): void {
-    this.isProjectDropdownOpen = !this.isProjectDropdownOpen;
+  toggleInstanceSelection(projectId: string, instanceId: string) {
+    if (!this.selectedInstances[projectId]) {
+      this.selectedInstances[projectId] = [];
+    }
+    const index = this.selectedInstances[projectId].indexOf(instanceId);
+    if (index === -1) {
+      this.selectedInstances[projectId].push(instanceId);
+    } else {
+      this.selectedInstances[projectId] = this.selectedInstances[projectId].filter(id => id !== instanceId);
+      if (this.selectedInstances[projectId].length === 0) {
+        delete this.selectedInstances[projectId];
+      }
+    }
+    // Ensure project is selected if instances are selected
+    if (this.selectedInstances[projectId]?.length && !this.selectedProjects.includes(projectId)) {
+      this.selectedProjects = [...this.selectedProjects, projectId];
+    }
   }
 
-  selectProject(projectId: string, projectName: string): void {
+  isInstanceSelected(projectId: string, instanceId: string): boolean {
+    return this.selectedInstances[projectId]?.includes(instanceId) || false;
+  }
+
+  selectProject(projectId: string) {
+    const project = this.projects.find(p => p.projectId === projectId);
     this.selectedProjectId = projectId;
-    this.selectedProjectName = projectName || 'Unnamed Project';
-    this.isProjectDropdownOpen = false;
+    this.selectedProjectName = project ? project.projectName || 'Unnamed Project' : 'Select a Project';
+  }
+
+  editNewProjectName() {
+    this.tempNewProjectName = this.newProjectFileName;
+    this.isEditingNewProjectName = true;
+    this.isEditingExistingProjectName = false;
+  }
+
+  editExistingProjectName() {
+    this.tempExistingProjectName = this.existingProjectFileName;
+    this.isEditingExistingProjectName = true;
+    this.isEditingNewProjectName = false;
+  }
+
+  confirmNewProjectName() {
+    if (this.tempNewProjectName.trim()) {
+      this.newProjectFileName = this.tempNewProjectName.trim();
+    }
+    this.isEditingNewProjectName = false;
+    this.tempNewProjectName = '';
+  }
+
+  confirmExistingProjectName() {
+    if (this.tempExistingProjectName.trim()) {
+      this.existingProjectFileName = this.tempExistingProjectName.trim();
+    }
+    this.isEditingExistingProjectName = false;
+    this.tempExistingProjectName = '';
+  }
+
+  cancelNewProjectName() {
+    this.isEditingNewProjectName = false;
+    this.tempNewProjectName = '';
+  }
+
+  cancelExistingProjectName() {
+    this.isEditingExistingProjectName = false;
+    this.tempExistingProjectName = '';
+  }
+
+  removeNewProjectFile() {
+    this.newProjectFile = null;
+    this.newProjectFileName = '';
+    this.isEditingNewProjectName = false;
+    this.tempNewProjectName = '';
+    if (this.newProjectFileInput.nativeElement) {
+      this.newProjectFileInput.nativeElement.value = '';
+    }
+  }
+
+  removeExistingProjectFile() {
+    this.existingProjectFile = null;
+    this.existingProjectFileName = '';
+    this.isEditingExistingProjectName = false;
+    this.tempExistingProjectName = '';
+    if (this.existingProjectFileInput.nativeElement) {
+      this.existingProjectFileInput.nativeElement.value = '';
+    }
   }
 
   exportSelectedProjects() {
@@ -378,8 +472,46 @@ export class TopbarComponent implements AfterViewInit {
 
     this.selectedProjects.forEach(projectId => {
       const url = `${this.exportApiUrl}/${projectId}`;
-      this.http.get(url, { responseType: 'blob' }).subscribe({
-        next: (blob) => {
+      this.http.get(url, { responseType: 'json' }).subscribe({
+        next: (response: any) => {
+          let exportData = { ...response };
+
+          // Filter hierarchy levels to include only those with selected instances
+          const selectedInstanceIds = this.selectedInstances[projectId] || [];
+          if (selectedInstanceIds.length > 0) {
+            // Filter instances
+            exportData.instances = (exportData.instances || []).filter((instance: any) =>
+              selectedInstanceIds.includes(instance._id)
+            );
+
+            // Filter hierarchy levels to include only those with selected instances
+            exportData.hierarchy.levels = (exportData.hierarchy.levels || []).filter((level: any) =>
+              exportData.instances.some((instance: any) => instance.hierarchyLevelId === level._id)
+            );
+
+            // Filter documents to include only those with markers linked to selected instances
+            exportData.documents = (exportData.documents || []).map((doc: any) => ({
+              ...doc,
+              files: doc.files.filter((file: any) =>
+                file.markers.some((marker: any) => selectedInstanceIds.includes(marker.instanceId))
+              )
+            })).filter((doc: any) => doc.files.length > 0);
+
+            // If no instances are selected, exclude instances and documents
+            if (!exportData.instances.length) {
+              delete exportData.instances;
+              delete exportData.documents;
+            }
+          } else {
+            // If no instances are selected, include only project and hierarchy data
+            delete exportData.instances;
+            delete exportData.documents;
+            delete exportData.standardAttributes;
+            delete exportData.reports;
+          }
+
+          // Convert to JSON and trigger download
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
@@ -413,16 +545,22 @@ export class TopbarComponent implements AfterViewInit {
     };
   }
 
-  onImportFileSelected(event: Event) {
+  onImportFileSelected(event: Event, tab: 'new' | 'existing') {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      this.selectedFile = input.files[0];
-      this.selectedFileName = input.files[0].name;
+      if (tab === 'new') {
+        this.newProjectFile = input.files[0];
+        this.newProjectFileName = input.files[0].name;
+      } else {
+        this.existingProjectFile = input.files[0];
+        this.existingProjectFileName = input.files[0].name;
+      }
     }
   }
 
   importProject() {
-    if (!this.selectedFile) {
+    const selectedFile = this.selectedOption === 'new' ? this.newProjectFile : this.existingProjectFile;
+    if (!selectedFile) {
       alert('Please select a file to import');
       return;
     }
@@ -433,7 +571,7 @@ export class TopbarComponent implements AfterViewInit {
     }
 
     const formData = new FormData();
-    formData.append('file', this.selectedFile);
+    formData.append('file', selectedFile);
     if (this.selectedOption === 'existing') {
       formData.append('projectId', this.selectedProjectId);
     }

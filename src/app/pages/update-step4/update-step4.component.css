@@ -26,8 +26,11 @@ h2 {
   border-radius: 4px;
   margin-bottom: 16px;
 }
-.itms{
+
+.itms {
   justify-content: space-between !important;
+  display: flex;
+  align-items: center;
 }
 
 /* Card container */
@@ -204,19 +207,67 @@ li .form-group {
   color: black;
   text-decoration: none;
 }
+
 .heading-dropdown-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px; /* optional spacing below */
+  margin-bottom: 16px;
 }
-.itms {
+
+/* Custom Dropdown for Hierarchy Level */
+.selected-option {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  height: 48px;
+  cursor: pointer;
+  background-color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.bts1{
-position: absolute !important;
-top: 152px !important;
-right: 24px;
+
+.arrow {
+  transition: transform 0.2s;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.dropdown-options.open {
+  display: block;
+}
+
+.dropdown-options li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown-options li:hover {
+  background-color: #f8f9fa;
+}
+
+.bts1 {
+  position: absolute !important;
+  top: 152px !important;
+  right: 24px;
 }

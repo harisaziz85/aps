@@ -65,6 +65,7 @@ export class UpdateStep4Component implements OnInit {
   fileMeta: FileMeta[] = [];
   hierarchyLevels: HierarchyLevel[] = [];
   isLoadingHierarchy: boolean = false;
+  isHierarchyDropdownOpen: boolean = false;
   fileSelectionMode: { [key: string]: string } = {
     '2D Plan': 'Single File',
     'Technical Document': 'Single File',
@@ -146,8 +147,8 @@ export class UpdateStep4Component implements OnInit {
               this.documents[normalizedDocType].push({
                 documentName: file.documentName,
                 fileType: file.documentUrl.split('.').pop() || 'pdf',
-                fileId: file._id, // Store file ID
-                documentId: doc._id, // Store document ID
+                fileId: file._id,
+                documentId: doc._id,
                 hierarchyLevel: doc.hierarchyLevel
               });
             });
@@ -194,7 +195,7 @@ export class UpdateStep4Component implements OnInit {
   }
 
   isBulkMode(): boolean {
-    return !!this.documentType && this.fileSelectionMode[this.documentType] === 'Bulk Files';
+    return !!this.documentType && this.fileSelectionMode[this.documentType] === 'Multiple Files';
   }
 
   isValidMeta(): boolean {
@@ -239,6 +240,7 @@ export class UpdateStep4Component implements OnInit {
         this.selectedHierarchyLevel = '';
         this.selectedFiles = [];
         this.fileMeta = [];
+        this.isHierarchyDropdownOpen = false;
         if (this.projectId) this.fetchDocuments(this.projectId);
         this.closeModal();
       },
@@ -267,11 +269,11 @@ export class UpdateStep4Component implements OnInit {
     }).subscribe({
       next: (response: any) => {
         console.log('Delete response:', response);
-        this.documents[docType] = this.documents[docType].filter(d => d.documentId !== documentId); // Remove all files for this document
-        this.documentCounts[docType] = this.documents[docType].length; // Update count
+        this.documents[docType] = this.documents[docType].filter(d => d.documentId !== documentId);
+        this.documentCounts[docType] = this.documents[docType].length;
         this.successMessage = response.message || 'Document deleted successfully';
         this.errorMessage = null;
-        if (this.projectId) this.fetchDocuments(this.projectId); // Refresh documents
+        if (this.projectId) this.fetchDocuments(this.projectId);
       },
       error: (error: HttpErrorResponse) => {
         console.error('Delete error:', error);
@@ -302,13 +304,24 @@ export class UpdateStep4Component implements OnInit {
 
   getHierarchyName(hierarchyId: string): string {
     const level = this.hierarchyLevels.find(h => h._id === hierarchyId);
-    return level ? level.name : 'Unknown';
+    return level ? `${level.name} (${level.instanceCount} instances)` : 'Select a hierarchy level';
+  }
+
+  toggleHierarchyDropdown() {
+    this.isHierarchyDropdownOpen = !this.isHierarchyDropdownOpen;
+  }
+
+  selectHierarchyLevel(levelId: string) {
+    this.selectedHierarchyLevel = levelId;
+    this.isHierarchyDropdownOpen = false;
   }
 
   openModal(docType: string) {
     this.documentType = docType;
     this.selectedFiles = [];
     this.fileMeta = [];
+    this.selectedHierarchyLevel = '';
+    this.isHierarchyDropdownOpen = false;
     this.isModalOpen = true;
   }
 
@@ -317,5 +330,7 @@ export class UpdateStep4Component implements OnInit {
     this.documentType = '';
     this.selectedFiles = [];
     this.fileMeta = [];
+    this.selectedHierarchyLevel = '';
+    this.isHierarchyDropdownOpen = false;
   }
 }

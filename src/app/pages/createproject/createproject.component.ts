@@ -10,6 +10,7 @@ import { FootComponent } from '../components/foot/foot.component';
 import { PresentationService } from '../../core/services/presentation.service';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Pipe, PipeTransform } from '@angular/core';
 import jsPDF from 'jspdf';
 import { AttributeTemplateResponse, ProjectResponse } from '../../core/models/presentation';
 import html2canvas from 'html2canvas';
@@ -89,7 +90,7 @@ interface Document {
     RouterLink,
     TopbarComponent,
     FootComponent,
-    SvgIconsComponent
+    SvgIconsComponent,
   ],
   standalone: true
 })
@@ -701,7 +702,30 @@ options: string[] = ['Active', 'Completed'];
     this.closeOtherDropdowns('dropdown-toggle-8');
     console.log('Toggling dropdown8, new state:', this.dropdown8.isOpen);
   }
+toggleDropdown30(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen1 = !this.isDropdownOpen1;
+    this.closeOtherDropdowns('dropdown-toggle-30');
+  }
 
+  toggleDropdown31(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen2 = !this.isDropdownOpen2;
+    this.closeOtherDropdowns('dropdown-toggle-31');
+  }
+  getProductName(productId: string): string {
+    const product = this.products.find(p => p.id === productId);
+    return product ? product.name : 'Select a product';
+  }
+  selectApprovalDocument(docId: string, event: Event): void {
+    event.stopPropagation();
+    if (docId && !this.selectedApprovalDocuments.includes(docId)) {
+      this.selectedApprovalDocuments.push(docId);
+      console.log('Added approval document:', docId, 'Current selections:', this.selectedApprovalDocuments);
+    }
+    this.isDropdownOpen2 = false;
+    this.saveFormData(); // Save form data after selection
+  }
   toggleDropdownli(event?: Event) {
     if (event) {
       event.stopPropagation();
@@ -715,6 +739,7 @@ options: string[] = ['Active', 'Completed'];
 
   closeOtherDropdowns(currentDropdownId: string) {
     const dropdowns = [
+      
       { id: 'dropdown-toggle-status', prop: 'isDropdownOpen' },
       { id: 'dropdown-toggle-1', prop: 'isDropdownOpen1' },
       { id: 'dropdown-toggle-2', prop: 'isDropdownOpen2' },
@@ -724,7 +749,8 @@ options: string[] = ['Active', 'Completed'];
       { id: 'dropdown-toggle-6', prop: 'isDropdownOpen6' },
       { id: 'dropdown-toggle-7', prop: 'isDropdownOpen7' },
       { id: 'dropdown-toggle-8', prop: 'dropdown8.isOpen' },
-      { id: 'dropdown-toggle-li', prop: 'isDropdownOpenli' }
+      { id: 'dropdown-toggle-li', prop: 'isDropdownOpenli' },
+      
     ];
 
     dropdowns.forEach(dropdown => {
@@ -758,7 +784,9 @@ options: string[] = ['Active', 'Completed'];
       'dropdown-toggle-7',
       'dropdown-toggle-8',
       'dropdown-toggle-4',
-      'dropdown-toggle-li'
+      'dropdown-toggle-li',
+      'dropdown-toggle-30',
+      'dropdown-toggle-31'
     ];
     const isClickInsideDropdown = dropdownIds.some(id => {
       const dropdown = document.getElementById(id);
@@ -1008,7 +1036,22 @@ options: string[] = ['Active', 'Completed'];
       }
     }
   }
+selectProduct(productId: string, event: Event): void {
+  event.stopPropagation();
+  this.productId = productId;
+  this.isDropdownOpen1 = false;
+  this.onProductChange();
+  console.log('Selected product:', productId);
+}
 
+// selectApprovalDocument(docId: string, event: Event): void {
+//   event.stopPropagation();
+//   if (docId && !this.selectedApprovalDocuments.includes(docId)) {
+//     this.selectedApprovalDocuments.push(docId);
+//     console.log('Added approval document:', docId, 'Current selections:', this.selectedApprovalDocuments);
+//   }
+//   this.isDropdownOpen2 = false;
+// }
   openModal() {
     this.isOpen = true;
     this.loadHierarchyLevels();
@@ -1483,6 +1526,25 @@ private dataURItoBlob(dataURI: string): Blob {
       }
     });
   }
+
+  onFormSubmit(event: Event) {
+    event.preventDefault();
+  }
+
+  onInputKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.addHierarchyLevel();
+    }
+  }
+
+  goToStandardsTab() {
+    const standardsTab = document.getElementById('standards-tab');
+    if (standardsTab) {
+      (standardsTab as HTMLElement).click();
+    }
+  }
+
 
   loadHierarchyLevels() {
     let projectId = this.projectId || localStorage.getItem('projectId');

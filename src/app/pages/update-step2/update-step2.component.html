@@ -1,10 +1,9 @@
 <div style="padding: 24px; background:#EEF0F1; padding-bottom:100px; min-height:150vh ">
   <app-topbar heading="Projects and Buildings"></app-topbar>
-<div class="d-flex justify-content-between">
-  <app-navbar/>
-
+  <div class="d-flex justify-content-between">
+    <app-navbar/>
     <button type="button" class="btn " style="background-color: black; color:white; height:56px;border-radius:20px; width:200px" (click)="saveAndNext()">Save and Next</button>
-</div>
+  </div>
   <div *ngIf="!projectId">
     <p>No project ID provided in route</p>
   </div>
@@ -69,10 +68,16 @@
             </div>
             <div class="attr">
               <label>Type</label>
-              <select [(ngModel)]="attr.type" class="lib">
-                <option value="string">Free Text</option>
-                <option value="list">List of Values</option>
-              </select>
+              <div class="custom-dropdown">
+                <div class="selected-option" (click)="toggleTypeDropdown(i)">
+                  {{ attr.type === 'string' ? 'Free Text' : attr.type === 'list' ? 'List of Values' : 'Select a type' }}
+                  <span class="arrow" [ngClass]="{'open': isTypeDropdownOpen[i]}">▾</span>
+                </div>
+                <ul class="dropdown-options" [ngClass]="{'open': isTypeDropdownOpen[i]}">
+                  <li (click)="selectType(i, 'string')">Free Text</li>
+                  <li (click)="selectType(i, 'list')">List of Values</li>
+                </ul>
+              </div>
             </div>
             <div class="attr">
               <label>Attribute Value</label>
@@ -133,13 +138,12 @@
           <div class="badge-container">
             <span *ngFor="let name of getSelectedEmployeeNames(); let employeeIndex = index" class="badge">
               {{ name }}
-         <span class="badge-close" (click)="removeEmployeeByName(name)">×</span>
+              <span class="badge-close" (click)="removeEmployeeByName(name)">×</span>
             </span>
           </div>
         </div>
       </div>
     </div>
   </div>
-
 </div>
 <app-foot/>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
 import { FootComponent } from '../components/foot/foot.component';
 import { ProjectResponse, InstanceResponse, Marker, Document } from '../../core/models/presentation';
+import { HttpClient } from '@angular/common/http';
 
 interface TableRow {
   'Ref No': string;
@@ -21,6 +22,15 @@ interface TableRow {
   Comments: string;
 }
 
+interface Product {
+  _id: string;
+  name: string;
+  approvalDocuments: { _id: string; name: string; fileUrl: string; createdAt: string; __v: number }[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 @Component({
   selector: 'app-presentation',
   standalone: true,
@@ -28,9 +38,7 @@ interface TableRow {
   templateUrl: './presentation.component.html',
   styleUrls: ['./presentation.component.css']
 })
-export class PresentationComponent implements OnInit, AfterViewInit {
-  @ViewChild('editCanvas') editCanvas!: ElementRef<HTMLCanvasElement>;
-
+export class PresentationComponent implements OnInit {
   isModalOpen = localStorage.getItem('isModalOpen') === 'true';
   isReportModalOpen = localStorage.getItem('isReportModalOpen') === 'true';
   isImageModalOpen = false;
@@ -45,6 +53,7 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   instances: InstanceResponse[] = [];
   preInstallPhotos: { url: string; category: string; _id: string }[] = [];
   postInstallPhotos: { url: string; category: string; _id: string }[] = [];
+  tablePhotos: { url: string; category: string; _id: string }[] = [];
   markers: Marker[] = [];
   floorPlanImage: string = '';
   dropdown1 = { isOpen: false, selected: 'Select an option', options: ['In progress', 'Completed', 'To-do'] };
@@ -54,8 +63,6 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   selectedFields: { [key: string]: boolean } = {};
   selectedFieldValues: { [key: string]: string } = {};
   reportFields: { key: string; name: string }[] = [
-    { key: 'productName', name: 'Product Name' },
-    { key: 'approval', name: 'Approval' },
     { key: 'building', name: 'Building' },
     { key: 'level', name: 'Level' },
     { key: 'itemNumber', name: 'Item #' },
@@ -86,38 +93,36 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   isReportDropdownOpen: boolean = false;
   reports: any[] = [];
   isLoadingReports: boolean = false;
-
-  // Image Editing Properties
-  isEditing: boolean = false;
-  ctx!: CanvasRenderingContext2D;
-  drawColor: string = '#000000';
-  currentTool: string = 'line';
-  isDrawing: boolean = false;
-  startX: number = 0;
-  startY: number = 0;
-  currentX: number = 0;
-  currentY: number = 0;
+  products: Product[] = [];
+  selectedProduct: string = '';
+  approvalDocuments: { _id: string; name: string; fileUrl: string }[] = [];
+  isProductDropdownOpen: boolean = false;
+  isApprovalDropdownOpen: boolean = false;
+  selectedApprovalDocument: string = '';
+  selectedProductName: string = 'Select a product';
+  selectedApprovalDocumentName: string = 'Select a document';
+  isProductSelected: boolean = false;
+  selectApproval: boolean = false;
+  hierarchyLevels: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private presentationService: PresentationService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     window.scrollTo(0, 0);
     this.initializeSelectedFields();
+    this.fetchProducts();
     this.route.queryParams.subscribe(params => {
       this.projectId = params['projectId'] || this.route.snapshot.paramMap.get('projectId') || '';
       this.instanceId = params['instanceId'] || localStorage.getItem('instanceId') || this.instanceId;
       this.reportId = params['reportId'] || null;
       this.hierarchyLevelId = params['hierarchyLevelId'] || '';
       const from: string | undefined = params['from'];
-
-      console.log('ngOnInit - Query Params:', { projectId: this.projectId, instanceId: this
-
-.instanceId, reportId: this.reportId, hierarchyLevelId: this.hierarchyLevelId, from });
 
       if (this.instanceId) {
         localStorage.setItem('instanceId', this.instanceId);
@@ -131,6 +136,7 @@ export class PresentationComponent implements OnInit, AfterViewInit {
 
       if (this.projectId) {
         this.fetchProjectDetails(this.projectId);
+        this.fetchAttributes(this.projectId);
       }
       if (this.instanceId && this.projectId && this.hierarchyLevelId) {
         this.selectInstance(this.instanceId);
@@ -148,12 +154,76 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    if (this.editCanvas) {
-      this.ctx = this.editCanvas.nativeElement.getContext('2d')!;
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeStyle = this.drawColor;
-    }
+  fetchProducts(): void {
+    this.http.get<Product[]>('https://vps.allpassiveservices.com.au/api/product/list').subscribe({
+      next: (response) => {
+        this.products = response || [];
+        this.updateSelectedProductName();
+        this.updateSelectedApprovalDocumentName();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.products = [];
+        this.updateSelectedProductName();
+        this.updateSelectedApprovalDocumentName();
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  selectProduct(productId: string): void {
+    this.selectedProduct = productId;
+    const product = this.products.find(p => p._id === productId);
+    this.approvalDocuments = product ? product.approvalDocuments : [];
+    this.selectedApprovalDocument = this.approvalDocuments.length > 0 ? this.approvalDocuments[0].fileUrl : '';
+    this.updateSelectedProductName();
+    this.updateSelectedApprovalDocumentName();
+    this.isProductDropdownOpen = false;
+    this.isApprovalDropdownOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  toggleProductDropdown(): void {
+    this.isProductDropdownOpen = !this.isProductDropdownOpen;
+    this.isApprovalDropdownOpen = false;
+  }
+
+  toggleApprovalDropdown(): void {
+    this.isApprovalDropdownOpen = !this.isApprovalDropdownOpen;
+    this.isProductDropdownOpen = false;
+  }
+
+  selectApprovalDocument(documentUrl: string): void {
+    this.selectedApprovalDocument = documentUrl;
+    this.updateSelectedApprovalDocumentName();
+    this.isApprovalDropdownOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  updateSelectedProductName(): void {
+    this.selectedProductName = this.selectedProduct
+      ? this.products.find(p => p._id === this.selectedProduct)?.name || 'Select a product'
+      : 'Select a product';
+  }
+
+  updateSelectedApprovalDocumentName(): void {
+    this.selectedApprovalDocumentName = this.selectedApprovalDocument
+      ? this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'Select a document'
+      : 'Select a document';
+  }
+
+  fetchAttributes(projectId: string): void {
+    this.http.get<{ message: string; data: any }>(`https://vps.allpassiveservices.com.au/api/project/attributes/${projectId}`).subscribe({
+      next: (response) => {
+        const attributes = response.data.attributes || [];
+        this.initializeSelectedFields(attributes);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.initializeSelectedFields([]);
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   fetchProjectDetails(projectId: string): void {
@@ -161,13 +231,12 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       next: (data: ProjectResponse) => {
         this.project = data;
         this.instances = data.instances || [];
-        console.log('Project Details:', data);
+        this.hierarchyLevels = data.subProjects?.map(sp => sp.hierarchyName) || [];
         this.dropdown1.selected = data.status || 'Select an option';
         if (data.subProjects && data.subProjects.length > 0) {
           const queryHierarchyLevelId = this.hierarchyLevelId;
           this.selectedHierarchy = data.subProjects.find(sp => sp.hierarchyLevelId === queryHierarchyLevelId) || data.subProjects[0];
           this.hierarchyLevelId = this.selectedHierarchy.hierarchyLevelId;
-          console.log('Selected Hierarchy:', this.selectedHierarchy, 'hierarchyLevelId:', this.hierarchyLevelId);
 
           if (this.projectId && this.hierarchyLevelId) {
             this.fetchHierarchyDocuments(this.projectId, this.hierarchyLevelId);
@@ -175,11 +244,13 @@ export class PresentationComponent implements OnInit, AfterViewInit {
 
           this.fetchInstances(this.projectId, this.hierarchyLevelId);
         }
+        this.cdr.detectChanges();
       },
-      error: (err: any) => {
-        console.error('Error fetching project details:', err);
+      error: () => {
         this.project = null;
         this.instances = [];
+        this.hierarchyLevels = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -187,18 +258,14 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   fetchHierarchyDocuments(projectId: string, hierarchyLevelId: string): void {
     this.presentationService.getDocumentByHierarchy(projectId, hierarchyLevelId).subscribe({
       next: (response: { message: string; data: Document[] }) => {
-        console.log('Hierarchy Documents:', response.data);
         const documentWithImage = response.data.find(doc => doc.documentUrl && doc.documentType === '2D Plan');
         if (documentWithImage && this.selectedHierarchy) {
           this.selectedHierarchy.imageUrl = documentWithImage.documentUrl;
-          console.log('Assigned imageUrl to selectedHierarchy:', this.selectedHierarchy.imageUrl);
         } else {
-          console.warn('No valid document with imageUrl found for hierarchy:', hierarchyLevelId);
           this.selectedHierarchy.imageUrl = 'https://via.placeholder.com/600x400?text=No+Image';
         }
       },
-      error: (err: any) => {
-        console.error('Error fetching hierarchy documents:', err);
+      error: () => {
         if (this.selectedHierarchy) {
           this.selectedHierarchy.imageUrl = 'https://via.placeholder.com/600x400?text=No+Image';
         }
@@ -206,13 +273,30 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     });
   }
 
-  initializeSelectedFields(): void {
+  fetchInstances(projectId: string, hierarchyLevelId: string): void {
+    this.http.get<{ instances: InstanceResponse[] }>(`https://vps.allpassiveservices.com.au/api/project/instances/list/${hierarchyLevelId}`).subscribe({
+      next: (response) => {
+        this.instances = response.instances || [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.instances = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  initializeSelectedFields(attributes: any[] = []): void {
     this.selectedFields = {};
     this.selectedFieldValues = {};
     this.reportFields.forEach(field => {
-      this.selectedFields[field.key] = false;
-      const values = this.getAttributeDisplayValues(field.key);
-      this.selectedFieldValues[field.key] = values.length > 0 ? values[0] : 'N/A';
+      this.selectedFields[field.key] = true;
+      const attr = attributes.find(a => a.name.toLowerCase() === field.key.toLowerCase());
+      if (attr) {
+        this.selectedFieldValues[field.key] = Array.isArray(attr.value) ? attr.value[0] || 'N/A' : attr.value || 'N/A';
+      } else {
+        this.selectedFieldValues[field.key] = this.getAttributeDisplayValue(field.key);
+      }
     });
   }
 
@@ -223,23 +307,21 @@ export class PresentationComponent implements OnInit, AfterViewInit {
 
   selectInstance(instanceId: string): void {
     if (!instanceId) {
-      console.error('No instanceId provided for fetching instance details');
       this.selectedInstance = null;
       this.preInstallPhotos = [];
       this.postInstallPhotos = [];
+      this.tablePhotos = [];
       this.isLoadingInstance = false;
       this.cdr.detectChanges();
       return;
     }
     this.instanceId = instanceId;
     localStorage.setItem('instanceId', this.instanceId);
-    console.log('selectInstance - instanceId set:', this.instanceId);
     this.isLoadingInstance = true;
+
     this.presentationService.getInstanceDetails(instanceId).subscribe({
       next: (instance: InstanceResponse) => {
         this.selectedInstance = instance || null;
-        console.log('Instance Details:', this.selectedInstance);
-        console.log('Instance Attributes:', this.selectedInstance?.attributes?.map(attr => attr.name));
         if (instance?.projectId) {
           this.projectId = instance.projectId;
         }
@@ -252,69 +334,65 @@ export class PresentationComponent implements OnInit, AfterViewInit {
           this.postInstallPhotos = this.selectedInstance.photos.filter(
             photo => photo.category.toLowerCase() === 'post-installation'
           );
-          console.log('Pre-Install Photos:', this.preInstallPhotos);
-          console.log('Post-Install Photos:', this.postInstallPhotos);
         }
-        if (this.projectId as string && this.hierarchyLevelId) {
-          this.fetchMarkers(this.projectId as string, this.hierarchyLevelId, instanceId);
+
+        this.http.get<{ message: string; data: { url: string; category: string; _id: string }[] }>(
+          `https://vps.allpassiveservices.com.au/api/project-instance/photos/${instanceId}`
+        ).subscribe({
+          next: (response) => {
+            this.tablePhotos = response.data || [];
+            this.isLoadingInstance = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.tablePhotos = [];
+            this.isLoadingInstance = false;
+            this.cdr.detectChanges();
+          }
+        });
+
+        if (this.projectId && this.hierarchyLevelId) {
+          this.fetchMarkers(this.projectId, this.hierarchyLevelId, instanceId);
+          this.fetchAttributes(this.projectId);
         }
         this.isLoadingInstance = false;
         this.cdr.detectChanges();
         this.fetchReports();
-        this.initializeSelectedFields();
       },
-      error: (err: any) => {
-        console.error('Error fetching instance details:', err);
+      error: () => {
         this.selectedInstance = null;
         this.preInstallPhotos = [];
         this.postInstallPhotos = [];
+        this.tablePhotos = [];
         this.isLoadingInstance = false;
         this.cdr.detectChanges();
-      }
-    });
-  }
-
-  fetchInstances(projectId: string, hierarchyLevelId: string): void {
-    this.presentationService.getInstancesByHierarchy(hierarchyLevelId).subscribe({
-      next: (instances: InstanceResponse[]) => {
-        this.instances = instances;
-        console.log('Instances:', this.instances, 'for hierarchyLevelId:', hierarchyLevelId);
-      },
-      error: (err: any) => {
-        console.error('Error fetching instances:', err);
-        this.instances = [];
       }
     });
   }
 
   fetchMarkers(projectId: string, hierarchyLevelId: string, instanceId: string): void {
     if (!projectId || !hierarchyLevelId || !instanceId) {
-      console.error('Missing required IDs for fetching markers:', { projectId, hierarchyLevelId, instanceId });
       this.floorPlanImage = this.project?.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
       this.markers = [];
       return;
     }
-    this.presentationService.getInstanceMarkers(projectId, hierarchyLevelId, instanceId, []).subscribe({
-      next: (response: { message: string; data: Document[] }) => {
-        this.markers = response.data
-          .filter(doc => doc.markers && Array.isArray(doc.markers) && doc.markers.length > 0)
-          .flatMap(doc => doc.markers.map(marker => ({
-            ...marker,
-            position: {
-              x: parseFloat(marker.position?.x?.toString()) || 0,
-              y: parseFloat(marker.position?.y?.toString()) || 0
-            },
-            style: {
-              textSize: parseInt(marker.style?.textSize?.toString(), 10) || 14
-            }
-          })));
-        const documentWithMarkers: Document | undefined = response.data.find(doc => doc.markers && doc.markers.length > 0);
+    this.http.get<{ message: string; data: Document[] }>(`https://vps.allpassiveservices.com.au/api/project/getInstanceMarkers/${projectId}/${hierarchyLevelId}/${instanceId}`).subscribe({
+      next: (response) => {
+        const documents = response.data || [];
+        const documentWithMarkers = documents.find(doc => doc.markers && doc.markers.length > 0);
         this.floorPlanImage = documentWithMarkers?.documentUrl || this.project?.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
-        console.log('fetchMarkers - Response:', response);
-        console.log('Markers:', this.markers, 'Floor Plan Image:', this.floorPlanImage);
+        this.markers = documentWithMarkers?.markers.map(marker => ({
+          ...marker,
+          position: {
+            x: parseFloat(marker.position?.x?.toString()) || 0,
+            y: parseFloat(marker.position?.y?.toString()) || 0
+          },
+          style: {
+            textSize: parseInt(marker.style?.textSize?.toString(), 10) || 14
+          }
+        })) || [];
       },
-      error: (err: any) => {
-        console.error('Error fetching markers:', err);
+      error: () => {
         this.markers = [];
         this.floorPlanImage = this.project?.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
       }
@@ -324,15 +402,13 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   updateProjectStatus(status: string): void {
     if (this.projectId) {
       this.presentationService.updateProjectStatus(this.projectId, status).subscribe({
-        next: (response: any) => {
+        next: () => {
           this.dropdown1.selected = status;
           if (this.project) {
             this.project.status = status;
           }
         },
-        error: (err: any) => {
-          console.error('Error updating project status:', err);
-        }
+        error: () => {}
       });
     }
   }
@@ -340,11 +416,11 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   openCarparkModal(hierarchy: any, instanceId?: string): void {
     this.selectedHierarchy = hierarchy;
     this.hierarchyLevelId = hierarchy.hierarchyLevelId || '';
-    console.log('openCarparkModal - selectedHierarchy:', this.selectedHierarchy, 'hierarchyLevelId:', this.hierarchyLevelId);
     this.floorPlanImage = 'https://via.placeholder.com/600x400?text=Loading+Image';
     this.markers = [];
     this.preInstallPhotos = [];
     this.postInstallPhotos = [];
+    this.tablePhotos = [];
     this.instances = [];
 
     if (instanceId) {
@@ -370,20 +446,22 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     this.instances = [];
     this.preInstallPhotos = [];
     this.postInstallPhotos = [];
+    this.tablePhotos = [];
     this.markers = [];
     this.floorPlanImage = '';
     this.hierarchyLevelId = '';
-    console.log('closeCarparkModal - instanceId reset:', this.instanceId);
     document.body.style.overflow = 'auto';
   }
 
   openReportModal(): void {
-    console.log('openReportModal - Current instanceId:', this.instanceId, 'selectedInstance:', this.selectedInstance, 'selectedHierarchy:', this.selectedHierarchy);
     this.isReportModalOpen = true;
     localStorage.setItem('isReportModalOpen', 'true');
     document.body.style.overflow = 'hidden';
     if (this.instanceId && !this.selectedInstance) {
       this.selectInstance(this.instanceId);
+    }
+    if (this.projectId) {
+      this.fetchAttributes(this.projectId);
     }
     this.fetchReports();
   }
@@ -398,18 +476,11 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     this.selectedImage = imageUrl;
     this.isImageModalOpen = true;
     document.body.style.overflow = 'hidden';
-    this.initializeCanvas();
   }
 
   closeImageModal(): void {
     this.isImageModalOpen = false;
-    this.isEditing = false;
-    this.currentTool = 'line';
-    this.drawColor = '#000000';
     document.body.style.overflow = 'auto';
-    if (this.editCanvas && this.ctx) {
-      this.ctx.clearRect(0, 0, this.editCanvas.nativeElement.width, this.editCanvas.nativeElement.height);
-    }
   }
 
   openMarkerModal(): void {
@@ -446,6 +517,8 @@ export class PresentationComponent implements OnInit, AfterViewInit {
 
   toggleDropdown1(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
+    this.isProductDropdownOpen = false;
+    this.isApprovalDropdownOpen = false;
   }
 
   selectOption1(option: string, event: Event): void {
@@ -459,97 +532,88 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     this.reportFields.forEach(field => {
       this.selectedFields[field.key] = checked;
     });
+    this.isProductSelected = checked;
+    this.selectApproval = checked;
+    this.updateSelectAll();
+  }
+
+  toggleSelectProduct(event: Event): void {
+    this.isProductSelected = (event.target as HTMLInputElement).checked;
+    this.updateSelectAll();
+  }
+
+  toggleSelectApproval(event: Event): void {
+    this.selectApproval = (event.target as HTMLInputElement).checked;
     this.updateSelectAll();
   }
 
   updateSelectAll(): void {
     const selectAllCheckbox = document.getElementById('selectAll') as HTMLInputElement | null;
     if (selectAllCheckbox) {
-      const allChecked = this.reportFields.every(field => this.selectedFields[field.key]);
-      const someChecked = this.reportFields.some(field => this.selectedFields[field.key]);
+      const allChecked = this.reportFields.every(field => this.selectedFields[field.key]) && this.isProductSelected && this.selectApproval;
+      const someChecked = this.reportFields.some(field => this.selectedFields[field.key]) || this.isProductSelected || this.selectApproval;
       selectAllCheckbox.checked = allChecked;
       selectAllCheckbox.indeterminate = someChecked && !allChecked;
     }
   }
 
   async generateReport(): Promise<void> {
-    // Constants for layout
     const margin = 10;
     const lineHeight = 10;
-    const imageWidth = 52.92; // 200px ≈ 52.92mm
-    const imageHeight = 52.92; // 200px ≈ 52.92mm
-    const photoImageHeight = 30; // Height for photos in table
-    const baseRowHeight = 30; // Minimum row height
-    const pageWidth = 297; // A3 width (mm)
-    const pageHeight = 420; // A3 height (mm)
+    const imageWidth = 52.92;
+    const imageHeight = 52.92;
+    const photoImageHeight = 30;
+    const baseRowHeight = 30;
+    const pageWidth = 297;
+    const pageHeight = 420;
     const contentWidth = pageWidth - 2 * margin;
     const bottomMargin = 40;
     const logoWidth = 40;
     const logoHeight = 20;
     const headerHeight = 10;
     const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
-    const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42]; // Total: 277
+    const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
+    const maxHierarchyImageHeight = 141.7;
 
-    // Initialize PDF with A3 size
     const doc = new jsPDF({ format: 'a3' });
     let yOffset = margin;
     const maxContentHeight = pageHeight - margin - bottomMargin;
 
-    // Helper function to normalize URLs for API-based images
     const normalizeUrl = (url: string): string => {
       if (!url) {
-        console.warn('Image URL is empty, using placeholder');
         return 'https://via.placeholder.com/200x200?text=No+Image';
       }
-      // Extract the file path by removing the domain and normalizing uploads
       const cleanPath = url
-        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '') // Remove domain
-        .replace(/^\/*uploads\/*/i, '') // Remove leading /uploads/
-        .replace(/^\/+/, ''); // Remove any remaining leading slashes
-      const normalized = `/uploads/${cleanPath}`;
-      console.log(`Normalized URL: ${url} → ${normalized}`);
-      return normalized;
+        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
+        .replace(/^\/*uploads\/*/i, '')
+        .replace(/^\/+/, '');
+      return `/uploads/${cleanPath}`;
     };
 
-    // Helper function to load image data with CORS handling for API-based images
     const loadImage = async (url: string): Promise<string> => {
       const normalizedUrl = normalizeUrl(url);
-      console.log(`Attempting to load image: ${normalizedUrl}`);
       return new Promise((resolve) => {
         fetch(normalizedUrl, {
           method: 'GET',
-          headers: {
-            'Accept': 'image/*'
-          },
+          headers: { 'Accept': 'image/*' },
           credentials: 'same-origin'
         })
           .then(response => {
             if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}, URL: ${normalizedUrl}`);
+              throw new Error();
             }
-            console.log(`Image fetched successfully: ${normalizedUrl}`);
             return response.blob();
           })
           .then(blob => {
             const reader = new FileReader();
-            reader.onload = () => {
-              console.log(`Image converted to Data URL: ${normalizedUrl}`);
-              resolve(reader.result as string);
-            };
-            reader.onerror = () => {
-              console.error(`Failed to read blob for: ${normalizedUrl}`);
-              resolve('https://via.placeholder.com/200x200?text=Read+Error');
-            };
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => resolve('https://via.placeholder.com/200x200?text=Read+Error');
             reader.readAsDataURL(blob);
           })
-          .catch(error => {
-            console.error(`Failed to load image: ${normalizedUrl}, Error: ${error.message}`);
-            resolve('https://via.placeholder.com/200x200?text=Image+Error');
-          });
+          .catch(() => resolve('https://via.placeholder.com/200x200?text=Image+Error'));
       });
     };
 
-    // Helper function to load local image
     const loadLocalImage = async (url: string): Promise<string> => {
       return new Promise((resolve) => {
         const img = new Image();
@@ -560,18 +624,12 @@ export class PresentationComponent implements OnInit, AfterViewInit {
           canvas.height = img.height;
           const ctx = canvas.getContext('2d')!;
           ctx.drawImage(img, 0, 0);
-          const dataUrl = canvas.toDataURL('image/png');
-          console.log(`Local image loaded: ${url}`);
-          resolve(dataUrl);
+          resolve(canvas.toDataURL('image/png'));
         };
-        img.onerror = () => {
-          console.error(`Failed to load local image: ${url}`);
-          resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
-        };
+        img.onerror = () => resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
       });
     };
 
-    // Helper function to check and add new page if needed
     const checkPageBreak = (requiredHeight: number) => {
       if (yOffset + requiredHeight > maxContentHeight) {
         doc.addPage();
@@ -581,16 +639,61 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       return false;
     };
 
-    // Add Logo (Local Asset)
+    let projectDetails: ProjectResponse;
     try {
-      const logoUrl = 'images/logo.png'; // Local path
+      const details = await this.presentationService.getProjectDetails(this.projectId).toPromise();
+      if (!details) {
+        throw new Error();
+      }
+      projectDetails = details;
+    } catch {
+      projectDetails = {
+        projectId: this.projectId,
+        projectName: 'Unknown Project',
+        buildingName: 'N/A',
+        address: 'N/A',
+        client: { clientId: '', clientName: 'Unknown Client', clientPhone: '' },
+        clientName: 'Unknown Client',
+        createdAt: '',
+        buildingType: '',
+        assignedEmployees: [],
+        reports: [],
+        subProjects: [],
+        status: '',
+        imageUrl: null,
+        instances: [],
+        documents: [],
+        hierarchyLevels: []
+      };
+    }
+
+    const hierarchyImages: { hierarchyName: string; imageUrl: string }[] = [];
+    if (projectDetails.subProjects && projectDetails.subProjects.length > 0) {
+      for (const subProject of projectDetails.subProjects) {
+        try {
+          const response = await this.presentationService.getDocumentByHierarchy(this.projectId, subProject.hierarchyLevelId).toPromise();
+          const documentWithImage = response?.data.find(doc => doc.documentUrl && doc.documentType === '2D Plan');
+          const imageUrl = documentWithImage ? normalizeUrl(documentWithImage.documentUrl) : 'https://via.placeholder.com/200x200?text=No+Hierarchy+Image';
+          if (!imageUrl.includes('via.placeholder.com')) {
+            hierarchyImages.push({
+              hierarchyName: subProject.hierarchyName,
+              imageUrl: imageUrl
+            });
+          }
+        } catch {
+          // Skip if no valid image is found
+        }
+      }
+    }
+
+    try {
+      const logoUrl = 'images/logo.png';
       const logoData = await loadLocalImage(logoUrl);
       const logoX = pageWidth - margin - logoWidth;
       checkPageBreak(logoHeight + lineHeight);
       doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
       yOffset += logoHeight + lineHeight;
-    } catch (error) {
-      console.error('Error loading local logo image:', error);
+    } catch {
       checkPageBreak(lineHeight * 2);
       doc.setFontSize(10);
       doc.setTextColor(255, 0, 0);
@@ -599,59 +702,153 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       yOffset += logoHeight + lineHeight;
     }
 
-    // Add Project Name
-    checkPageBreak(lineHeight);
+    checkPageBreak(lineHeight * 2);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text(`Project Name: ${this.project?.projectName || 'Unknown Project'}`, margin, yOffset);
+    doc.text(`Project Name: ${projectDetails.projectName || 'Unknown Project'}`, margin, yOffset);
     yOffset += lineHeight;
 
-    // Add Client Name
-    checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.text(`Client Name: ${this.project?.client?.clientName || this.project?.clientName || 'Unknown Client'}`, margin, yOffset);
+    doc.text(`Client Name: ${projectDetails.client?.clientName || projectDetails.clientName || 'Unknown Client'}`, margin, yOffset);
     yOffset += lineHeight + 10;
 
-    // Add Site Photos Heading
     checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text('Site Photos', margin, yOffset);
     yOffset += lineHeight;
 
-    // Add Project Image
-    const projectImageUrl = normalizeUrl(this.project?.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
+    const projectImageUrl = normalizeUrl(projectDetails.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
     try {
       const imgData = await loadImage(projectImageUrl);
       checkPageBreak(imageHeight + lineHeight);
       doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-      yOffset += imageHeight + lineHeight;
-    } catch (error) {
-      console.error(`Error loading project image: ${projectImageUrl}`, error);
+      
+      const textX = pageWidth * 0.4;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
+      doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
+      doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
+      yOffset += Math.max(imageHeight, 40) + lineHeight;
+    } catch {
       checkPageBreak(lineHeight * 2);
       doc.setFontSize(10);
       doc.setTextColor(255, 0, 0);
       doc.text(`Failed to load image: ${projectImageUrl}`, margin, yOffset);
       doc.setTextColor(0, 0, 0);
-      yOffset += lineHeight * 2;
+
+      const textX = pageWidth * 0.4;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
+      doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
+      doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
+      yOffset += lineHeight * 4;
     }
 
-    // Prepare Table Data
+    checkPageBreak(lineHeight * 6);
+    const inspectionStartY = yOffset; // Store the starting yOffset for alignment
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Inspection Report Overview', margin, yOffset);
+    yOffset += lineHeight;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const report = projectDetails.reports && projectDetails.reports.length > 0 ? projectDetails.reports[0] : null;
+    const inspectionStats = report?.coverLetter?.inspectionOverview || { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' };
+    
+    // Total number of items (black text)
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Total number of items: ${inspectionStats.totalItems}`, margin, yOffset);
+    yOffset += lineHeight;
+
+    // Number of PASS (only "PASS" in green)
+    const passText = `Number of PASS: `;
+    const passValue = `${inspectionStats.passedItems}`;
+    doc.setTextColor(0, 0, 0);
+    doc.text(passText, margin, yOffset);
+    doc.setTextColor(92, 201, 110);
+    doc.text('PASS', margin + doc.getTextWidth(passText), yOffset);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`: ${passValue}`, margin + doc.getTextWidth(passText + 'PASS'), yOffset);
+    yOffset += lineHeight;
+
+    // Number of FAIL (only "FAIL" in red)
+    const failText = `Number of FAIL: `;
+    const failValue = `${inspectionStats.failedItems}`;
+    doc.setTextColor(0, 0, 0);
+    doc.text(failText, margin, yOffset);
+    doc.setTextColor(228, 66, 52);
+    doc.text('FAIL', margin + doc.getTextWidth(failText), yOffset);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`: ${failValue}`, margin + doc.getTextWidth(failText + 'FAIL'), yOffset);
+    yOffset += lineHeight;
+
+    // Number of TBC (only "TBC" in gray)
+    const tbcText = `Number of TBC: `;
+    const tbcValue = `${inspectionStats.tbcItems}`;
+    doc.setTextColor(0, 0, 0);
+    doc.text(tbcText, margin, yOffset);
+    doc.setTextColor(128, 128, 128);
+    doc.text('TBC', margin + doc.getTextWidth(tbcText), yOffset);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`: ${tbcValue}`, margin + doc.getTextWidth(tbcText + 'TBC'), yOffset);
+    const inspectionHeight = lineHeight * 4;
+
+    // Additional Info box aligned with Inspection Report Overview
+    const infoBoxX = pageWidth * 0.4;
+    const infoBoxWidth = contentWidth * 0.6 - margin;
+    const infoBoxHeight = 40;
+    doc.setFillColor(255, 255, 255);
+    doc.rect(infoBoxX, inspectionStartY, infoBoxWidth, infoBoxHeight, 'S');
+    const additionalInfo = report?.coverLetter?.additionalInfo || 'N/A';
+    const infoLines = doc.splitTextToSize(`Additional Info: ${additionalInfo}`, infoBoxWidth - 4);
+    doc.setTextColor(0, 0, 0);
+    doc.text(infoLines, infoBoxX + 2, inspectionStartY + 5);
+    yOffset = inspectionStartY + Math.max(inspectionHeight, infoBoxHeight);
+
+    if (hierarchyImages.length > 0) {
+      checkPageBreak(lineHeight);
+      yOffset += lineHeight;
+
+      const availableHeight = maxContentHeight - yOffset - lineHeight;
+      const dynamicImageHeight = Math.min(maxHierarchyImageHeight, availableHeight / hierarchyImages.length - lineHeight);
+
+      for (const { hierarchyName, imageUrl } of hierarchyImages.slice(0, 3)) {
+        checkPageBreak(lineHeight + dynamicImageHeight);
+        try {
+          const imgData = await loadImage(imageUrl);
+          checkPageBreak(dynamicImageHeight + lineHeight);
+          doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, dynamicImageHeight);
+          yOffset += dynamicImageHeight + lineHeight;
+        } catch {
+          checkPageBreak(lineHeight);
+          doc.setFontSize(10);
+          doc.setTextColor(255, 0, 0);
+          doc.text(`Failed to load image: ${imageUrl}`, margin, yOffset);
+          doc.setTextColor(0, 0, 0);
+          yOffset += lineHeight;
+        }
+      }
+    }
+
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.instances?.length > 0) {
       for (const instance of this.instances) {
         const row: TableRow = {
-          'Ref No': index.toString(),
-          Location: instance.hierarchyName || this.project?.hierarchyLevels?.[0]?.name || 'N/A',
-          Plan: 'N/A',
-          Type: instance.subProjectCategory || this.project?.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-          Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || 'N/A',
-          FRL: instance.attributes?.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
-          Result: instance.attributes?.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
-          Photos: (instance.photos || []).map(p => normalizeUrl(p.url)),
-          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A'
+          'Ref No': (instance.instanceNumber || index).toString(),
+          Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
+          Plan: this.floorPlanImage || 'N/A',
+          Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+          Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
+          FRL: this.selectedFieldValues['frl'] || 'N/A',
+          Result: this.selectedFieldValues['compliance'] || 'N/A',
+          Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
+          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments')
         };
         tableData.push(row);
         index++;
@@ -659,24 +856,22 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     } else {
       tableData.push({
         'Ref No': '1',
-        Location: this.project?.hierarchyLevels?.[0]?.name || 'N/A',
-        Plan: 'N/A',
-        Type: this.project?.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+        Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
+        Plan: this.floorPlanImage || 'N/A',
+        Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
         Substrate: this.getAttributeDisplayValue('Materils'),
-        FRL: this.getAttributeDisplayValue('FRL'),
-        Result: this.getAttributeDisplayValue('Compliance'),
-        Photos: [],
+        FRL: this.selectedFieldValues['frl'] || 'N/A',
+        Result: this.selectedFieldValues['compliance'] || 'N/A',
+        Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
         Comments: this.getAttributeDisplayValue('Comments')
       });
     }
 
-    // Add Attributes Table
-    checkPageBreak(lineHeight * 3 + headerHeight);
+    checkPageBreak(lineHeight * 3 + headerHeight + (tableData.length * baseRowHeight));
     yOffset += lineHeight * 3;
     const tableX = margin;
     const tableStartY = yOffset;
 
-    // Draw table headers
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     let xOffset = tableX;
@@ -694,7 +889,6 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     doc.setTextColor(0, 0, 0);
     yOffset += headerHeight;
 
-    // Draw table rows
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     let tableEndY = yOffset;
@@ -710,14 +904,13 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       xOffset = tableX;
       for (const header of headers) {
         const colIndex = headers.indexOf(header);
-        if (header === 'Plan' && this.project?.documents?.[0]?.documentUrl) {
+        if (header === 'Plan') {
           try {
-            const imgData = await loadImage(normalizeUrl(this.project.documents[0].documentUrl));
+            const imgData = await loadImage(row['Plan']);
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
             doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-          } catch (error) {
-            console.error('Error loading plan image:', error);
+          } catch {
             doc.setTextColor(255, 0, 0);
             doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
             doc.setTextColor(0, 0, 0);
@@ -729,8 +922,7 @@ export class PresentationComponent implements OnInit, AfterViewInit {
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
             doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-          } catch (error) {
-            console.error('Error loading photo:', error);
+          } catch {
             doc.setTextColor(255, 0, 0);
             doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
             doc.setTextColor(0, 0, 0);
@@ -757,8 +949,9 @@ export class PresentationComponent implements OnInit, AfterViewInit {
           const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
           doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
         } else if (header !== 'Photos') {
-          const cellText = row[header as keyof TableRow] || 'N/A';
-          const cellLines = doc.splitTextToSize(cellText as string, columnWidths[colIndex] - 4);
+          const cellValue = row[header as keyof TableRow];
+          const cellText = typeof cellValue === 'string' ? cellValue : Array.isArray(cellValue) ? (cellValue.length > 0 ? 'Photo Available' : 'N/A') : 'N/A';
+          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
           const textHeight = cellLines.length * 6;
           const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
           doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
@@ -772,12 +965,24 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       tableEndY = yOffset;
     }
 
-    // Draw outer table border
     doc.setLineWidth(0.5);
     doc.setDrawColor(0, 0, 0);
     doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-    // Include selected fields below the table (if any)
+    if (this.selectApproval && this.selectedApprovalDocument) {
+      checkPageBreak(lineHeight * 2);
+      yOffset += lineHeight;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Selected Approval Document:', margin, yOffset);
+      yOffset += lineHeight;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
+      doc.text(`Document: ${docName}`, margin, yOffset);
+      yOffset += lineHeight;
+    }
+
     const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
     const includeFloorPlans = (document.getElementById('includeFloorPlans') as HTMLInputElement)?.checked;
     const includeAdditionalDocs = (document.getElementById('includeAdditionalDocs') as HTMLInputElement)?.checked;
@@ -806,15 +1011,12 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // Save the PDF
     doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
 
-    // Generate Excel Report if selected
     if (this.selectedOption === 'Excel Reports') {
       const reportData: { [key: string]: string } = {};
       this.reportFields.forEach(field => {
-        const values = this.getAttributeDisplayValues(field.key);
-        reportData[field.key] = values.length > 1 ? this.selectedFieldValues[field.key] : this.getAttributeDisplayValue(field.key);
+        reportData[field.key] = this.selectedFieldValues[field.key] || 'N/A';
       });
 
       const data: any[] = [];
@@ -826,6 +1028,22 @@ export class PresentationComponent implements OnInit, AfterViewInit {
             data.push({ Field: field.name, Value: displayValue });
           }
         }
+      });
+
+      data.push({ Field: 'Address', Value: projectDetails.address || 'N/A' });
+      data.push({ Field: 'Building Name', Value: projectDetails.buildingName || 'N/A' });
+      data.push({ Field: 'Hierarchy Name', Value: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A' });
+      if (this.isProductSelected && this.selectedProduct) {
+        const productName = this.products.find(p => p._id === this.selectedProduct)?.name || 'N/A';
+        data.push({ Field: 'Product Name', Value: productName });
+      }
+      if (this.selectApproval && this.selectedApprovalDocument) {
+        const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
+        data.push({ Field: 'Approval', Value: docName });
+      }
+
+      hierarchyImages.forEach((img, index) => {
+        data.push({ Field: `Hierarchy Image ${index + 1} (${img.hierarchyName})`, Value: img.imageUrl });
       });
 
       if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
@@ -847,54 +1065,15 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   }
 
   getAttributeDisplayValue(key: string): string {
-    const reportData: { [key: string]: string | string[] } = {
-      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.selectedValue || 'N/A',
-      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.selectedValue || 'N/A',
-      building: this.project?.buildingName || '21',
-      level: this.selectedInstance?.hierarchyName || 'N/A',
-      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Sticker Number')?.selectedValue || 'N/A',
-      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test ID')?.selectedValue || 'N/A',
-      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.selectedValue || 'N/A',
-      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
-      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.selectedValue || 'N/A',
-      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.selectedValue || 'N/A',
-      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.selectedValue || 'N/A',
-      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.selectedValue || 'N/A',
-      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.selectedValue || 'N/A',
-      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Reference to Building Code')?.selectedValue || 'N/A',
-      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
-      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A',
-      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.selectedValue || 'N/A',
-      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.selectedValue || 'N/A',
-      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.selectedValue || 'N/A'
-    };
-    const value = reportData[key];
+    const value = this.selectedFieldValues[key] || 'N/A';
     return Array.isArray(value) ? (value[0] || 'N/A') : (value || 'N/A');
   }
 
   getAttributeDisplayValues(key: string): string[] {
-    const reportData: { [key: string]: string | string[] } = {
-      productName: this.selectedInstance?.attributes.find(attr => attr.name === 'Product Name')?.selectedValue || 'N/A',
-      approval: this.selectedInstance?.attributes.find(attr => attr.name === 'Approval')?.selectedValue || 'N/A',
-      building: this.project?.buildingName || '21',
-      level: this.selectedInstance?.hierarchyName || 'N/A',
-      itemNumber: this.selectedInstance?.attributes.find(attr => attr.name === 'Sticker Number')?.selectedValue || 'N/A',
-      testReference: this.selectedInstance?.attributes.find(attr => attr.name === 'Test ID')?.selectedValue || 'N/A',
-      location: this.selectedInstance?.attributes.find(attr => attr.name === 'Location')?.selectedValue || 'N/A',
-      frl: this.selectedInstance?.attributes.find(attr => attr.name === 'FRL')?.selectedValue || 'N/A',
-      barrier: this.selectedInstance?.attributes.find(attr => attr.name === 'Barrier')?.selectedValue || 'N/A',
-      description: this.selectedInstance?.attributes.find(attr => attr.name === 'Description')?.selectedValue || 'N/A',
-      installer: this.selectedInstance?.attributes.find(attr => attr.name === 'Installer')?.selectedValue || 'N/A',
-      inspector: this.selectedInstance?.attributes.find(attr => attr.name === 'Inspector')?.selectedValue || 'N/A',
-      safetyMeasures: this.selectedInstance?.attributes.find(attr => attr.name === 'Safety Measures')?.selectedValue || 'N/A',
-      relevanceToBuildingCode: this.selectedInstance?.attributes.find(attr => attr.name === 'Reference to Building Code')?.selectedValue || 'N/A',
-      compliance: this.selectedInstance?.attributes.find(attr => attr.name === 'Compliance')?.selectedValue || 'N/A',
-      comments: this.selectedInstance?.attributes.find(attr => attr.name === 'Comments')?.selectedValue || 'N/A',
-      notes: this.selectedInstance?.attributes.find(attr => attr.name === 'Notes')?.selectedValue || 'N/A',
-      time: this.selectedInstance?.attributes.find(attr => attr.name === 'Time')?.selectedValue || 'N/A',
-      priceExcludingGST: this.selectedInstance?.attributes.find(attr => attr.name === 'Price Excluding GST')?.selectedValue || 'N/A'
-    };
-    const value = reportData[key];
+    if (key === 'level') {
+      return this.hierarchyLevels.length > 0 ? this.hierarchyLevels : ['N/A'];
+    }
+    const value = this.selectedFieldValues[key] || 'N/A';
     if (Array.isArray(value) && value.length > 0) {
       return value.filter((v: string) => v !== '');
     }
@@ -907,23 +1086,22 @@ export class PresentationComponent implements OnInit, AfterViewInit {
       this.presentationService.getReportsByInstance(this.projectId, this.instanceId).subscribe({
         next: (response: any) => {
           this.reports = response.data || [];
-          console.log('Fetched Reports:', this.reports);
           this.isLoadingReports = false;
         },
-        error: (err: any) => {
-          console.error('Error fetching reports:', err);
+        error: () => {
           this.reports = [];
           this.isLoadingReports = false;
         }
       });
     } else {
-      console.warn('projectId or instanceId is missing, cannot fetch reports');
       this.reports = [];
     }
   }
 
   toggleReportDropdown(): void {
     this.isReportDropdownOpen = !this.isReportDropdownOpen;
+    this.isProductDropdownOpen = false;
+    this.isApprovalDropdownOpen = false;
   }
 
   getReportCount(projectId: string): number {
@@ -941,131 +1119,5 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }
-
-  toggleEditMode(): void {
-    this.isEditing = !this.isEditing;
-    if (this.isEditing) {
-      this.initializeCanvas();
-      this.redrawImage();
-    } else {
-      if (this.editCanvas && this.ctx) {
-        this.ctx.clearRect(0, 0, this.editCanvas.nativeElement.width, this.editCanvas.nativeElement.height);
-        this.redrawImage();
-      }
-    }
-  }
-
-  initializeCanvas(): void {
-    if (this.editCanvas && this.ctx) {
-      const canvas = this.editCanvas.nativeElement;
-      canvas.width = 520;
-      canvas.height = 480;
-      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeStyle = this.drawColor;
-      canvas.addEventListener('mousedown', this.startDrawing.bind(this));
-      canvas.addEventListener('mousemove', this.draw.bind(this));
-      canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
-      canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
-    }
-  }
-
-  redrawImage(): void {
-    if (this.editCanvas && this.ctx) {
-      const canvas = this.editCanvas.nativeElement;
-      const img = new Image();
-      img.src = this.selectedImage;
-      img.onload = () => {
-        this.ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
-    }
-  }
-
-  setTool(tool: string): void {
-    this.currentTool = tool;
-  }
-
-  updateDrawColor(): void {
-    if (this.ctx) {
-      this.ctx.strokeStyle = this.drawColor;
-    }
-  }
-
-  startDrawing(event: MouseEvent): void {
-    if (this.isEditing && this.ctx) {
-      this.isDrawing = true;
-      const canvas = this.editCanvas.nativeElement;
-      const rect = canvas.getBoundingClientRect();
-      this.startX = event.clientX - rect.left;
-      this.startY = event.clientY - rect.top;
-      this.ctx.beginPath();
-      this.redrawImage();
-    }
-  }
-
-  draw(event: MouseEvent): void {
-    if (this.isEditing && this.isDrawing && this.ctx) {
-      const canvas = this.editCanvas.nativeElement;
-      const rect = canvas.getBoundingClientRect();
-      this.currentX = event.clientX - rect.left;
-      this.currentY = event.clientY - rect.top;
-
-      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-      this.redrawImage();
-
-      if (this.currentTool === 'line') {
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.startX, this.startY);
-        this.ctx.lineTo(this.currentX, this.currentY);
-        this.ctx.stroke();
-      } else if (this.currentTool === 'circle') {
-        const radius = Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2));
-        this.ctx.beginPath();
-        this.ctx.arc(this.startX, this.startY, radius, 0, Math.PI * 2);
-        this.ctx.stroke();
-      }
-    }
-  }
-
-  stopDrawing(event: MouseEvent): void {
-    if (this.isEditing && this.isDrawing && this.ctx) {
-      this.isDrawing = false;
-      const canvas = this.editCanvas.nativeElement;
-      const rect = canvas.getBoundingClientRect();
-      this.currentX = event.clientX - rect.left;
-      this.currentY = event.clientY - rect.top;
-
-      if (this.currentTool === 'line') {
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.startX, this.startY);
-        this.ctx.lineTo(this.currentX, this.currentY);
-        this.ctx.stroke();
-      } else if (this.currentTool === 'circle') {
-        const radius = Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2));
-        this.ctx.beginPath();
-        this.ctx.arc(this.startX, this.startY, radius, 0, Math.PI * 2);
-        this.ctx.stroke();
-      }
-    }
-  }
-
-  saveEditedImage(): void {
-    if (this.editCanvas && this.ctx) {
-      const canvas = this.editCanvas.nativeElement;
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = `edited_image_${Date.now()}.png`;
-      link.click();
-    }
-    this.toggleEditMode();
-  }
-// 123
-  cancelEditMode(): void {
-    this.isEditing = false;
-    if (this.editCanvas && this.ctx) {
-      this.ctx.clearRect(0, 0, this.editCanvas.nativeElement.width, this.editCanvas.nativeElement.height);
-      this.redrawImage();
-    }
   }
 }

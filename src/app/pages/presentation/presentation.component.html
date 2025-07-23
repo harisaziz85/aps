@@ -202,7 +202,7 @@
   </div>
 
   <!-- Report Modal -->
-<div class="modal-overlay" *ngIf="isReportModalOpen">
+ <div class="modal-overlay" *ngIf="isReportModalOpen">
   <div class="modal-content4 modal-content">
     <div class="modal-header d-flex justify-content-between">
       <p class="head1 onestbold">Report</p>
@@ -213,13 +213,7 @@
       <div class="card card1" style="margin-bottom: 16px;">
         <label for="" class="robotoregular tst1">Report Type</label>
         <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
-          <span class="icon">
-            <app-svg-icons icon="rep" size="16"></app-svg-icons>
-          </span>
           <input type="text" [value]="selectedOption" readonly />
-          <span class="arrow">
-            <app-svg-icons icon="down" size="16"></app-svg-icons>
-          </span>
           <div class="dropdown-menu" *ngIf="isDropdownOpen">
             <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
           </div>
@@ -233,19 +227,60 @@
         <p class="robotoregular txt2 mb-0">Select All</p>
       </div>
 
+      <!-- Product Name Checkbox and Dropdown -->
+      <div class="col-6 d-flex align-items-center gap-2"
+           style="padding-left:16px; margin-bottom:8px">
+        
+      </div>
+      <div class="card card1" style="margin-bottom: 16px;">
+        <label for="productNameDropdown" class="robotoregular tst1">Product Name</label>
+        <div class="d-flex align-items-end">
+        <input type="checkbox" class="check1 mb-3 me-2" id="selectProduct" [(ngModel)]="selectProduct" (change)="toggleSelectProduct($event)">
+        <div class="custom-dropdown w-100 p-2" (click)="toggleProductDropdown()">
+          <input type="text" [value]="selectedProductName" readonly />
+          <div class="dropdown-menu" *ngIf="isProductDropdownOpen">
+            <div *ngFor="let product of products" (click)="selectProduct(product._id)">{{ product.name }}</div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- Approval Checkbox and Dropdown -->
+      <div class="col-6 d-flex align-items-center gap-2"
+           style="padding-left:16px; margin-bottom:8px" *ngIf="approvalDocuments.length > 0">
+     
+      </div>
+      <div class="card card1" style="margin-bottom: 16px;" *ngIf="approvalDocuments.length > 0">
+        <label for="approvalDropdown" class="robotoregular tst1">Approval</label>
+<div class="d-flex align-items-end">
+           <input type="checkbox" class="check1 me-2 mb-3" id="selectApproval" [(ngModel)]="selectApproval" (change)="toggleSelectApproval($event)">
+        <div class="custom-dropdown w-100 p-2" (click)="toggleApprovalDropdown()">
+          <input type="text" [value]="selectedApprovalDocumentName" readonly />
+          <div class="dropdown-menu" *ngIf="isApprovalDropdownOpen">
+            <div *ngFor="let doc of approvalDocuments" (click)="selectApprovalDocument(doc.fileUrl)">{{ doc.name }}</div>
+          </div></div>
+        </div>
+      </div>
+
       <!-- Report Fields Section -->
       <div *ngFor="let field of reportFields" class="card1 card cd1" style="margin-bottom: 8px;">
         <input type="checkbox" class="check1 mt-4" [(ngModel)]="selectedFields[field.key]" (change)="updateSelectAll()">
         <div class="form-group w-100">
           <label [for]="field.key" class="robotoregular" style="font-size: 14px;">{{ field.name }}</label>
-          <ng-container *ngIf="getAttributeDisplayValues(field.key).length > 1; else singleValue">
+          <ng-container *ngIf="field.key === 'level' && hierarchyLevels.length > 1; else defaultField">
             <select class="form-control sle1" [id]="field.key" [(ngModel)]="selectedFieldValues[field.key]">
-              <option *ngFor="let value of getAttributeDisplayValues(field.key)" [value]="value">{{ value }}</option>
+              <option *ngFor="let level of hierarchyLevels" [value]="level">{{ level }}</option>
             </select>
           </ng-container>
-          <ng-template #singleValue>
-            <input type="text" class="form-control sle1" [id]="field.key"
-                   [value]="getAttributeDisplayValue(field.key)" readonly>
+          <ng-template #defaultField>
+            <ng-container *ngIf="getAttributeDisplayValues(field.key).length > 1; else singleValue">
+              <select class="form-control sle1" [id]="field.key" [(ngModel)]="selectedFieldValues[field.key]">
+                <option *ngFor="let value of getAttributeDisplayValues(field.key)" [value]="value">{{ value }}</option>
+              </select>
+            </ng-container>
+            <ng-template #singleValue>
+              <input type="text" class="form-control sle1" [id]="field.key"
+                     [value]="getAttributeDisplayValue(field.key)" readonly>
+            </ng-template>
           </ng-template>
         </div>
       </div>
@@ -309,19 +344,10 @@
     <div class="modal-content3">
       <div class="modal-header3 text-end">
         <button class="close-btn3" (click)="closeImageModal()">×</button>
-        <button *ngIf="!isEditing" class="btn-edit" (click)="toggleEditMode()">Edit</button>
-        <button *ngIf="isEditing" class="btn-save" (click)="saveEditedImage()">Save</button>
-        <button *ngIf="isEditing" class="btn-cancel" (click)="cancelEditMode()">Cancel</button>
       </div>
       <div class="modal-body3">
         <div class="image-container">
           <img [src]="selectedImage" alt="Selected Image" class="modal-img3" />
-          <canvas #editCanvas class="edit-canvas"></canvas>
-        </div>
-        <div *ngIf="isEditing" class="edit-controls">
-          <button class="edit-tool" (click)="setTool('line')">Line</button>
-          <button class="edit-tool" (click)="setTool('circle')">Circle</button>
-          <input type="color" [(ngModel)]="drawColor" (change)="updateDrawColor()" />
         </div>
       </div>
     </div>

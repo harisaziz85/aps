@@ -180,6 +180,7 @@ export class UpdateStep2Component implements OnInit {
   isProductDropdownOpen: boolean = false;
   isApprovalDropdownOpen: boolean = false;
   isEmployeeDropdownOpen: boolean = false;
+  isTypeDropdownOpen: boolean[] = [];
   attributes: Attribute[] = [];
   newAttributeValues: string[] = [];
 
@@ -270,7 +271,6 @@ export class UpdateStep2Component implements OnInit {
   private updateApiUrl = 'https://vps.allpassiveservices.com.au/api/updateProject/standard-attribute/';
   private productApiUrl = 'https://vps.allpassiveservices.com.au/api/product/list';
   private employeeApiUrl = 'https://vps.allpassiveservices.com.au/api/employees';
-emp: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -333,6 +333,7 @@ emp: any;
       this.selectedEmployeeIds = standardAttribute.assignedEmployees || [];
       this.attributes = this.initializeAttributes(standardAttribute);
       this.newAttributeValues = new Array(this.attributes.length).fill('');
+      this.isTypeDropdownOpen = new Array(this.attributes.length).fill(false);
     } else {
       this.selectedTemplate = '';
       this.selectedProductId = '';
@@ -340,6 +341,7 @@ emp: any;
       this.selectedEmployeeIds = [];
       this.attributes = [];
       this.newAttributeValues = [];
+      this.isTypeDropdownOpen = [];
     }
   }
 
@@ -430,6 +432,22 @@ emp: any;
     this.isApprovalDropdownOpen = false;
   }
 
+  toggleTypeDropdown(index: number) {
+    this.isTypeDropdownOpen = this.isTypeDropdownOpen.map((state, i) => i === index ? !state : false);
+    this.isTemplateDropdownOpen = false;
+    this.isProductDropdownOpen = false;
+    this.isApprovalDropdownOpen = false;
+    this.isEmployeeDropdownOpen = false;
+  }
+
+  selectType(index: number, type: string) {
+    if (this.attributes[index]) {
+      this.attributes[index].type = type;
+      this.isTypeDropdownOpen[index] = false;
+      this.attributes = [...this.attributes];
+    }
+  }
+
   selectTemplate(template: string) {
     this.selectedTemplate = template;
     this.isTemplateDropdownOpen = false;
@@ -447,6 +465,7 @@ emp: any;
       selectedApprovalDocuments: attr.selectedApprovalDocuments || []
     })) || [];
     this.newAttributeValues = new Array(this.attributes.length).fill('');
+    this.isTypeDropdownOpen = new Array(this.attributes.length).fill(false);
   }
 
   selectProduct(productId: string) {
@@ -502,12 +521,14 @@ emp: any;
       .filter(emp => this.selectedEmployeeIds.includes(emp._id))
       .map(emp => emp.name);
   }
-removeEmployeeByName(name: string) {
-  const employee = this.employees.find(emp => emp.name === name);
-  if (employee) {
-    this.toggleEmployee(employee._id);
+
+  removeEmployeeByName(name: string) {
+    const employee = this.employees.find(emp => emp.name === name);
+    if (employee) {
+      this.toggleEmployee(employee._id);
+    }
   }
-}
+
   isEmployeeSelected(employeeId: string): boolean {
     return this.selectedEmployeeIds.includes(employeeId);
   }
@@ -524,7 +545,9 @@ removeEmployeeByName(name: string) {
     if (this.attributes[index].name !== 'FD No.' || index !== 0) {
       this.attributes.splice(index, 1);
       this.newAttributeValues.splice(index, 1);
+      this.isTypeDropdownOpen.splice(index, 1);
       this.newAttributeValues = [...this.newAttributeValues];
+      this.isTypeDropdownOpen = [...this.isTypeDropdownOpen];
     }
   }
 
