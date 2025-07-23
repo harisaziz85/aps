@@ -41,6 +41,7 @@ export class ProjectbuildingComponent implements OnInit {
   showNoteModal: boolean = false; // For note modal visibility
   selectedNote: string | null = null; // To store the selected note
   selectedProject: any = null; // To store the selected project for the note
+  statusOptions: string[] = ['Active', 'Waiting For Approval', 'Completed']; // Updated status options
 
   constructor(
     private projectService: ProjectService,
@@ -150,6 +151,7 @@ export class ProjectbuildingComponent implements OnInit {
     const normalized = status.trim().toLowerCase().replace(/\s+/g, ' ');
     if (['active', 'in progress', 'inprogress', 'to do', 'todo', 'to-do'].includes(normalized)) return 'Active';
     if (['completed', 'complete'].includes(normalized)) return 'Completed';
+    if (['waiting for approval', 'pending approval', 'pending'].includes(normalized)) return 'Waiting For Approval';
     return 'Active';
   }
 
@@ -159,10 +161,9 @@ export class ProjectbuildingComponent implements OnInit {
       console.error('Invalid project ID');
       return;
     }
-    const apiStatus = newStatus === 'Active' ? 'Active' : 'Completed';
-    this.projectService.updateProjectStatus(project.id, apiStatus).subscribe({
+    this.projectService.updateProjectStatus(project.id, newStatus).subscribe({
       next: () => {
-        project.status = this.normalizeStatus(apiStatus);
+        project.status = this.normalizeStatus(newStatus);
         this.applySearch();
         this.closeAllDropdowns();
         setTimeout(() => this.cdr.detectChanges(), 0); // Force UI refresh

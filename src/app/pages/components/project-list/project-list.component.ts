@@ -15,7 +15,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./project-list.component.css']
 })
 export class ProjectListComponent implements OnInit {
-  statusOptions: string[] = ['Active', 'Completed'];
+  // Updated statusOptions to include "Waiting For Approval"
+  statusOptions: string[] = ['Active', 'Waiting For Approval', 'Completed'];
   projects: ProjectDisplay[] = [];
   filteredProjects: ProjectDisplay[] = [];
   searchQuery: string = '';
@@ -143,6 +144,8 @@ export class ProjectListComponent implements OnInit {
     switch (status) {
       case 'Active':
         return 'select-active';
+      case 'Waiting For Approval':
+        return 'select-waiting';
       case 'Completed':
         return 'select-completed';
       default:

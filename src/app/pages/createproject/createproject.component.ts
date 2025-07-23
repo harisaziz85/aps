@@ -163,8 +163,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   isLoadingAttributes: boolean = false;
 
   predefinedTemplates: { [key: string]: Attribute[] } = {
-     'Scoping': [
-      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+    'Scoping': [
+      { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead', 'Ceiling', 'Floor', 'Wall', 'Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -177,10 +177,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Additional Requirnments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
     ],
-     'Annual Inspection': [
-
-      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+    'Annual Inspection': [
+      { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },{ name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Location', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -194,9 +192,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
     ],
-   'Fire Dampers': [
-      { name: 'FD No.', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Location', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+    'Fire Dampers': [
+      { name: 'FD No.', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] }, { name: 'Location', type: 'list', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Year Inspected', type: 'list', barrierInput: '', barrierValues: ['2025','2026','2027','2028','2029'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Inspection Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Damper Accessible', type: 'string', barrierInput: '', barrierValues: ['Yes','No'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -215,8 +212,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
 
     ],
     'Installation/Penetration Register': [
-      { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-      { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
+      { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },{ name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Materils', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Barrier', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -227,7 +223,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       { name: 'Comments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Date', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
     ],
-     'Third Party Certification': [
+    'Third Party Certification': [
       { name: 'Test ID', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Sticker Number', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes','1 PVC Pipes','3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -245,6 +241,13 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
     ]
   };
+
+  isDropdownOpenMainType: boolean = false;
+  isDropdownOpenMainProduct: boolean = false;
+  isDropdownOpenMainApproval: boolean = false;
+  isDropdownOpenAttrType: boolean[] = [];
+  isDropdownOpenAttrProduct: boolean[] = [];
+  isDropdownOpenAttrApproval: boolean[] = [];
 
   toggleSubProjectDropdown(event: Event): void {
     event.stopPropagation();
@@ -290,9 +293,14 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     return doc ? doc.name : 'Unknown Document';
   }
 
+  getProductName(productId: string): string {
+    const product = this.products.find(p => p.id === productId);
+    return product ? product.name : 'Select a product';
+  }
+
   isDropdownOpen = false;
   selectedOption: string = 'Active';
-options: string[] = ['Active', 'Completed'];
+  options: string[] = ['Active', 'Completed'];
 
   isDropdownOpen1: boolean = false;
   isDropdownOpen2: boolean = false;
@@ -302,6 +310,8 @@ options: string[] = ['Active', 'Completed'];
   isDropdownOpen6: boolean = false;
   isDropdownOpen7: boolean = false;
   isDropdownOpenli: boolean = false;
+  isDropdownOpen30: boolean = false;
+  isDropdownOpen31: boolean = false;
 
   selectedOption4: string = 'Standard Reports';
   selectedOption6: string = '';
@@ -359,7 +369,6 @@ options: string[] = ['Active', 'Completed'];
 
   ngOnInit(): void {
     this.filteredEmployees = [...this.employees];
-
     this.twoDFiles = [];
     this.technicalFiles = [];
     this.additionalFiles = [];
@@ -385,6 +394,7 @@ options: string[] = ['Active', 'Completed'];
       this.clientPhone = formData.clientPhone || '';
       this.subProjects = formData.subProjects ? JSON.parse(formData.subProjects) : [];
       this.addedTags = this.subProjects;
+      this.selectedApprovalDocuments = formData.selectedApprovalDocuments ? JSON.parse(formData.selectedApprovalDocuments) : [];
       console.log('Restored form data from localStorage:', formData);
     }
 
@@ -476,6 +486,13 @@ options: string[] = ['Active', 'Completed'];
         this.fetchStandardAttributes();
       }
     });
+
+    // Initialize dropdown states for additional attributes
+    this.additionalAttributes.forEach(() => {
+      this.isDropdownOpenAttrType.push(false);
+      this.isDropdownOpenAttrProduct.push(false);
+      this.isDropdownOpenAttrApproval.push(false);
+    });
   }
 
   ngAfterViewInit() {
@@ -533,7 +550,6 @@ options: string[] = ['Active', 'Completed'];
           console.error('Failed to fetch project reports:', error);
           this.reports = [];
         }
-        
       }
     });
   }
@@ -683,16 +699,14 @@ options: string[] = ['Active', 'Completed'];
     console.log('Toggling dropdown6, new state:', this.isDropdownOpen6);
   }
 
-
   toggleDropdown7(event?: Event) {
     if (event) {
       event.stopPropagation();
     }
     this.isDropdownOpen7 = !this.isDropdownOpen7;
+    this.closeOtherDropdowns('dropdown-toggle-7');
     console.log('Toggling dropdown7, new state:', this.isDropdownOpen7);
   }
-
-  
 
   toggleDropdown12(event?: Event) {
     if (event) {
@@ -702,44 +716,68 @@ options: string[] = ['Active', 'Completed'];
     this.closeOtherDropdowns('dropdown-toggle-8');
     console.log('Toggling dropdown8, new state:', this.dropdown8.isOpen);
   }
-toggleDropdown30(event: Event): void {
+
+  toggleDropdown30(event: Event): void {
     event.stopPropagation();
-    this.isDropdownOpen1 = !this.isDropdownOpen1;
+    this.isDropdownOpen30 = !this.isDropdownOpen30;
     this.closeOtherDropdowns('dropdown-toggle-30');
+    console.log('Toggling dropdown30, new state:', this.isDropdownOpen30);
   }
 
   toggleDropdown31(event: Event): void {
     event.stopPropagation();
-    this.isDropdownOpen2 = !this.isDropdownOpen2;
+    this.isDropdownOpen31 = !this.isDropdownOpen31;
     this.closeOtherDropdowns('dropdown-toggle-31');
+    console.log('Toggling dropdown31, new state:', this.isDropdownOpen31);
   }
-  getProductName(productId: string): string {
-    const product = this.products.find(p => p.id === productId);
-    return product ? product.name : 'Select a product';
-  }
-  selectApprovalDocument(docId: string, event: Event): void {
-    event.stopPropagation();
-    if (docId && !this.selectedApprovalDocuments.includes(docId)) {
-      this.selectedApprovalDocuments.push(docId);
-      console.log('Added approval document:', docId, 'Current selections:', this.selectedApprovalDocuments);
-    }
-    this.isDropdownOpen2 = false;
-    this.saveFormData(); // Save form data after selection
-  }
+
   toggleDropdownli(event?: Event) {
     if (event) {
       event.stopPropagation();
     }
     this.isDropdownOpenli = !this.isDropdownOpenli;
-    if (this.isDropdownOpenli) {
-      this.closeOtherDropdowns('dropdown-toggle-li');
-    }
+    this.closeOtherDropdowns('dropdown-toggle-li');
     console.log('Toggling dropdownli, new state:', this.isDropdownOpenli);
+  }
+
+  toggleDropdownMainType(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpenMainType = !this.isDropdownOpenMainType;
+    this.closeOtherDropdowns('dropdown-toggle-main-type');
+  }
+
+  toggleDropdownMainProduct(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpenMainProduct = !this.isDropdownOpenMainProduct;
+    this.closeOtherDropdowns('dropdown-toggle-main-product');
+  }
+
+  toggleDropdownMainApproval(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpenMainApproval = !this.isDropdownOpenMainApproval;
+    this.closeOtherDropdowns('dropdown-toggle-main-approval');
+  }
+
+  toggleDropdownAttrType(index: number, event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpenAttrType[index] = !this.isDropdownOpenAttrType[index];
+    this.closeOtherDropdowns(`dropdown-toggle-attr-type-${index}`);
+  }
+
+  toggleDropdownAttrProduct(index: number, event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpenAttrProduct[index] = !this.isDropdownOpenAttrProduct[index];
+    this.closeOtherDropdowns(`dropdown-toggle-attr-product-${index}`);
+  }
+
+  toggleDropdownAttrApproval(index: number, event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpenAttrApproval[index] = !this.isDropdownOpenAttrApproval[index];
+    this.closeOtherDropdowns(`dropdown-toggle-attr-approval-${index}`);
   }
 
   closeOtherDropdowns(currentDropdownId: string) {
     const dropdowns = [
-      
       { id: 'dropdown-toggle-status', prop: 'isDropdownOpen' },
       { id: 'dropdown-toggle-1', prop: 'isDropdownOpen1' },
       { id: 'dropdown-toggle-2', prop: 'isDropdownOpen2' },
@@ -750,13 +788,27 @@ toggleDropdown30(event: Event): void {
       { id: 'dropdown-toggle-7', prop: 'isDropdownOpen7' },
       { id: 'dropdown-toggle-8', prop: 'dropdown8.isOpen' },
       { id: 'dropdown-toggle-li', prop: 'isDropdownOpenli' },
-      
+      { id: 'dropdown-toggle-30', prop: 'isDropdownOpen30' },
+      { id: 'dropdown-toggle-31', prop: 'isDropdownOpen31' },
+      { id: 'dropdown-toggle-main-type', prop: 'isDropdownOpenMainType' },
+      { id: 'dropdown-toggle-main-product', prop: 'isDropdownOpenMainProduct' },
+      { id: 'dropdown-toggle-main-approval', prop: 'isDropdownOpenMainApproval' },
+      ...this.additionalAttributes.map((_, i) => [
+        { id: `dropdown-toggle-attr-type-${i}`, prop: `isDropdownOpenAttrType[${i}]` },
+        { id: `dropdown-toggle-attr-product-${i}`, prop: `isDropdownOpenAttrProduct[${i}]` },
+        { id: `dropdown-toggle-attr-approval-${i}`, prop: `isDropdownOpenAttrApproval[${i}]` }
+      ]).flat()
     ];
 
     dropdowns.forEach(dropdown => {
       if (dropdown.id !== currentDropdownId) {
         const props = dropdown.prop.split('.');
-        if (props.length === 1) {
+        const indexMatch = dropdown.prop.match(/\[(\d+)\]/);
+        if (indexMatch) {
+          const index = parseInt(indexMatch[1], 10);
+          const propName = dropdown.prop.split('[')[0];
+          (this as any)[propName][index] = false;
+        } else if (props.length === 1) {
           (this as any)[dropdown.prop] = false;
         } else {
           (this as any)[props[0]][props[1]] = false;
@@ -767,38 +819,54 @@ toggleDropdown30(event: Event): void {
 
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent) {
-  
     const target = event.target as HTMLElement;
-    const dropdown = document.getElementById('dropdown-toggle-7');
-    if (dropdown && !dropdown.contains(target)) {
-      this.isDropdownOpen7 = false;
-    }
-  
     const dropdownIds = [
       'dropdown-toggle-status',
       'dropdown-toggle-1',
       'dropdown-toggle-2',
       'dropdown-toggle-3',
+      'dropdown-toggle-4',
       'dropdown-toggle-5',
       'dropdown-toggle-6',
       'dropdown-toggle-7',
       'dropdown-toggle-8',
-      'dropdown-toggle-4',
       'dropdown-toggle-li',
       'dropdown-toggle-30',
-      'dropdown-toggle-31'
+      'dropdown-toggle-31',
+      'dropdown-toggle-main-type',
+      'dropdown-toggle-main-product',
+      'dropdown-toggle-main-approval',
+      ...this.additionalAttributes.map((_, i) => [
+        `dropdown-toggle-attr-type-${i}`,
+        `dropdown-toggle-attr-product-${i}`,
+        `dropdown-toggle-attr-approval-${i}`
+      ]).flat()
     ];
+
     const isClickInsideDropdown = dropdownIds.some(id => {
       const dropdown = document.getElementById(id);
-      return dropdown && dropdown.contains(event.target as Node);
-    }) || document.querySelector('.dropdown-menu')?.contains(event.target as Node);
+      return dropdown && dropdown.contains(target);
+    }) || document.querySelector('.dropdown-menu')?.contains(target);
 
-    if (!isClickInsideDropdown && this.isDropdownOpenli) {
+    if (!isClickInsideDropdown) {
+      this.isDropdownOpen = false;
+      this.isDropdownOpen1 = false;
+      this.isDropdownOpen2 = false;
+      this.isDropdownOpen3 = false;
+      this.isDropdownOpen4 = false;
+      this.isDropdownOpen5 = false;
+      this.isDropdownOpen6 = false;
+      this.isDropdownOpen7 = false;
+      this.dropdown8.isOpen = false;
       this.isDropdownOpenli = false;
-      console.log('Closed dropdownli due to outside click');
-    }
-    if (!isClickInsideDropdown && !document.querySelector('.search-container')?.contains(event.target as Node)) {
-      this.closeOtherDropdowns('');
+      this.isDropdownOpen30 = false;
+      this.isDropdownOpen31 = false;
+      this.isDropdownOpenMainType = false;
+      this.isDropdownOpenMainProduct = false;
+      this.isDropdownOpenMainApproval = false;
+      this.isDropdownOpenAttrType = this.isDropdownOpenAttrType.map(() => false);
+      this.isDropdownOpenAttrProduct = this.isDropdownOpenAttrProduct.map(() => false);
+      this.isDropdownOpenAttrApproval = this.isDropdownOpenAttrApproval.map(() => false);
       console.log('Closed all dropdowns due to outside click');
     }
   }
@@ -847,20 +915,16 @@ toggleDropdown30(event: Event): void {
     this.saveFormData();
   }
 
- selectOption7(option: string): void {
-  this.selectedOption7 = option;
-
-  const selectedClient = this.clients.find(client => client.name === option);
-  if (selectedClient) {
-    this.clientId = selectedClient.id;
-    this.clientName = selectedClient.name;
+  selectOption7(option: string): void {
+    this.selectedOption7 = option;
+    const selectedClient = this.clients.find(client => client.name === option);
+    if (selectedClient) {
+      this.clientId = selectedClient.id;
+      this.clientName = selectedClient.name;
+    }
+    this.isDropdownOpen7 = false;
+    this.saveFormData();
   }
-
-  this.isDropdownOpen7 = false; // ✅ Close the dropdown
-
-  this.saveFormData(); // Optional: save changes
-}
-
 
   selectOption8(dropdown: any, option: string, event: Event) {
     event.stopPropagation();
@@ -875,6 +939,69 @@ toggleDropdown30(event: Event): void {
     this.isDropdownOpenli = false;
     this.loadTemplateAttributes();
     console.log('Selected dropdownli option:', option, 'templateName set to:', this.templateName);
+  }
+
+  selectProduct(productId: string, event: Event): void {
+    event.stopPropagation();
+    this.productId = productId;
+    this.isDropdownOpen30 = false;
+    this.onProductChange();
+    console.log('Selected product:', productId);
+    this.saveFormData();
+  }
+
+  selectApprovalDocument(docId: string, event: Event): void {
+    event.stopPropagation();
+    if (docId && !this.selectedApprovalDocuments.includes(docId)) {
+      this.selectedApprovalDocuments.push(docId);
+      console.log('Added approval document:', docId, 'Current selections:', this.selectedApprovalDocuments);
+    }
+    this.isDropdownOpen31 = false;
+    this.saveFormData();
+  }
+
+  selectMainType(type: string, event: Event): void {
+    event.stopPropagation();
+    this.attributeType = type;
+    this.isDropdownOpenMainType = false;
+  }
+
+  selectMainProduct(productId: string, event: Event): void {
+    event.stopPropagation();
+    this.mainAttribute.productId = productId;
+    this.isDropdownOpenMainProduct = false;
+    this.onConditionalProductChange(-1);
+  }
+
+  addMainConditionalApprovalDocumentCustom(docId: string, event: Event): void {
+    event.stopPropagation();
+    if (docId && !this.mainAttribute.selectedApprovalDocuments?.includes(docId)) {
+      this.mainAttribute.selectedApprovalDocuments = this.mainAttribute.selectedApprovalDocuments || [];
+      this.mainAttribute.selectedApprovalDocuments.push(docId);
+    }
+    this.isDropdownOpenMainApproval = false;
+  }
+
+  selectAttrType(index: number, type: string, event: Event): void {
+    event.stopPropagation();
+    this.additionalAttributes[index].type = type;
+    this.isDropdownOpenAttrType[index] = false;
+  }
+
+  selectAttrProduct(index: number, productId: string, event: Event): void {
+    event.stopPropagation();
+    this.additionalAttributes[index].productId = productId;
+    this.isDropdownOpenAttrProduct[index] = false;
+    this.onConditionalProductChange(index);
+  }
+
+  addAdditionalConditionalApprovalDocumentCustom(index: number, docId: string, event: Event): void {
+    event.stopPropagation();
+    if (docId && !this.additionalAttributes[index].selectedApprovalDocuments?.includes(docId)) {
+      this.additionalAttributes[index].selectedApprovalDocuments = this.additionalAttributes[index].selectedApprovalDocuments || [];
+      this.additionalAttributes[index].selectedApprovalDocuments.push(docId);
+    }
+    this.isDropdownOpenAttrApproval[index] = false;
   }
 
   addTag() {
@@ -906,12 +1033,13 @@ toggleDropdown30(event: Event): void {
       this.selectedApprovalDocuments.push(docId);
       console.log('Added approval document:', docId, 'Current selections:', this.selectedApprovalDocuments);
     }
-    selectElement.value = ''; // Reset dropdown
+    selectElement.value = '';
   }
 
   removeApprovalDocument(index: number) {
     this.selectedApprovalDocuments.splice(index, 1);
     console.log('Removed approval document at index:', index, 'Current selections:', this.selectedApprovalDocuments);
+    this.saveFormData();
   }
 
   addMainConditionalApprovalDocument(event: Event) {
@@ -922,7 +1050,7 @@ toggleDropdown30(event: Event): void {
       this.mainAttribute.selectedApprovalDocuments.push(docId);
       console.log('Added main conditional approval document:', docId);
     }
-    selectElement.value = ''; // Reset dropdown
+    selectElement.value = '';
   }
 
   removeMainConditionalApprovalDocument(index: number) {
@@ -940,7 +1068,7 @@ toggleDropdown30(event: Event): void {
       this.additionalAttributes[attrIndex].selectedApprovalDocuments.push(docId);
       console.log(`Added conditional approval document for attribute ${attrIndex}:`, docId);
     }
-    selectElement.value = ''; // Reset dropdown
+    selectElement.value = '';
   }
 
   removeAdditionalConditionalApprovalDocument(attrIndex: number, docIndex: number) {
@@ -965,7 +1093,7 @@ toggleDropdown30(event: Event): void {
             this.filteredApprovalDocuments = [];
             console.log('No approval documents found for product:', this.productId);
           }
-          this.selectedApprovalDocuments = []; // Reset selected documents when product changes
+          this.selectedApprovalDocuments = [];
           this.mainAttribute.filteredApprovalDocuments = [...this.filteredApprovalDocuments];
           this.additionalAttributes = this.additionalAttributes.map(attr => ({
             ...attr,
@@ -992,12 +1120,13 @@ toggleDropdown30(event: Event): void {
         filteredApprovalDocuments: []
       }));
     }
+    this.saveFormData();
   }
 
   onConditionalProductChange(attrIndex: number) {
     const productId = attrIndex === -1 ? this.mainAttribute.productId : this.additionalAttributes[attrIndex].productId;
     if (productId) {
-      this.http.get(`hhttps://vps.allpassiveservices.com.au/api/product/list`).subscribe({
+      this.http.get(`https://vps.allpassiveservices.com.au/api/product/list`).subscribe({
         next: (response: any) => {
           const selectedProduct = response.find((product: any) => product._id === productId);
           const filteredDocs = selectedProduct && selectedProduct.approvalDocuments
@@ -1036,22 +1165,7 @@ toggleDropdown30(event: Event): void {
       }
     }
   }
-selectProduct(productId: string, event: Event): void {
-  event.stopPropagation();
-  this.productId = productId;
-  this.isDropdownOpen1 = false;
-  this.onProductChange();
-  console.log('Selected product:', productId);
-}
 
-// selectApprovalDocument(docId: string, event: Event): void {
-//   event.stopPropagation();
-//   if (docId && !this.selectedApprovalDocuments.includes(docId)) {
-//     this.selectedApprovalDocuments.push(docId);
-//     console.log('Added approval document:', docId, 'Current selections:', this.selectedApprovalDocuments);
-//   }
-//   this.isDropdownOpen2 = false;
-// }
   openModal() {
     this.isOpen = true;
     this.loadHierarchyLevels();
@@ -1112,351 +1226,12 @@ selectProduct(productId: string, event: Event): void {
     });
   }
 
-
-
-
-generateReport(): void {
-  const projectId = localStorage.getItem('projectId') || this.projectId;
-  if (!projectId) {
-    alert('Project ID not found.');
-    return;
+  generateReport(): void {
+    const doc = new jsPDF();
+    doc.save('blank_report.pdf');
+    console.log('Generated blank PDF');
+    this.closeReportModal();
   }
-
-  // Fetch project details using download API
-  this.presentationService.getProjectDetails(projectId).subscribe({
-    next: (projectResponse) => {
-      // Fetch project reports to get the coverLetter data
-      const reportsApiUrl = `https://vps.allpassiveservices.com.au/api/project/reports/${projectId}`;
-      this.http.get<{ message: string; data: Report[] }>(reportsApiUrl).subscribe({
-        next: (response) => {
-          const reports = response.data || [];
-          if (reports.length === 0) {
-            alert('No reports found for this project.');
-            return;
-          }
-
-          // Use the latest report's coverLetter
-          const latestReport = reports[0]; // Assuming first report is the latest
-          const doc = new jsPDF();
-          let yPos = 20; // Start below logo
-
-          // Add logo image to top-right corner
-          const logoImg = new Image();
-          logoImg.src = '/images/logo.png';
-          try {
-            doc.addImage(logoImg, 'PNG', 160, 5, 40, 15); // Adjusted position and size to match image
-          } catch (error) {
-            console.error('Failed to add logo image:', error);
-          }
-
-          // Add project title with 5px top margin
-         doc.setFontSize(13);
-          doc.setFont('helvetica', 'bold');
-          doc.text(latestReport.coverLetter.projectName || 'N/A', 10, yPos);
-          yPos += 10; 
-
-          // Add client details
-          doc.setFontSize(13);
-          doc.setFont('helvetica', 'bold');
-          doc.text(`Client: ${latestReport.coverLetter.clientName || 'N/A'}`, 10, yPos);
-          yPos += 10;
-
-          // Add site photo label and image
-          doc.setFontSize(13);
-          doc.setFont('helvetica', 'bold');
-          doc.text('Site Photo:', 10, yPos);
-          yPos += 5;
-
-          if (latestReport.coverLetter.fileUrl) {
-            const projectImg = new Image();
-            const proxiedUrl = `/api/images${new URL(latestReport.coverLetter.fileUrl).pathname}${new URL(latestReport.coverLetter.fileUrl).search}`;
-            projectImg.src = proxiedUrl;
-
-            projectImg.onload = () => {
-              try {
-                doc.addImage(projectImg, 'JPEG', 10, yPos, 60, 60); // Adjusted size to match image
-                this.addProjectDetailsAndInspection(doc, yPos, latestReport, projectResponse, projectId);
-              } catch (error) {
-                console.error('Failed to add project image:', error);
-                doc.rect(10, yPos, 60, 60);
-                doc.text('Image not available.', 10, yPos + 30);
-                this.addProjectDetailsAndInspection(doc, yPos, latestReport, projectResponse, projectId);
-              }
-            };
-
-            projectImg.onerror = () => {
-              console.error('Project image failed to load:', proxiedUrl);
-              doc.rect(10, yPos, 60, 60);
-              doc.text('Image not available.', 10, yPos + 30);
-              this.addProjectDetailsAndInspection(doc, yPos, latestReport, projectResponse, projectId);
-            };
-          } else {
-            doc.rect(10, yPos, 60, 60);
-            doc.text('Image not available.', 10, yPos + 30);
-            this.addProjectDetailsAndInspection(doc, yPos, latestReport, projectResponse, projectId);
-          }
-        },
-        error: (error) => {
-          console.error('Failed to fetch project reports:', error);
-          alert('Failed to fetch project reports.');
-        }
-      });
-    },
-    error: (error) => {
-      console.error('Failed to fetch project details:', error);
-      alert('Failed to fetch project details.');
-    }
-  });
-}
-
-private addProjectDetailsAndInspection(doc: jsPDF, yPos: number, latestReport: Report, projectResponse: ProjectResponse, projectId: string): void {
-  // Add address, date, building type to the right of the image
-  const detailsXPos = 80;
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Address:', detailsXPos, yPos + 5);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${latestReport.coverLetter.address || 'N/A'}`, detailsXPos + 20, yPos + 5);
-  
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Date:', detailsXPos, yPos + 15);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${latestReport.coverLetter.date ? new Date(latestReport.coverLetter.date).toLocaleDateString('en-AU') : 'N/A'}`, detailsXPos + 20, yPos + 15);
-  
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Building:', detailsXPos, yPos + 25);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${latestReport.coverLetter.buildingName || 'N/A'}`, detailsXPos + 20, yPos + 25);
-  
-  yPos += 65; // Move below the image height
-  yPos += 5; // Add 5px margin above Inspection Report Overview and Additional Information
-
-  // Add inspection overview and additional information box on the same line
-  this.addInspectionOverview(doc, yPos, latestReport.coverLetter.inspectionOverview);
-
-  // Add additional information box to the right of inspection overview
-  const additionalInfoXPos = 80;
-  doc.rect(additionalInfoXPos, yPos, 120, 50); // Box around additional info
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Additional Information:', additionalInfoXPos + 5, yPos + 5);
-  doc.setFont('helvetica', 'normal');
-  doc.text(latestReport.coverLetter.additionalInfo || 'N/A', additionalInfoXPos + 5, yPos + 10, { maxWidth: 110 });
-
-  yPos += 60; // Move below the taller of the two sections
-
-  // Add hierarchy level images
-  this.addHierarchyImages(doc, yPos, projectResponse, projectId);
-}
-
-private addInspectionOverview(doc: jsPDF, yPos: number, inspection: Report['coverLetter']['inspectionOverview']): void {
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Inspection Report Overview', 10, yPos);
-  yPos += 10;
-
-  const inspectionData = {
-    totalItems: inspection.totalItems || 'N/A',
-    passedItems: inspection.passedItems || 'N/A',
-    failedItems: inspection.failedItems || 'N/A',
-    tbcItems: inspection.tbcItems || 'N/A'
-  };
-
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-
-  // Number of Items
-  doc.text('Number of Items:', 10, yPos);
-  doc.text(`${inspectionData.totalItems}`, 50, yPos);
-  yPos += 10;
-
-  // Number of PASS
-  doc.text('Number of', 10, yPos);
-  doc.setTextColor('#87e187'); // Green for PASS
-  doc.text('PASS:', 33, yPos);
-  doc.setTextColor(0, 0, 0); // Reset to black
-  doc.text(`${inspectionData.passedItems}`, 50, yPos);
-  yPos += 10;
-
-  // Number of FAIL
-  doc.text('Number of', 10, yPos);
-  doc.setTextColor('#fe0000'); // Red for FAIL
-  doc.text('FAIL:', 33, yPos);
-  doc.setTextColor(0, 0, 0); // Reset to black
-  doc.text(`${inspectionData.failedItems}`, 50, yPos);
-  yPos += 10;
-
-  // Number of TBC
-  doc.text('Number of', 10, yPos);
-  doc.setTextColor('#808080'); // Gray for TBC
-  doc.text('TBC:', 33, yPos);
-  doc.setTextColor(0, 0, 0); // Reset to black
-  doc.text(`${inspectionData.tbcItems}`, 50, yPos);
-}
-
-private addHierarchyImages(doc: jsPDF, yPos: number, projectResponse: ProjectResponse, projectId: string): void {
-  const subProjects = projectResponse.subProjects || [];
-  const margin = 10;
-  const imageWidth = 190;
-
-  if (subProjects.length === 0) {
-    this.addFooter(doc, yPos, projectId);
-    return;
-  }
-
-  let imagesProcessed = 0;
-  const totalImages = subProjects.length;
-
-  subProjects.forEach((level, index) => {
-    this.http.get<{ message: string; data: any[] }>(
-      `https://vps.allpassiveservices.com.au/api/project/documents/${projectId}/${level.hierarchyLevelId}`
-    ).subscribe({
-      next: (response) => {
-        const documentWithImage = response.data.find(doc => doc.documentUrl);
-        const imageUrl = documentWithImage?.documentUrl;
-
-        if (yPos + 90 > 270) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        if (imageUrl) {
-          const levelImg = new Image();
-          const proxiedUrl = `/api/images${new URL(imageUrl).pathname}${new URL(imageUrl).search}`;
-          levelImg.src = proxiedUrl;
-
-          levelImg.onload = () => {
-            try {
-              const aspectRatio = levelImg.height / levelImg.width;
-              const imageHeight = imageWidth * aspectRatio;
-              doc.addImage(levelImg, 'JPEG', margin, yPos, imageWidth, imageHeight);
-              yPos += imageHeight + 10;
-              imagesProcessed++;
-              if (imagesProcessed === totalImages) {
-                if (yPos + 50 > 270) {
-                  doc.addPage();
-                  yPos = 20;
-                }
-                this.addFooter(doc, yPos, projectId);
-              }
-            } catch (error) {
-              console.error(`Failed to add hierarchy level image:`, error);
-              doc.rect(margin, yPos, imageWidth, 50);
-              doc.text('Image not available.', margin, yPos + 25);
-              yPos += 60;
-              imagesProcessed++;
-              if (imagesProcessed === totalImages) {
-                if (yPos + 50 > 270) {
-                  doc.addPage();
-                  yPos = 20;
-                }
-                this.addFooter(doc, yPos, projectId);
-              }
-            }
-          };
-
-          levelImg.onerror = () => {
-            console.error(`Hierarchy level image failed to load:`, proxiedUrl);
-            doc.rect(margin, yPos, imageWidth, 50);
-            doc.text('Image not available.', margin, yPos + 25);
-            yPos += 60;
-            imagesProcessed++;
-            if (imagesProcessed === totalImages) {
-              if (yPos + 50 > 270) {
-                doc.addPage();
-                yPos = 20;
-              }
-              this.addFooter(doc, yPos, projectId);
-            }
-          };
-        } else {
-          doc.rect(margin, yPos, imageWidth, 50);
-          doc.text('Image not available.', margin, yPos + 25);
-          yPos += 60;
-          imagesProcessed++;
-          if (imagesProcessed === totalImages) {
-            if (yPos + 50 > 270) {
-              doc.addPage();
-              yPos = 20;
-            }
-            this.addFooter(doc, yPos, projectId);
-          }
-        }
-      },
-      error: (error) => {
-        console.error(`Failed to fetch documents for hierarchy level:`, error);
-        if (yPos + 90 > 270) {
-          doc.addPage();
-          yPos = 20;
-        }
-        doc.rect(margin, yPos, imageWidth, 50);
-        doc.text('Image not available.', margin, yPos + 25);
-        yPos += 60;
-        imagesProcessed++;
-        if (imagesProcessed === totalImages) {
-          if (yPos + 50 > 270) {
-            doc.addPage();
-            yPos = 20;
-          }
-          this.addFooter(doc, yPos, projectId);
-        }
-      }
-    });
-  });
-}
-
-private addFooter(doc: jsPDF, yPos: number, projectId: string): void {
-  this.saveAndUploadReport(doc, projectId, this.selectedReportType);
-}
-
-private saveAndUploadReport(doc: jsPDF, projectId: string, reportType: string): void {
-  const pdfBase64 = doc.output('datauristring');
-  const pdfBlob = this.dataURItoBlob(pdfBase64);
-  const pdfFile = new File([pdfBlob], `${reportType}_Report_${new Date().toISOString().slice(0, 10)}.pdf`, { type: 'application/pdf' });
-
-  const reportId = localStorage.getItem('reportId');
-  const formData = new FormData();
-  formData.append('projectId', projectId);
-  if (reportId) {
-    formData.append('reportId', reportId);
-  }
-  formData.append('reportPDF', pdfFile);
-
-  this.http.post('https://vps.allpassiveservices.com.au/api/project/uploadReportPDF', formData).subscribe({
-    next: (response: any) => {
-      console.log('Report uploaded successfully:', response);
-      doc.save(`${reportType}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
-      alert('Report generated and uploaded successfully!');
-      this.closeReportModal();
-      localStorage.removeItem('reportId');
-      localStorage.removeItem('createProjectFormData');
-      localStorage.removeItem('projectId');
-    },
-    error: (error) => {
-      console.error('Failed to upload report:', error);
-      alert('Failed to upload report.');
-      doc.save(`${reportType}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
-      this.closeReportModal();
-    }
-  });
-}
-
-private dataURItoBlob(dataURI: string): Blob {
-  const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([ab], { type: mimeString });
-}
-
-
-
-
 
   updateIndicatorPosition(tab: HTMLElement = document.querySelector('.nav-link.active') as HTMLElement) {
     const indicator = document.querySelector('.tab-indicator') as HTMLElement;
@@ -1544,7 +1319,6 @@ private dataURItoBlob(dataURI: string): Blob {
       (standardsTab as HTMLElement).click();
     }
   }
-
 
   loadHierarchyLevels() {
     let projectId = this.projectId || localStorage.getItem('projectId');
@@ -1995,10 +1769,16 @@ private dataURItoBlob(dataURI: string): Blob {
       filteredApprovalDocuments: [],
       selectedApprovalDocuments: []
     });
+    this.isDropdownOpenAttrType.push(false);
+    this.isDropdownOpenAttrProduct.push(false);
+    this.isDropdownOpenAttrApproval.push(false);
   }
 
   removeAttribute(index: number) {
     this.additionalAttributes.splice(index, 1);
+    this.isDropdownOpenAttrType.splice(index, 1);
+    this.isDropdownOpenAttrProduct.splice(index, 1);
+    this.isDropdownOpenAttrApproval.splice(index, 1);
   }
 
   toggleCheckbox(attrIndex: number, property: keyof Pick<Attribute, 'editableInBackOffice' | 'hideForMobile' | 'isConditional'>, event: Event) {
@@ -2304,8 +2084,4 @@ private dataURItoBlob(dataURI: string): Blob {
     });
     console.log('Loaded template attributes for:', this.templateName, this.existingAttributes);
   }
-
-
-
-  
 }

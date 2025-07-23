@@ -381,270 +381,301 @@
       <!-- Product and Approval Documents -->
       <div class="card card1">
         <div class="row">
-          <div class="col-6">
-            <label for="productId" class="robotoregular txt mb">Product ID <span class="star">*</span></label>
-           <div class="form-group position-relative">
-  <select class="form-control custom-select-icon" id="productId" [(ngModel)]="productId" (change)="onProductChange()" style="border-radius: 10px; border: 1px solid #ccc; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
-    <option value="" disabled selected>Select a product</option>
-    <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
-  </select>
-  <span class="dropdown-icon">
-    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </span>
-</div>
-          </div>
-          <div class="col-6">
-            <label for="approvalDocuments" class="robotoregular txt mb">Approval Documents <span class="star">*</span></label>
-            <div class="form-group position-relative">
-              <select class="form-control custom-select-icon" id="approvalDocuments" (change)="addApprovalDocument($event)" style="border-radius: 15px;">
-                <option value="" disabled selected>Select approval documents</option>
-                <option *ngFor="let doc of filteredApprovalDocuments" [value]="doc.id">{{ doc.name }}</option>
-              </select>
-              <span class="dropdown-icon">
-                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
-            <div class="mt-2 d-flex flex-wrap gap-2">
-              <span *ngFor="let docId of selectedApprovalDocuments; let i = index" class="bg12 d-inline-block position-relative">
-                {{ getApprovalDocumentName(docId) }}
-                <button class="btn1cls" (click)="removeApprovalDocument(i)"></button>
-              </span>
-            </div>
+  <div class="col-6">
+    <label for="productId" class="robotoregular txt mb">Product ID <span class="star">*</span></label>
+    <div class="form-group position-relative">
+      <div class="custom-dropdown" id="productId" (click)="toggleDropdown30($event)">
+        <div class="dropdown-selected robotoregular" [class.placeholder]="!productId">
+          {{ productId ? getProductName(productId) : 'Select a product' }}
+        </div>
+        <span class="dropdown-icon">
+          <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="dropdown-menu" *ngIf="isDropdownOpen30">
+          <div class="dropdown-item robotoregular" *ngFor="let product of products" (click)="selectProduct(product.id, $event)">
+            {{ product.name }}
           </div>
         </div>
       </div>
-
-      <!-- Main Attribute -->
-      <div class="card card1">
-        <div class="d-flex align-items-center gap-2">
-          <div class="wid2">
-            <label class="robotoregular txt mb">Attribute Name <span class="star">*</span></label>
-            <input type="text" class="form-control" [(ngModel)]="attributeName" placeholder="Enter attribute name">
-          </div>
-          <div class="wid2">
-            <label class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
-            <div class="form-group position-relative">
-              <select class="form-control custom-select-icon" [(ngModel)]="attributeType">
-                <option value="string">Free Text</option>
-                <option value="list">List of Values</option>
-              </select>
-              <span class="dropdown-icon">
-                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
-          </div>
-          <div class="wid2">
-            <label class="robotoregular txt mb">Barrier Values</label>
-            <div class="d-flex">
-              <input type="text" class="form-control" [(ngModel)]="barrierInput" placeholder="Enter barrier value">
-            </div>
-          </div>
-          <div class="wid3">
-            <button class="btn btn-dark mt-3 valuebtn robotosemibold" (click)="addBarrierValue(-1)">+ Value</button>
-          </div>
-        </div>
-        <div class="d-flex" style="margin-top: 14px;">
-  <div style="width: 50%;" class="d-flex flex-column">
-    <div class="d-flex">
-      <div style="width: 50%;">
-        <div class="d-flex align-items-center gap-2 mt-3">
-          <input class="check1" type="checkbox" [(ngModel)]="mainAttribute.editableInBackOffice" id="editableMain">
-          <p class="robotoregular txt2 mb-0">Editable in Back Office</p>
-        </div>
-      </div>
-      <div style="width: 50%;">
-        <div class="d-flex align-items-center gap-2 mt-3">
-          <input class="check1" type="checkbox" [(ngModel)]="mainAttribute.hideForMobile" id="hideMain">
-          <p class="robotoregular txt2 mb-0">Hide for Mobile</p>
-        </div>
-      </div>
-    </div>
-    <div style="width: 100%;" class="d-flex align-items-center gap-2 mt-3">
-      <input class="check1" type="checkbox" [(ngModel)]="mainAttribute.isConditional" id="conditionalMain" (change)="toggleCheckbox(-1, 'isConditional', $event)">
-      <p class="robotoregular txt2 mb-0">Conditional Attribute</p>
     </div>
   </div>
-  <div style="width: 50%;">
-    <div class="wid-4 d-flex ms-1">
-      <div class="mt-2 ms-5 d-flex flex-wrap">
-        <span *ngFor="let value of barrierValues; let i = index" class="bg12 d-inline-block position-relative">
-          {{ value }}
-          <button class="btn1cls" (click)="removeBarrierValue(i, -1)"></button>
+  <div class="col-6 ">
+    <label for="approvalDocuments" class="robotoregular txt mb">Approval Documents <span class="star">*</span></label>
+    <div class="form-group position-relative d-flex flex-column align-items-start">
+      <div class="custom-dropdown" id="approvalDocuments" (click)="toggleDropdown31($event)">
+        <div class="dropdown-selected robotoregular" [class.placeholder]="selectedApprovalDocuments.length === 0">
+          {{ selectedApprovalDocuments.length > 0 ? 'Select more documents' : 'Select approval documents' }}
+        </div>
+        <span class="dropdown-icon">
+          <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="dropdown-menu" *ngIf="isDropdownOpen31">
+          <div class="dropdown-item robotoregular" *ngFor="let doc of filteredApprovalDocuments" (click)="selectApprovalDocument(doc.id, $event)">
+            {{ doc.name }}
+          </div>
+        </div>
+      </div>
+      <div class="mt-2 d-flex flex-wrap gap-2">
+        <span *ngFor="let docId of selectedApprovalDocuments; let i = index" class="bg12 d-inline-block position-relative" >
+          {{ getApprovalDocumentName(docId) }}
+          <button class="btn1cls" (click)="removeApprovalDocument(i)"></button>
         </span>
       </div>
     </div>
   </div>
 </div>
-        <div class="col-12 mt-3">
-         
-          <div class="mt-2" *ngIf="mainAttribute.isConditional">
-            <div class="row">
-              <div class="col-6">
-                <label class="robotoregular txt mb-1">Product ID</label>
-                <div class="form-group position-relative">
-                  <select class="form-control custom-select-icon" id="mainProductId" [(ngModel)]="mainAttribute.productId" (change)="onConditionalProductChange(-1)">
-                    <option value="" disabled>Select a product</option>
-                    <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
-                  </select>
-                  <span class="dropdown-icon">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </div>
-              <div class="col-6">
-                <label class="robotoregular txt mb-1">Approval Document</label>
-                <div class="form-group position-relative">
-                  <select class="form-control custom-select-icon" id="mainApprovalDocument" (change)="addMainConditionalApprovalDocument($event)">
-                    <option value="" disabled selected>Select an approval document</option>
-                    <option *ngFor="let doc of mainAttribute.filteredApprovalDocuments" [value]="doc.id">{{ doc.name }}</option>
-                  </select>
-                  <span class="dropdown-icon">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-                <div class="mt-2 d-flex flex-wrap gap-2">
-                  <span *ngFor="let docId of mainAttribute.selectedApprovalDocuments; let i = index" class="bg12 d-inline-block position-relative">
-                    {{ getApprovalDocumentName(docId) }}
-                    <button class="btn1cls" (click)="removeMainConditionalApprovalDocument(i)"></button>
-                  </span>
-                </div>
-              </div>
-            </div>
+      </div>
+
+      <!-- Main Attribute -->
+<div class="card card1">
+  <div class="d-flex align-items-center gap-2">
+    <div class="wid2">
+      <label class="robotoregular txt mb">Attribute Name <span class="star">*</span></label>
+      <input type="text" class="form-control" [(ngModel)]="attributeName" placeholder="Enter attribute name">
+    </div>
+    <div class="wid2">
+      <label class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
+      <div class="form-group position-relative">
+        <div class="dropdown" id="dropdown-toggle-main-type">
+          <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownMainType($event)">
+            {{ attributeType === 'string' ? 'Free Text' : attributeType === 'list' ? 'List of Values' : 'Select Type' }}
+            <span class="dropdown-icon">
+              
+            </span>
+          </button>
+          <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenMainType}">
+            <a class="dropdown-item" (click)="selectMainType('string', $event)">Free Text</a>
+            <a class="dropdown-item" (click)="selectMainType('list', $event)">List of Values</a>
           </div>
         </div>
       </div>
-
-      <!-- Additional Attributes -->
-      <div class="card card1" *ngFor="let attr of additionalAttributes; let i = index">
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2 w-100">
-            <div  style="width: 50% !important;">
-              <label [for]="'attrName'+i" class="robotoregular txt mb">Attribute Name <span class="star">*</span></label>
-              <input class="form-control" type="text" [id]="'attrName'+i" [(ngModel)]="attr.name" placeholder="Enter attribute name">
-            </div>
-            <div  style="width: 50% !important;">
-              <label [for]="'attrType'+i" class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
-              <div class="form-group position-relative">
-                <select class="form-control custom-select-icon" [id]="'attrType'+i" [(ngModel)]="attr.type">
-                  <option value="string">Free Text</option>
-                  <option value="list">List of Values</option>
-                </select>
+    </div>
+    <div class="wid2">
+      <label class="robotoregular txt mb">Barrier Values</label>
+      <div class="d-flex">
+        <input type="text" class="form-control" [(ngModel)]="barrierInput" placeholder="Enter barrier value">
+      </div>
+    </div>
+    <div class="wid3">
+      <button class="btn btn-dark mt-3 valuebtn robotosemibold" (click)="addBarrierValue(-1)">+ Value</button>
+    </div>
+  </div>
+  <div class="d-flex" style="margin-top: 14px;">
+    <div style="width: 50%;" class="d-flex flex-column">
+      <div class="d-flex">
+        <div style="width: 50%;">
+          <div class="d-flex align-items-center gap-2 mt-3">
+            <input class="check1" type="checkbox" [(ngModel)]="mainAttribute.editableInBackOffice" id="editableMain">
+            <p class="robotoregular txt2 mb-0">Editable in Back Office</p>
+          </div>
+        </div>
+        <div style="width: 50%;">
+          <div class="d-flex align-items-center gap-2 mt-3">
+            <input class="check1" type="checkbox" [(ngModel)]="mainAttribute.hideForMobile" id="hideMain">
+            <p class="robotoregular txt2 mb-0">Hide for Mobile</p>
+          </div>
+        </div>
+      </div>
+      <div style="width: 100%;" class="d-flex align-items-center gap-2 mt-3">
+        <input class="check1" type="checkbox" [(ngModel)]="mainAttribute.isConditional" id="conditionalMain" (change)="toggleCheckbox(-1, 'isConditional', $event)">
+        <p class="robotoregular txt2 mb-0">Conditional Attribute</p>
+      </div>
+    </div>
+    <div style="width: 50%;">
+      <div class="wid-4 d-flex ms-1">
+        <div class="mt-2 d-flex flex-wrap">
+          <span *ngFor="let value of barrierValues; let i = index" class="bg12 d-inline-block position-relative">
+            {{ value }}
+            <button class="btn1cls" (click)="removeBarrierValue(i, -1)"></button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mt-3">
+    <div class="mt-2" *ngIf="mainAttribute.isConditional">
+      <div class="row">
+        <div class="col-6">
+          <label class="robotoregular txt mb-1">Product ID</label>
+          <div class="form-group position-relative">
+            <div class="dropdown" id="dropdown-toggle-main-product">
+              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownMainProduct($event)">
+                {{ getProductName(mainAttribute.productId) }}
                 <span class="dropdown-icon">
                   <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
+              </button>
+              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenMainProduct}">
+                <a class="dropdown-item" *ngFor="let product of products" (click)="selectMainProduct(product.id, $event)">{{ product.name }}</a>
               </div>
-            </div>
-            <div style="width: 50% !important;">
-              <label class="robotoregular txt mb">Barrier Values</label>
-              <div class="d-flex">
-                <input type="text" class="form-control" [(ngModel)]="attr.barrierInput" placeholder="Enter barrier value">
-              </div>
-            </div>
-            <div class="wid3">
-              <button class="btn btn-dark mt-3 valuebtn robotosemibold" (click)="addBarrierValue(i)">+ Value</button>
             </div>
           </div>
-          <button class="btn btn-link " (click)="removeAttribute(i)" style="margin-top: 10px;">
-           <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15 0.5H33C41.0081 0.5 47.5 6.99187 47.5 15V33C47.5 41.0081 41.0081 47.5 33 47.5H15C6.99187 47.5 0.5 41.0081 0.5 33V15C0.5 6.99187 6.99187 0.5 15 0.5Z" stroke="#0F0F0F"/>
-<path d="M17.75 19.25H30.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M21.75 19.25V17.75C21.75 17.198 22.198 16.75 22.75 16.75H25.25C25.802 16.75 26.25 17.198 26.25 17.75V19.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M28.75 21.75V29.25C28.75 30.355 27.855 31.25 26.75 31.25H21.25C20.145 31.25 19.25 30.355 19.25 29.25V21.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M22.25 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M25.75 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-
-          </button>
         </div>
-       <div class="d-flex" style="margin-top: 14px;">
-  <div style="width: 52%;" class="d-flex flex-column">
-    <div class="d-flex">
-      <div style="width: 50%;">
-        <div class="d-flex align-items-center gap-2 mt-3">
-          <input class="check1" type="checkbox" [(ngModel)]="attr.editableInBackOffice" [id]="'editableAttr'+i">
-          <p class="robotoregular txt2 mb-0">Editable in Back Office</p>
+        <div class="col-6">
+          <label class="robotoregular txt mb-1">Approval Document</label>
+          <div class="form-group position-relative">
+            <div class="dropdown" id="dropdown-toggle-main-approval">
+              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownMainApproval($event)">
+                Select an approval document
+                <span class="dropdown-icon">
+                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenMainApproval}">
+                <a class="dropdown-item" *ngFor="let doc of mainAttribute.filteredApprovalDocuments" (click)="addMainConditionalApprovalDocumentCustom(doc.id, $event)">{{ doc.name }}</a>
+              </div>
+            </div>
+            <div class="mt-2 d-flex flex-wrap gap-2">
+              <span *ngFor="let docId of mainAttribute.selectedApprovalDocuments; let i = index" class="bg12 d-inline-block position-relative">
+                {{ getApprovalDocumentName(docId) }}
+                <button class="btn1cls" (click)="removeMainConditionalApprovalDocument(i)"></button>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      <div style="width: 50%;">
-        <div class="d-flex align-items-center gap-2 mt-3">
-          <input class="check1" type="checkbox" [(ngModel)]="attr.hideForMobile" [id]="'hideAttr'+i">
-          <p class="robotoregular txt2 mb-0">Hide for Mobile</p>
-        </div>
-      </div>
-    </div>
-    <div style="width: 100%;" class="d-flex align-items-center gap-2 mt-3">
-      <input class="check1" type="checkbox" [(ngModel)]="attr.isConditional" [id]="'conditionalAttr'+i" (change)="toggleCheckbox(i, 'isConditional', $event)">
-      <p class="robotoregular txt2 mb-0">Conditional Attribute</p>
-    </div>
-  </div>
-  <div class="d-flex ms-1" style="width: 40%;">
-    <div class="mt-2 d-flex flex-wrap">
-      <span *ngFor="let value of attr.barrierValues; let j = index" class="bg12 d-inline-block position-relative">
-        {{ value }}
-        <button class="btn1cls" (click)="removeBarrierValue(j, i)"></button>
-      </span>
     </div>
   </div>
 </div>
-        <div class="col-12 mt-3">
-          
-          <div class="mt-2" *ngIf="attr.isConditional">
-            <div class="row">
-              <div class="col-6">
-                <label class="robotoregular txt mb-1">Product ID</label>
-                <div class="form-group position-relative">
-                  <select class="form-control custom-select-icon" [id]="'attrProductId'+i" [(ngModel)]="attr.productId" (change)="onConditionalProductChange(i)">
-                    <option value="" disabled>Select a product</option>
-                    <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
-                  </select>
-                  <span class="dropdown-icon">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </div>
-              <div class="col-6">
-                <label class="robotoregular txt mb-1">Approval Document</label>
-                <div class="form-group position-relative">
-                  <select class="form-control custom-select-icon" [id]="'attrApprovalDocument'+i" (change)="addAdditionalConditionalApprovalDocument(i, $event)">
-                    <option value="" disabled selected>Select an approval document</option>
-                    <option *ngFor="let doc of attr.filteredApprovalDocuments" [value]="doc.id">{{ doc.name }}</option>
-                  </select>
-                  <span class="dropdown-icon">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-                <div class="mt-2 d-flex flex-wrap gap-2">
-                  <span *ngFor="let docId of attr.selectedApprovalDocuments; let j = index" class="bg12 d-inline-block position-relative">
-                    {{ getApprovalDocumentName(docId) }}
-                    <button class="btn1cls" (click)="removeAdditionalConditionalApprovalDocument(i, j)"></button>
-                  </span>
-                </div>
-              </div>
+
+<!-- Additional Attributes -->
+<div class="card card1" *ngFor="let attr of additionalAttributes; let i = index">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-2 w-100">
+      <div style="width: 50% !important;">
+        <label [for]="'attrName'+i" class="robotoregular txt mb">Attribute Name <span class="star">*</span></label>
+        <input class="form-control" type="text" [id]="'attrName'+i" [(ngModel)]="attr.name" placeholder="Enter attribute name">
+      </div>
+      <div style="width: 50% !important;">
+        <label [for]="'attrType'+i" class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
+        <div class="form-group position-relative">
+          <div class="dropdown" [id]="'dropdown-toggle-attr-type-'+i">
+            <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownAttrType(i, $event)">
+              {{ attr.type === 'string' ? 'Free Text' : attr.type === 'list' ? 'List of Values' : 'Select Type' }}
+              <span class="dropdown-icon">
+              
+              </span>
+            </button>
+            <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenAttrType[i]}">
+              <a class="dropdown-item" (click)="selectAttrType(i, 'string', $event)">Free Text</a>
+              <a class="dropdown-item" (click)="selectAttrType(i, 'list', $event)">List of Values</a>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Add Attribute Button -->
-      <div class="text-center">
-        <button class="valuebtn onestbold" style="width:200px" (click)="addAttribute()">+ Attribute</button>
+      <div style="width: 50% !important;">
+        <label class="robotoregular txt mb">Barrier Values</label>
+        <div class="d-flex">
+          <input type="text" class="form-control" [(ngModel)]="attr.barrierInput" placeholder="Enter barrier value">
+        </div>
       </div>
+      <div class="wid3">
+        <button class="btn btn-dark mt-3 valuebtn robotosemibold" (click)="addBarrierValue(i)">+ Value</button>
+      </div>
+    </div>
+    <button class="btn btn-link" (click)="removeAttribute(i)" style="margin-top: 10px;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 0.5H33C41.0081 0.5 47.5 6.99187 47.5 15V33C47.5 41.0081 41.0081 47.5 33 47.5H15C6.99187 47.5 0.5 41.0081 0.5 33V15C0.5 6.99187 6.99187 0.5 15 0.5Z" stroke="#0F0F0F"/>
+        <path d="M17.75 19.25H30.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M21.75 19.25V17.75C21.75 17.198 22.198 16.75 22.75 16.75H25.25C25.802 16.75 26.25 17.198 26.25 17.75V19.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M28.75 21.75V29.25C28.75 30.355 27.855 31.25 26.75 31.25H21.25C20.145 31.25 19.25 30.355 19.25 29.25V21.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22.25 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M25.75 23.75V28.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="d-flex" style="margin-top: 14px;">
+    <div style="width: 52%;" class="d-flex flex-column">
+      <div class="d-flex">
+        <div style="width: 50%;">
+          <div class="d-flex align-items-center gap-2 mt-3">
+            <input class="check1" type="checkbox" [(ngModel)]="attr.editableInBackOffice" [id]="'editableAttr'+i">
+            <p class="robotoregular txt2 mb-0">Editable in Back Office</p>
+          </div>
+        </div>
+        <div style="width: 50%;">
+          <div class="d-flex align-items-center gap-2 mt-3">
+            <input class="check1" type="checkbox" [(ngModel)]="attr.hideForMobile" [id]="'hideAttr'+i">
+            <p class="robotoregular txt2 mb-0">Hide for Mobile</p>
+          </div>
+        </div>
+      </div>
+      <div style="width: 100%;" class="d-flex align-items-center gap-2 mt-3">
+        <input class="check1" type="checkbox" [(ngModel)]="attr.isConditional" [id]="'conditionalAttr'+i" (change)="toggleCheckbox(i, 'isConditional', $event)">
+        <p class="robotoregular txt2 mb-0">Conditional Attribute</p>
+      </div>
+    </div>
+    <div class="d-flex ms-1" style="width: 40%;">
+      <div class="mt-2 d-flex flex-wrap">
+        <span *ngFor="let value of attr.barrierValues; let j = index" class="bg12 d-inline-block position-relative">
+          {{ value }}
+          <button class="btn1cls" (click)="removeBarrierValue(j, i)"></button>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mt-3">
+    <div class="mt-2" *ngIf="attr.isConditional">
+      <div class="row">
+        <div class="col-6">
+          <label class="robotoregular txt mb-1">Product ID</label>
+          <div class="form-group position-relative">
+            <div class="dropdown" [id]="'dropdown-toggle-attr-product-'+i">
+              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownAttrProduct(i, $event)">
+                {{ getProductName(attr.productId) }}
+                <span class="dropdown-icon">
+                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenAttrProduct[i]}">
+                <a class="dropdown-item" *ngFor="let product of products" (click)="selectAttrProduct(i, product.id, $event)">{{ product.name }}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <label class="robotoregular txt mb-1">Approval Document</label>
+          <div class="form-group position-relative">
+            <div class="dropdown" [id]="'dropdown-toggle-attr-approval-'+i">
+              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownAttrApproval(i, $event)">
+                Select an approval document
+                <span class="dropdown-icon">
+                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenAttrApproval[i]}">
+                <a class="dropdown-item" *ngFor="let doc of attr.filteredApprovalDocuments" (click)="addAdditionalConditionalApprovalDocumentCustom(i, doc.id, $event)">{{ doc.name }}</a>
+              </div>
+            </div>
+            <div class="mt-2 d-flex flex-wrap gap-2">
+              <span *ngFor="let docId of attr.selectedApprovalDocuments; let j = index" class="bg12 d-inline-block position-relative">
+                {{ getApprovalDocumentName(docId) }}
+                <button class="btn1cls" (click)="removeAdditionalConditionalApprovalDocument(i, j)"></button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Attribute Button -->
+<div class="text-center">
+  <button class="valuebtn onestbold" style="width:200px" (click)="addAttribute()">+ Attribute</button>
+</div>
 
       <!-- Submit Button -->
       <div class="text-center mt-3">
