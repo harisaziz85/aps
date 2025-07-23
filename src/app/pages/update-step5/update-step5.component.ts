@@ -384,9 +384,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   toggleSelectAll(event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
     Object.keys(this.selectedAttributes).forEach(field => {
-      if (field !== 'Separate Report' && field !== 'Email Notification') {
+      if (field !== 'Separate Report' && field !== 'Email Notification' && field !== 'Report Type') {
         this.selectedAttributes[field] = checked ? (this.attributeOptions[field]?.[0] || this.getAttributeValue(field)) : '';
-      } else {
+      } else if (field === 'Separate Report' || field === 'Email Notification') {
         this.selectedAttributes[field] = checked;
       }
     });
@@ -400,9 +400,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   removeSubCategory(category: string, field: string) {
-  this.selectedSubCategories = this.selectedSubCategories.filter(item => item !== category);
-  this.selectedAttributes[field] = this.selectedSubCategories[0] || 'N/A';
-}
+    this.selectedSubCategories = this.selectedSubCategories.filter(item => item !== category);
+    this.selectedAttributes[field] = this.selectedSubCategories[0] || 'N/A';
+  }
 
   async generateReport() {
     const margin = 10;
@@ -830,5 +830,4 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       return null;
     }
   }
-  
 }

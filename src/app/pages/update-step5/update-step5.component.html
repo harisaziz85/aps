@@ -40,13 +40,11 @@
           <form *ngIf="projectAttributes">
             <div class="form-group">
               <div class="field-group d-flex m1" style="align-items: flex-end;">
-                
-                <div class="d-flex  flex-column" style="flex: 1;">
+                <div class="d-flex flex-column" style="flex: 1;">
                   <label for="reportType" style="margin-bottom: 5px;">Report Type</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="reportTypeToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center; position: relative;">
                       <span>{{ selectedAttributes['Report Type'] || 'Select Report Type' }}</span>
-                      
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="reportTypeToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Report Type'] = 'standard'">Standard Reports</button></li>
@@ -59,13 +57,11 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="subCategory" style="margin-bottom: 5px;">Sub-category</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="subCategoryToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center; position: relative;">
                       <span>{{ selectedAttributes['Sub-category'] || 'Select Sub-category' }}</span>
-                      
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="subCategoryToggle">
                       <li *ngFor="let category of subCategoryOptions"><button class="dropdown-item" (click)="addSubCategory(category)">{{ category }}</button></li>
@@ -74,23 +70,22 @@
                 </div>
               </div>
             </div>
+            <div class="my-3 d-flex align-items-center">
+              <input type="checkbox" style="height: 20px; width:20px; accent-color:black" class="me-3 ms-2" (change)="toggleSelectAll($event)"> Select All
+            </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-              <input 
-  type="checkbox" 
-  id="productNameCheck" 
-  [(ngModel)]="selectedAttributes['Product Name']" 
-  name="productNameCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
-
-
+                <input 
+                  type="checkbox" 
+                  id="productNameCheck" 
+                  [(ngModel)]="selectedAttributes['Product Name']" 
+                  name="productNameCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="productName" style="margin-bottom: 5px;">Product Name</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="productNameToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Product Name'] || 'Select a product' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="productNameToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Product Name'] = ''; updateApprovalDocuments()">Select a product</button></li>
@@ -103,18 +98,16 @@
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <input 
-  type="checkbox" 
-  id="approvalCheck" 
-  [(ngModel)]="selectedAttributes['Approval']" 
-  name="approvalCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                  type="checkbox" 
+                  id="approvalCheck" 
+                  [(ngModel)]="selectedAttributes['Approval']" 
+                  name="approvalCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="approval" style="margin-bottom: 5px;">Approval</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="approvalToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Approval'] || 'Select an approval document' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="approvalToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Approval'] = ''">Select an approval document</button></li>
@@ -126,13 +119,12 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input 
-  type="checkbox" 
-  id="buildingCheck" 
-  [(ngModel)]="selectedAttributes['Building']" 
-  name="buildingCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="buildingCheck" 
+                  [(ngModel)]="selectedAttributes['Building']" 
+                  name="buildingCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="building" style="margin-bottom: 5px;">Building</label>
                   <input type="text" id="building" class="form-control" [(ngModel)]="selectedAttributes['Building']" name="building" style="width: 100%;">
@@ -142,18 +134,16 @@
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <input 
-  type="checkbox" 
-  id="levelCheck" 
-  [(ngModel)]="selectedAttributes['Level']" 
-  name="levelCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                  type="checkbox" 
+                  id="levelCheck" 
+                  [(ngModel)]="selectedAttributes['Level']" 
+                  name="levelCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="level" style="margin-bottom: 5px;">Level</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="levelToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Level'] || 'Select a level' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="levelToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Level'] = ''">Select a level</button></li>
@@ -166,12 +156,11 @@
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <input 
-  type="checkbox" 
-  id="itemCheck" 
-  [(ngModel)]="selectedAttributes['Item #']" 
-  name="itemCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                  type="checkbox" 
+                  id="itemCheck" 
+                  [(ngModel)]="selectedAttributes['Item #']" 
+                  name="itemCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="item" style="margin-bottom: 5px;">Item #</label>
                   <input type="text" id="item" class="form-control" [value]="getAttributeValue('Item #')" style="width: 100%;">
@@ -181,12 +170,11 @@
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <input 
-  type="checkbox" 
-  id="testReferenceCheck" 
-  [(ngModel)]="selectedAttributes['Test Reference']" 
-  name="testReferenceCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                  type="checkbox" 
+                  id="testReferenceCheck" 
+                  [(ngModel)]="selectedAttributes['Test Reference']" 
+                  name="testReferenceCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="testReference" style="margin-bottom: 5px;">Test Reference</label>
                   <input type="text" id="testReference" class="form-control" [value]="getAttributeValue('Test Reference')" style="width: 100%;">
@@ -196,12 +184,11 @@
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <input 
-  type="checkbox" 
-  id="locationCheck" 
-  [(ngModel)]="selectedAttributes['Location']" 
-  name="locationCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                  type="checkbox" 
+                  id="locationCheck" 
+                  [(ngModel)]="selectedAttributes['Location']" 
+                  name="locationCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="location" style="margin-bottom: 5px;">Location</label>
                   <input type="text" id="location" class="form-control" [value]="getAttributeValue('Location')" style="width: 100%;">
@@ -210,18 +197,17 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input 
-  type="checkbox" 
-  id="frlCheck" 
-  [(ngModel)]="selectedAttributes['FRL']" 
-  name="frlCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
+                <input 
+                  type="checkbox" 
+                  id="frlCheck" 
+                  [(ngModel)]="selectedAttributes['FRL']" 
+                  name="frlCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="frl" style="margin-bottom: 5px;">FRL</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="frlToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['FRL'] || 'Select FRL' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="frlToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['FRL'] = ''">Select FRL</button></li>
@@ -233,19 +219,17 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input
-  type="checkbox"
-  id="barrierCheck"
-  [(ngModel)]="selectedAttributes['Barrier']"
-  name="barrierCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="barrierCheck" 
+                  [(ngModel)]="selectedAttributes['Barrier']" 
+                  name="barrierCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="barrier" style="margin-bottom: 5px;">Barrier</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="barrierToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Barrier'] || 'Select Barrier' }}</span>
-                    
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="barrierToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Barrier'] = ''">Select Barrier</button></li>
@@ -257,13 +241,12 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input
-  type="checkbox"
-  id="descriptionCheck"
-  [(ngModel)]="selectedAttributes['Description']"
-  name="descriptionCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="descriptionCheck" 
+                  [(ngModel)]="selectedAttributes['Description']" 
+                  name="descriptionCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="description" style="margin-bottom: 5px;">Description</label>
                   <input type="text" id="description" class="form-control" [value]="getAttributeValue('Description')" style="width: 100%;">
@@ -272,19 +255,17 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input
-  type="checkbox"
-  id="installerCheck"
-  [(ngModel)]="selectedAttributes['Installer']"
-  name="installerCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="installerCheck" 
+                  [(ngModel)]="selectedAttributes['Installer']" 
+                  name="installerCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="installer" style="margin-bottom: 5px;">Installer</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="installerToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Installer'] || 'Select Installer' }}</span>
-                    
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="installerToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Installer'] = ''">Select Installer</button></li>
@@ -296,19 +277,17 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input
-  type="checkbox"
-  id="inspectorCheck"
-  [(ngModel)]="selectedAttributes['Inspector']"
-  name="inspectorCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="inspectorCheck" 
+                  [(ngModel)]="selectedAttributes['Inspector']" 
+                  name="inspectorCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="inspector" style="margin-bottom: 5px;">Inspector</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="inspectorToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Inspector'] || 'Select Inspector' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="inspectorToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Inspector'] = ''">Select Inspector</button></li>
@@ -320,19 +299,17 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input
-  type="checkbox"
-  id="safetyMeasuresCheck"
-  [(ngModel)]="selectedAttributes['Safety Measures']"
-  name="safetyMeasuresCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="safetyMeasuresCheck" 
+                  [(ngModel)]="selectedAttributes['Safety Measures']" 
+                  name="safetyMeasuresCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="safetyMeasures" style="margin-bottom: 5px;">Safety Measures</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="safetyMeasuresToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Safety Measures'] || 'Select Safety Measures' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="safetyMeasuresToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Safety Measures'] = ''">Select Safety Measures</button></li>
@@ -345,18 +322,16 @@
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
                 <input 
-  type="checkbox"  
-  id="relevanceCheck" 
-  [(ngModel)]="selectedAttributes['Relevance to Building Code']" 
-  name="relevanceCheck" 
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                  type="checkbox" 
+                  id="relevanceCheck" 
+                  [(ngModel)]="selectedAttributes['Relevance to Building Code']" 
+                  name="relevanceCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="relevance" style="margin-bottom: 5px;">Relevance to Building Code</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="relevanceToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Relevance to Building Code'] || 'Select Relevance' }}</span>
-                     
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="relevanceToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Relevance to Building Code'] = ''">Select Relevance</button></li>
@@ -368,20 +343,17 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input
-  type="checkbox"
-  id="complianceCheck"
-  [(ngModel)]="selectedAttributes['Compliance']"
-  name="complianceCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
-
+                <input 
+                  type="checkbox" 
+                  id="complianceCheck" 
+                  [(ngModel)]="selectedAttributes['Compliance']" 
+                  name="complianceCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="compliance" style="margin-bottom: 5px;">Compliance</label>
                   <div class="custom-dropdown">
                     <button type="button" class="dropdown-toggle form-control" id="complianceToggle" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                       <span>{{ selectedAttributes['Compliance'] || 'Select Compliance' }}</span>
-                      
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="complianceToggle">
                       <li><button class="dropdown-item" (click)="selectedAttributes['Compliance'] = ''">Select Compliance</button></li>
@@ -393,13 +365,12 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-              <input
-  type="checkbox"
-  id="commentsCheck"
-  [(ngModel)]="selectedAttributes['Comments']"
-  name="commentsCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="commentsCheck" 
+                  [(ngModel)]="selectedAttributes['Comments']" 
+                  name="commentsCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="comments" style="margin-bottom: 5px;">Comments</label>
                   <input type="text" id="comments" class="form-control" [value]="getAttributeValue('Comments')" style="width: 100%;">
@@ -408,13 +379,12 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input
-  type="checkbox"
-  id="notesCheck"
-  [(ngModel)]="selectedAttributes['Notes']"
-  name="notesCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
-
+                <input 
+                  type="checkbox" 
+                  id="notesCheck" 
+                  [(ngModel)]="selectedAttributes['Notes']" 
+                  name="notesCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="notes" style="margin-bottom: 5px;">Notes</label>
                   <input type="text" id="notes" class="form-control" [value]="getAttributeValue('Notes')" style="width: 100%;">
@@ -423,14 +393,13 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-               <input
-  type="checkbox"
-  id="timeCheck"
-  class="form-check-input"
-  [(ngModel)]="selectedAttributes['Time']"
-  name="timeCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black !important; appearance: auto !important;">
-
+                <input 
+                  type="checkbox" 
+                  id="timeCheck" 
+                  class="form-check-input" 
+                  [(ngModel)]="selectedAttributes['Time']" 
+                  name="timeCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black !important; appearance: auto !important;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="time" style="margin-bottom: 5px;">Time</label>
                   <input type="text" id="time" class="form-control" [value]="getAttributeValue('Time')" style="width: 100%;">
@@ -439,14 +408,13 @@
             </div>
             <div class="form-group m1">
               <div class="field-group d-flex" style="align-items: flex-end;">
-                <input
-  type="checkbox"
-  id="priceExcludingGSTCheck"
-  class="form-check-input ip2"
-  [(ngModel)]="selectedAttributes['Price Excluding GST']"
-  name="priceExcludingGSTCheck"
-  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black !important; appearance: auto !important;">
-
+                <input 
+                  type="checkbox" 
+                  id="priceExcludingGSTCheck" 
+                  class="form-check-input ip2" 
+                  [(ngModel)]="selectedAttributes['Price Excluding GST']" 
+                  name="priceExcludingGSTCheck" 
+                  style="width: 20px; height: 20px; margin-right: 10px; accent-color: black !important; appearance: auto !important;">
                 <div class="d-flex flex-column" style="flex: 1;">
                   <label for="priceExcludingGST" style="margin-bottom: 5px;">Price Excluding GST</label>
                   <input type="text" id="priceExcludingGST" class="form-control" [value]="getAttributeValue('Price Excluding GST')" style="width: 100%;">
