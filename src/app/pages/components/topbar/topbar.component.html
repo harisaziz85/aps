@@ -13,7 +13,7 @@
         <path d="M21.0007 15.6667H10.334" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-    <div class="notification-wrapper" (click)="toggleNotificationDropdown()">
+    <div class="notification-wrapper" #notificationDropdown (click)="toggleNotificationDropdown()">
       <button
         class="btna robotoregular"
         data-bs-toggle="tooltip"
@@ -141,13 +141,6 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
 
 <!-- Data Exchange Modal -->
 <div class="setting-modal-overlay zi" *ngIf="isModalOpen" (click)="closeModalIfOutside($event)">
@@ -390,7 +383,7 @@
                   <input type="text" class="form-control" [(ngModel)]="tempExistingProjectName" style="border: 0px;" placeholder="Enter project name" />
                   <button class="btn" (click)="confirmExistingProjectName()" style="margin-right: 5px; border:0px">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
+<path d="M10 0.5H30C35.2467 0.5 39.5 47.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M13.75 20.25L17.75 25.25L26.25 14.75" stroke="#25EA8B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 

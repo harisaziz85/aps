@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, Input, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, AfterViewInit, HostListener } from '@angular/core';
 import { faRightLeft, faBell, faGear, faUser, faEnvelope, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import * as bootstrap from 'bootstrap';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -77,6 +77,8 @@ export class TopbarComponent implements AfterViewInit {
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('newProjectFileInput') newProjectFileInput!: ElementRef;
   @ViewChild('existingProjectFileInput') existingProjectFileInput!: ElementRef;
+  @ViewChild('userDropdown') userDropdown!: ElementRef;
+  @ViewChild('notificationDropdown') notificationDropdown!: ElementRef;
 
   constructor(
     private router: Router,
@@ -136,6 +138,27 @@ export class TopbarComponent implements AfterViewInit {
     });
   }
 
+  @HostListener('document:click', ['$event'])
+  handleOutsideClick(event: MouseEvent) {
+    // Close user dropdown if clicking outside
+    if (this.isDropdownOpen && this.userDropdown && !this.userDropdown.nativeElement.contains(event.target)) {
+      this.isDropdownOpen = false;
+    }
+
+    // Close notification dropdown if clicking outside
+    if (this.showDropdown && this.notificationDropdown && !this.notificationDropdown.nativeElement.contains(event.target)) {
+      this.showDropdown = false;
+    }
+
+    // Close modal if clicking outside
+    if (this.isModalOpen) {
+      const modalOverlay = document.querySelector('.setting-modal-overlay');
+      if (modalOverlay && modalOverlay.contains(event.target as Node) && !modalOverlay.contains(event.target as Node)) {
+        this.closeModal();
+      }
+    }
+  }
+
   getDeepestChild(route: ActivatedRoute): string {
     let currentRoute = route;
     while (currentRoute.firstChild) {
@@ -151,10 +174,10 @@ export class TopbarComponent implements AfterViewInit {
   toggleProjectDropdown(projectId: string): void {
     this.projectDropdownStates[projectId] = !this.projectDropdownStates[projectId];
     Object.keys(this.projectDropdownStates).forEach(key => {
-      if (key !== projectId) {
-        this.projectDropdownStates[key] = false;
-      }
-    });
+  if (key !== projectId) {
+    this.projectDropdownStates[key] = false;
+  }
+});
   }
 
   toggleNotificationDropdown(): void {
@@ -236,6 +259,7 @@ export class TopbarComponent implements AfterViewInit {
 
   saveSettings() {
     const formData = new FormData();
+
     formData.append('username', this.userName);
     formData.append('email', this.email);
     if (this.currentPassword && this.newPassword && this.confirmPassword) {

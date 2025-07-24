@@ -1,4 +1,4 @@
- import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
@@ -62,7 +62,7 @@ export class PresentationComponent implements OnInit {
   reportTypes: string[] = ['Standard Reports', '2D Reports', 'Excel Reports'];
   selectedFields: { [key: string]: boolean } = {};
   selectedFieldValues: { [key: string]: string } = {};
-  dropdownStates: { [key: string]: boolean } = {}; // Track dropdown open state for each field
+  dropdownStates: { [key: string]: boolean } = {};
   reportFields: { key: string; name: string }[] = [
     { key: 'building', name: 'Building' },
     { key: 'level', name: 'Level' },
@@ -181,7 +181,6 @@ export class PresentationComponent implements OnInit {
     this.updateSelectedProductName();
     this.updateSelectedApprovalDocumentName();
     this.isProductDropdownOpen = false;
-    this.isApprovalDropdownOpen = false;
     this.cdr.detectChanges();
   }
 
@@ -226,15 +225,14 @@ export class PresentationComponent implements OnInit {
         this.attributeValues = {};
         attributes.forEach((attr: any) => {
           this.attributeValues[attr.name.toLowerCase()] = Array.isArray(attr.value) ? attr.value : [attr.value || 'N/A'];
-          this.dropdownStates[attr.name.toLowerCase()] = false; // Initialize dropdown state
+          this.dropdownStates[attr.name.toLowerCase()] = false;
         });
         this.hierarchyLevels = response.data.subProjects || [];
         this.attributeValues['level'] = this.hierarchyLevels;
         this.dropdownStates['level'] = false;
-        // Initialize dropdown states for fields not in API (installer, inspector, safetyMeasures)
         ['installer', 'inspector', 'safetyMeasures'].forEach(field => {
           if (!this.attributeValues[field]) {
-            this.attributeValues[field] = ['N/A']; // Default for fields without API values
+            this.attributeValues[field] = ['N/A'];
             this.dropdownStates[field] = false;
           }
         });
@@ -558,6 +556,7 @@ export class PresentationComponent implements OnInit {
     event.stopPropagation();
     this.selectedOption = option;
     this.isDropdownOpen = false;
+    this.cdr.detectChanges();
   }
 
   toggleSelectAll(event: Event): void {
@@ -592,7 +591,6 @@ export class PresentationComponent implements OnInit {
 
   toggleFieldDropdown(fieldKey: string): void {
     this.dropdownStates[fieldKey] = !this.dropdownStates[fieldKey];
-    // Close other dropdowns
     Object.keys(this.dropdownStates).forEach(key => {
       if (key !== fieldKey) {
         this.dropdownStates[key] = false;
@@ -635,6 +633,7 @@ export class PresentationComponent implements OnInit {
     const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
     const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
     const maxHierarchyImageHeight = 141.7;
+    const inspectionTopMargin = 20;
 
     const doc = new jsPDF({ format: 'a3' });
     let yOffset = margin;
@@ -809,7 +808,8 @@ export class PresentationComponent implements OnInit {
       yOffset += lineHeight * 4;
     }
 
-    checkPageBreak(lineHeight * 6);
+    checkPageBreak(inspectionTopMargin + lineHeight * 6);
+    yOffset += inspectionTopMargin;
     const inspectionStartY = yOffset;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
@@ -1130,20 +1130,24 @@ export class PresentationComponent implements OnInit {
   }
 
   fetchReports(): void {
-    if (this.projectId && this.instanceId) {
+    if (this.projectId) {
       this.isLoadingReports = true;
-      this.presentationService.getReportsByInstance(this.projectId, this.instanceId).subscribe({
-        next: (response: any) => {
+      this.http.get<{ message: string; data: any[] }>(`https://vps.allpassiveservices.com.au/api/project/reports/${this.projectId}`).subscribe({
+        next: (response) => {
           this.reports = response.data || [];
           this.isLoadingReports = false;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.reports = [];
           this.isLoadingReports = false;
+          this.cdr.detectChanges();
         }
       });
     } else {
       this.reports = [];
+      this.isLoadingReports = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -1170,4 +1174,4 @@ export class PresentationComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
   }
-} 
+}

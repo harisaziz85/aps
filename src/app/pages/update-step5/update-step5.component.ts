@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Modal } from 'bootstrap';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/Uploads/1752585290123-129536.jpg',
+    fileUrl: '/uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -324,18 +324,34 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     if (!url || url === 'N/A') {
       return '/assets/placeholder.png';
     }
-    const serverDomains = ['https://vps.allpassiveservices.com.au', 'http://95.111.223.104:8000'];
+
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocal
+      ? 'http://localhost:4200'
+      : 'https://aps-app-frontend.vercel.app';
+
+    const serverDomains = [
+      'https://vps.allpassiveservices.com.au',
+      'http://95.111.223.104:8000'
+    ];
+
     let convertedUrl = url;
     for (const domain of serverDomains) {
       if (url.startsWith(domain)) {
         const path = url.replace(domain, '').replace(/^\/uploads\//, '/');
-        convertedUrl = `/uploads${path}`;
+        convertedUrl = `${baseUrl}/uploads${path}`;
         return convertedUrl;
       }
     }
-    if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
+
+    if (url.startsWith('/uploads/')) {
+      return `${baseUrl}${url}`;
+    }
+
+    if (url.startsWith('/assets/')) {
       return url;
     }
+
     return '/assets/placeholder.png';
   }
 
@@ -771,63 +787,62 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
     try {
+      // Fetch image as a blob with proper headers
+      const response = await this.http.get(url, {
+        headers: new HttpHeaders({
+          'Accept': 'image/*',
+          'Cache-Control': 'no-cache'
+        }),
+        responseType: 'blob'
+      }).toPromise();
+
+      if (!response) {
+        throw new Error('No response received');
+      }
+
+      // Convert blob to data URL
       return await new Promise<string>((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.src = url + (url.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
-
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            try {
-              const dataUrl = canvas.toDataURL('image/png');
-              resolve(dataUrl);
-            } catch (error) {
-              console.error(`Canvas toDataURL error for ${url}:`, error);
-              reject(`Canvas error: ${error}`);
-            }
-          } else {
-            console.error(`Failed to create canvas context for ${url}`);
-            reject('Failed to create canvas context');
-          }
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result as string);
         };
-
-        img.onerror = (err) => {
-          console.error(`Failed to load image ${url}:`, err);
-          const fallbackImg = new Image();
-          fallbackImg.src = fallbackImageUrl;
-          fallbackImg.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = fallbackImg.width;
-            canvas.height = fallbackImg.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(fallbackImg, 0, 0);
-              try {
-                const dataUrl = canvas.toDataURL('image/png');
-                resolve(dataUrl);
-              } catch (error) {
-                console.error(`Canvas toDataURL error for fallback image ${fallbackImageUrl}:`, error);
-                reject(`Canvas error for fallback: ${error}`);
-              }
-            } else {
-              console.error(`Failed to create canvas context for fallback image ${fallbackImageUrl}`);
-              reject('Failed to create canvas context for fallback');
-            }
-          };
-          fallbackImg.onerror = (fallbackErr) => {
-            console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackErr);
-            reject(`Image load failed: ${err}, Fallback also failed: ${fallbackErr}`);
-          };
+        reader.onerror = () => {
+          console.error(`Failed to read blob for ${url}`);
+          reject('Failed to read blob');
         };
+        reader.readAsDataURL(response);
       });
     } catch (error) {
-      console.error(`Error in getImageData for ${url}:`, error);
-      return null;
+      console.error(`Error fetching image ${url}:`, error);
+      // Try fetching the fallback image
+      try {
+        const fallbackResponse = await this.http.get(fallbackImageUrl, {
+          headers: new HttpHeaders({
+            'Accept': 'image/*',
+            'Cache-Control': 'no-cache'
+          }),
+          responseType: 'blob'
+        }).toPromise();
+
+        if (!fallbackResponse) {
+          throw new Error('No response for fallback image');
+        }
+
+        return await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(reader.result as string);
+          };
+          reader.onerror = () => {
+            console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
+            reject('Failed to read fallback blob');
+          };
+          reader.readAsDataURL(fallbackResponse);
+        });
+      } catch (fallbackError) {
+        console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackError);
+        return null;
+      }
     }
   }
 }
