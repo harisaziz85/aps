@@ -42,6 +42,13 @@
               }
             ],
             "styles": [
+              "node_modules/@syncfusion/ej2-base/styles/material.css",
+  "node_modules/@syncfusion/ej2-buttons/styles/material.css",
+  "node_modules/@syncfusion/ej2-popups/styles/material.css",
+  "node_modules/@syncfusion/ej2-splitbuttons/styles/material.css",
+  "node_modules/@syncfusion/ej2-inputs/styles/material.css",
+  "node_modules/@syncfusion/ej2-navigations/styles/material.css",
+  "node_modules/@syncfusion/ej2-image-editor/styles/material.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
               "node_modules/font-awesome/css/font-awesome.min.css"

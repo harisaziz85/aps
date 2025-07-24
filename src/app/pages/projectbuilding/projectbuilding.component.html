@@ -61,8 +61,16 @@
     <table class="table project-table w-100">
       <thead class="head1 bg-white" style="background-color: #f8f9fa; color: #333;">
         <tr class="onestsemibold">
-          <th><input type="checkbox" class="chk" style="position: relative; top: 4px;" [(ngModel)]="selectAll"
-              (change)="toggleSelectAll()"></th>
+          <th>
+            <!-- Fixed Select All Checkbox -->
+            <input 
+              type="checkbox" 
+              class="chk" 
+              style="position: relative; top: 4px;" 
+              [checked]="selectAll"
+              (change)="toggleSelectAll()"
+            >
+          </th>
           <th>
             <app-svg-icons icon="project1" size="16"></app-svg-icons>
             Project Name
@@ -137,8 +145,13 @@
         <ng-container *ngIf="!isLoading && filteredProjects.length > 0">
           <tr *ngFor="let project of filteredProjects; let i = index" (click)="navigateToUpdate(project.id, $event)" style="cursor: pointer;">
             <td (click)="$event.stopPropagation()">
-              <input type="checkbox" class="chk" [(ngModel)]="project.selected"
-                (change)="toggleProjectSelection(project, $event)">
+              <!-- Fixed individual project checkbox -->
+              <input 
+                type="checkbox" 
+                class="chk" 
+                [checked]="project.selected"
+                (change)="toggleProjectSelection(project, $event)"
+              >
             </td>
             <td class="txt11 robotoregular">
               <app-svg-icons icon="project1" size="16"></app-svg-icons>
@@ -237,6 +250,8 @@
       </tbody>
     </table>
   </div>
+  
+  <!-- Archive Modal -->
   <div *ngIf="modalProject && modalAction === 'Archive'" class="confirm-action-modal">
     <div class="confirm-action-overlay" (click)="modalProject = null"></div>
     <div class="confirm-action-content">
@@ -245,7 +260,7 @@
         <button class="confirm-action-close" (click)="modalProject = null">X</button>
       </div>
       <div class="confirm-action-body">
-        <p class="robotoregular fp">You’re going to archive this project <strong>{{ modalProject?.name || 'N/A' }}</strong>. You can access archived projects later.</p>
+        <p class="robotoregular fp">You're going to archive this project <strong>{{ modalProject?.name || 'N/A' }}</strong>. You can access archived projects later.</p>
       </div>
       <div class="confirm-action-footer">
         <button class="btn btn-secondary onestmedium" (click)="modalProject = null">Cancel</button>
@@ -253,19 +268,22 @@
       </div>
     </div>
   </div>
+  
+  <!-- Delete Modal -->
   <div *ngIf="modalProject && modalAction === 'Delete'" class="confirm-action-modal">
     <div class="confirm-action-overlay" (click)="modalProject = null"></div>
     <div class="confirm-action-content1">
       <div class="confirm-action-header">
         <h3 class="onestbold h2">Confirm Delete</h3>
-        <button class="confirm-action-close" (click)="modalProject = null"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15.3327 8.66602L8.66602 15.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.66602 8.66602L15.3327 15.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</button>
+        <button class="confirm-action-close" (click)="modalProject = null">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.3327 8.66602L8.66602 15.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.66602 8.66602L15.3327 15.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
       <div class="confirm-action-body">
-        <p class="robotoregular fp">You’re going to delete project <strong>{{ modalProject?.name || 'N/A' }}</strong>. Deletion is permanent and cannot be undone.</p>
+        <p class="robotoregular fp">You're going to delete project <strong>{{ modalProject?.name || 'N/A' }}</strong>. Deletion is permanent and cannot be undone.</p>
         <p class="robotobold fp">Confirm by typing Delete below:</p>
         <input type="text" class="confirm-action-input" [(ngModel)]="confirmInput" placeholder="Type Delete" />
       </div>
@@ -275,6 +293,8 @@
       </div>
     </div>
   </div>
+  
+  <!-- Bulk Archive Modal -->
   <div *ngIf="showBulkModal && modalAction === 'Archive'" class="confirm-action-modal">
     <div class="confirm-action-overlay" (click)="closeBulkModalAction()"></div>
     <div class="confirm-action-content" style="width: 600px;">
@@ -282,13 +302,13 @@
         <h3 class="onestbold h2">Archive Projects</h3>
         <button class="confirm-action-close" (click)="closeBulkModalAction()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15.3327 8.66797L8.66602 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.66602 8.66797L15.3327 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+            <path d="M15.3327 8.66797L8.66602 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.66602 8.66797L15.3327 15.3346" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </div>
       <div class="confirm-action-body onestbold">
-        <p class="onestbold fp">You’re going to archive {{ selectedProjects.size }} selected project(s). You can access archived projects later.</p>
+        <p class="onestbold fp">You're going to archive {{ selectedProjects.size }} selected project(s). You can access archived projects later.</p>
       </div>
       <div class="confirm-action-footer">
         <button class="btn btn-secondary onestmedium" (click)="closeBulkModalAction()" style="height: 40px; width:94px">Cancel</button>
@@ -296,6 +316,8 @@
       </div>
     </div>
   </div>
+  
+  <!-- Bulk Delete Modal -->
   <div *ngIf="showBulkModal && modalAction === 'Delete'" class="confirm-action-modal">
     <div class="confirm-action-overlay" (click)="closeBulkModalAction()"></div>
     <div class="confirm-action-content1">
@@ -304,7 +326,7 @@
         <button class="confirm-action-close" (click)="closeBulkModalAction()">X</button>
       </div>
       <div class="confirm-action-body1">
-        <p class="robotoregular fp">You’re about to delete {{ selectedProjects.size }} selected project(s).</p>
+        <p class="robotoregular fp">You're about to delete {{ selectedProjects.size }} selected project(s).</p>
         <p class="robotoregular fp">Please type <strong>Delete</strong> to confirm:</p>
         <input type="text" class="confirm-action-input" [(ngModel)]="confirmInput" placeholder="Type Delete" />
       </div>
@@ -314,25 +336,26 @@
       </div>
     </div>
   </div>
-
- <!-- Note Modal Section -->
-<div *ngIf="showNoteModal" style="position: fixed; top: 0; right: 0; height: 100vh; width: 600px; background: #EEF0F1; z-index: 1000; display: flex; flex-direction: column;">
-  <div class="note-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 999;" (click)="closeNoteModal()"></div>
-  <div class="note-modal-content" style="position: relative; z-index: 1001; flex: 1; display: flex; flex-direction: column;">
-    <div class="note-modal-header" style="position: sticky; top: 0; background: #EEF0F1; padding: 20px; border-bottom: 1px solid #EEF0F1; z-index: 1002;">
-      <h3 class="onestbold h2" style="margin: 0;">Job Notes</h3>
-      <button class="note-modal-close" (click)="closeNoteModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer;"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="white"/>
-<path d="M25 15L15 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15 15L25 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</button>
-    </div>
-    <div class="note-modal-body" style="flex: 1; overflow-y: auto; padding: 20px; background: #EEF0F1;">
-      <p class="robotoregular card" style="font-size: 16px;height:56px;display:flex;align-items:center;flex-direction:row;padding-left:16px;border-radius:15px; ">{{ selectedProject?.name || 'N/A' }}</p>
-      <p class="robotoregular card" style="font-size: 16px;min-height:56px;display:flex;align-items:center;flex-direction:row;padding-left:16px;border-radius:15px; ">{{ selectedNote || 'No note selected' }}</p>
+  
+  <!-- Note Modal -->
+  <div *ngIf="showNoteModal" style="position: fixed; top: 0; right: 0; height: 100vh; width: 600px; background: #EEF0F1; z-index: 1000; display: flex; flex-direction: column;">
+    <div class="note-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 999;" (click)="closeNoteModal()"></div>
+    <div class="note-modal-content" style="position: relative; z-index: 1001; flex: 1; display: flex; flex-direction: column;">
+      <div class="note-modal-header" style="position: sticky; top: 0; background: #EEF0F1; padding: 20px; border-bottom: 1px solid #EEF0F1; z-index: 1002;">
+        <h3 class="onestbold h2" style="margin: 0;">Job Notes</h3>
+        <button class="note-modal-close" (click)="closeNoteModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer;">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="white"/>
+            <path d="M25 15L15 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 15L25 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="note-modal-body" style="flex: 1; overflow-y: auto; padding: 20px; background: #EEF0F1;">
+        <p class="robotoregular card" style="font-size: 16px;height:56px;display:flex;align-items:center;flex-direction:row;padding-left:16px;border-radius:15px; ">{{ selectedProject?.name || 'N/A' }}</p>
+        <p class="robotoregular card" style="font-size: 16px;min-height:56px;display:flex;align-items:center;flex-direction:row;padding-left:16px;border-radius:15px; ">{{ selectedNote || 'No note selected' }}</p>
+      </div>
     </div>
   </div>
-</div>
 </div>
 <app-foot></app-foot>

@@ -36,12 +36,12 @@ export class ProjectbuildingComponent implements OnInit {
   isLoading: boolean = false;
   selectAll: boolean = false;
   selectedProjects: Set<string> = new Set();
-  showDropdownIndex: number | null = null; // For action dropdown (Archive/Delete)
-  showStatusDropdownIndex: number | null = null; // For status dropdown
-  showNoteModal: boolean = false; // For note modal visibility
-  selectedNote: string | null = null; // To store the selected note
-  selectedProject: any = null; // To store the selected project for the note
-  statusOptions: string[] = ['Active', 'Waiting For Approval', 'Completed']; // Updated status options
+  showDropdownIndex: number | null = null;
+  showStatusDropdownIndex: number | null = null;
+  showNoteModal: boolean = false;
+  selectedNote: string | null = null;
+  selectedProject: any = null;
+  statusOptions: string[] = ['Active', 'Waiting For Approval', 'Completed'];
 
   constructor(
     private projectService: ProjectService,
@@ -135,7 +135,28 @@ export class ProjectbuildingComponent implements OnInit {
     } else {
       this.filteredProjects = [...this.projects];
     }
+    
+    // Update selectAll state based on current filtered projects
+    this.updateSelectAllState();
     this.cdr.detectChanges();
+  }
+
+  // New method to properly manage selectAll state
+  updateSelectAllState(): void {
+    if (this.filteredProjects.length === 0) {
+      this.selectAll = false;
+      return;
+    }
+    
+    // Check if all filtered projects are selected
+    this.selectAll = this.filteredProjects.every(project => 
+      this.selectedProjects.has(project.id) || project.selected
+    );
+    
+    // Update individual project selected state based on selectedProjects Set
+    this.filteredProjects.forEach(project => {
+      project.selected = this.selectedProjects.has(project.id);
+    });
   }
 
   getInstanceBadges(instances: string): string[] {
@@ -166,7 +187,7 @@ export class ProjectbuildingComponent implements OnInit {
         project.status = this.normalizeStatus(newStatus);
         this.applySearch();
         this.closeAllDropdowns();
-        setTimeout(() => this.cdr.detectChanges(), 0); // Force UI refresh
+        setTimeout(() => this.cdr.detectChanges(), 0);
       },
       error: (error) => {
         console.error('Error updating status:', error);
@@ -179,14 +200,14 @@ export class ProjectbuildingComponent implements OnInit {
 
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
-    this.showStatusDropdownIndex = null; // Close status dropdown
+    this.showStatusDropdownIndex = null;
     this.showDropdownIndex = this.showDropdownIndex === index ? null : index;
     this.cdr.detectChanges();
   }
 
   toggleStatusDropdown(index: number, event: Event): void {
     event.stopPropagation();
-    this.showDropdownIndex = null; // Close action dropdown
+    this.showDropdownIndex = null;
     this.showStatusDropdownIndex = this.showStatusDropdownIndex === index ? null : index;
     this.cdr.detectChanges();
   }
@@ -242,14 +263,6 @@ export class ProjectbuildingComponent implements OnInit {
     this.showStatusDropdownIndex = null;
   }
 
-  closeAllDropdownsOnOutsideClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.custom-dropdown') && !target.closest('.dropdown-content1')) {
-      this.closeAllDropdowns();
-      this.cdr.detectChanges();
-    }
-  }
-
   confirmAction(): void {
     if (!this.modalProject?.id) {
       alert('No project selected.');
@@ -266,13 +279,19 @@ export class ProjectbuildingComponent implements OnInit {
 
     action$.subscribe({
       next: () => {
+        // Remove from selectedProjects Set
+        this.selectedProjects.delete(this.modalProject.id);
+        
+        // Remove from projects array
         this.projects = this.projects.filter(p => p.id !== this.modalProject.id);
+        
+        // Update filtered projects and selectAll state
         this.applySearch();
+        
+        // Clear modal
         this.modalProject = null;
         this.modalAction = '';
         this.closeAllDropdowns();
-        this.selectedProjects.delete(this.modalProject.id);
-        this.loadProjects();
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -298,16 +317,17 @@ export class ProjectbuildingComponent implements OnInit {
     if (this.modalAction === 'Delete') {
       this.projectService.deleteProject(projectIds).subscribe({
         next: () => {
+          // Remove deleted projects from the arrays and Set
           this.projects = this.projects.filter(p => !projectIds.includes(p.id));
+          projectIds.forEach(id => this.selectedProjects.delete(id));
+          
+          // Update UI state
           this.applySearch();
-          this.selectedProjects.clear();
           this.selectAll = false;
-          this.filteredProjects.forEach(p => p.selected = false);
           this.showBulkModal = false;
           this.modalAction = '';
           this.confirmInput = '';
           this.isLoading = false;
-          this.loadProjects();
           this.cdr.detectChanges();
         },
         error: (error) => {
@@ -321,16 +341,17 @@ export class ProjectbuildingComponent implements OnInit {
       const archiveRequests = projectIds.map(id => this.projectService.archiveProject(id).toPromise());
       Promise.all(archiveRequests)
         .then(() => {
+          // Remove archived projects from the arrays and Set
           this.projects = this.projects.filter(p => !projectIds.includes(p.id));
+          projectIds.forEach(id => this.selectedProjects.delete(id));
+          
+          // Update UI state
           this.applySearch();
-          this.selectedProjects.clear();
           this.selectAll = false;
-          this.filteredProjects.forEach(p => p.selected = false);
           this.showBulkModal = false;
           this.modalAction = '';
           this.confirmInput = '';
           this.isLoading = false;
-          this.loadProjects();
           this.cdr.detectChanges();
         })
         .catch(error => {
@@ -343,35 +364,55 @@ export class ProjectbuildingComponent implements OnInit {
   }
 
   cancelSelection(): void {
+    // Clear all selections
     this.selectedProjects.clear();
     this.selectAll = false;
+    
+    // Update all project selected states
+    this.projects.forEach(p => p.selected = false);
     this.filteredProjects.forEach(p => p.selected = false);
+    
     this.closeAllDropdowns();
     this.cdr.detectChanges();
   }
 
+  // Fixed toggleSelectAll method
   toggleSelectAll(): void {
+    // Toggle the selectAll state
     this.selectAll = !this.selectAll;
-    this.filteredProjects.forEach(project => {
-      project.selected = this.selectAll;
-      if (this.selectAll) {
+    
+    if (this.selectAll) {
+      // Select all filtered projects
+      this.filteredProjects.forEach(project => {
+        project.selected = true;
         this.selectedProjects.add(project.id);
-      } else {
+      });
+    } else {
+      // Deselect all filtered projects
+      this.filteredProjects.forEach(project => {
+        project.selected = false;
         this.selectedProjects.delete(project.id);
-      }
-    });
+      });
+    }
+    
     this.cdr.detectChanges();
   }
 
+  // Fixed toggleProjectSelection method
   toggleProjectSelection(project: any, event: Event): void {
     event.stopPropagation();
+    
+    // Toggle project selection
     project.selected = !project.selected;
+    
     if (project.selected) {
       this.selectedProjects.add(project.id);
     } else {
       this.selectedProjects.delete(project.id);
     }
-    this.selectAll = this.filteredProjects.every(p => p.selected);
+    
+    // Update selectAll state
+    this.updateSelectAllState();
     this.cdr.detectChanges();
   }
 

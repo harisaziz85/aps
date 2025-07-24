@@ -676,18 +676,16 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     console.log('Toggling dropdown4, new state:', this.isDropdownOpen4);
   }
 
-  toggleDropdown5(event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.isDropdownOpen5 = !this.isDropdownOpen5;
-    this.closeOtherDropdowns('dropdown-toggle-5');
-    if (this.isDropdownOpen5) {
-      this.searchQuery = '';
-      this.filteredEmployees = [...this.employees];
-    }
-    console.log('Toggling dropdown5, new state:', this.isDropdownOpen5);
+  toggleDropdown5(event: Event): void {
+  event.stopPropagation();
+  this.isDropdownOpen5 = !this.isDropdownOpen5;
+  this.closeOtherDropdowns('dropdown-toggle-5');
+  if (this.isDropdownOpen5) {
+    this.searchQuery = '';
+    this.filteredEmployees = [...this.employees];
   }
+  console.log('Toggling Assign Employees dropdown, new state:', this.isDropdownOpen5);
+}
 
   toggleDropdown6(event?: Event) {
     if (event) {
@@ -699,15 +697,12 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     console.log('Toggling dropdown6, new state:', this.isDropdownOpen6);
   }
 
-  toggleDropdown7(event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.isDropdownOpen7 = !this.isDropdownOpen7;
-    this.closeOtherDropdowns('dropdown-toggle-7');
-    console.log('Toggling dropdown7, new state:', this.isDropdownOpen7);
-  }
-
+  toggleDropdown7(event: Event): void {
+  event.stopPropagation();
+  this.isDropdownOpen7 = !this.isDropdownOpen7;
+  this.closeOtherDropdowns('dropdown-toggle-7');
+  console.log('Toggling Client Name dropdown, new state:', this.isDropdownOpen7);
+}
   toggleDropdown12(event?: Event) {
     if (event) {
       event.stopPropagation();
@@ -717,28 +712,26 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     console.log('Toggling dropdown8, new state:', this.dropdown8.isOpen);
   }
 
-  toggleDropdown30(event: Event): void {
-    event.stopPropagation();
-    this.isDropdownOpen30 = !this.isDropdownOpen30;
-    this.closeOtherDropdowns('dropdown-toggle-30');
-    console.log('Toggling dropdown30, new state:', this.isDropdownOpen30);
-  }
+ toggleDropdown30(event: Event): void {
+  event.stopPropagation();
+  this.isDropdownOpen30 = !this.isDropdownOpen30;
+  this.closeOtherDropdowns('dropdown-toggle-30');
+  console.log('Toggling Product ID dropdown, new state:', this.isDropdownOpen30);
+}
 
   toggleDropdown31(event: Event): void {
-    event.stopPropagation();
-    this.isDropdownOpen31 = !this.isDropdownOpen31;
-    this.closeOtherDropdowns('dropdown-toggle-31');
-    console.log('Toggling dropdown31, new state:', this.isDropdownOpen31);
-  }
+  event.stopPropagation();
+  this.isDropdownOpen31 = !this.isDropdownOpen31;
+  this.closeOtherDropdowns('dropdown-toggle-31');
+  console.log('Toggling Approval Documents dropdown, new state:', this.isDropdownOpen31);
+}
 
-  toggleDropdownli(event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.isDropdownOpenli = !this.isDropdownOpenli;
-    this.closeOtherDropdowns('dropdown-toggle-li');
-    console.log('Toggling dropdownli, new state:', this.isDropdownOpenli);
-  }
+  toggleDropdownli(event: Event): void {
+  event.stopPropagation();
+  this.isDropdownOpenli = !this.isDropdownOpenli;
+  this.closeOtherDropdowns('dropdown-toggle-li');
+  console.log('Toggling Template Name dropdown, new state:', this.isDropdownOpenli);
+}
 
   toggleDropdownMainType(event: Event): void {
     event.stopPropagation();
@@ -942,13 +935,13 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   }
 
   selectProduct(productId: string, event: Event): void {
-    event.stopPropagation();
-    this.productId = productId;
-    this.isDropdownOpen30 = false;
-    this.onProductChange();
-    console.log('Selected product:', productId);
-    this.saveFormData();
-  }
+  event.stopPropagation();
+  this.productId = productId;
+  this.isDropdownOpen30 = false;
+  this.onProductChange();
+  console.log('Selected Product ID:', productId);
+  this.saveFormData();
+}
 
   selectApprovalDocument(docId: string, event: Event): void {
     event.stopPropagation();

@@ -1,4 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@syncfusion/ej2-base/styles/material.css';
+@import '@syncfusion/ej2-buttons/styles/material.css';
+@import '@syncfusion/ej2-popups/styles/material.css';
+@import '@syncfusion/ej2-splitbuttons/styles/material.css';
+@import '@syncfusion/ej2-inputs/styles/material.css';
+@import '@syncfusion/ej2-navigations/styles/material.css';
+@import '@syncfusion/ej2-image-editor/styles/material.css';
 .no-scroll {
     overflow: hidden !important;
     height: 100% !important;

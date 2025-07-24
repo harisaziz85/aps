@@ -365,7 +365,7 @@
                 </svg>
               </span>
               <div class="dropdown-menu" *ngIf="isDropdownOpenli" (click)="stopPropagation($event)">
-                <div class="dropdown-item" *ngFor="let option of optionsli" (click)="selectOptionli(option)">
+                <div class="dropdown-item"  style="color:black !important" *ngFor="let option of optionsli" (click)="selectOptionli(option)">
                   {{ option.label }}
                 </div>
               </div>
@@ -384,7 +384,7 @@
   <div class="col-6">
     <label for="productId" class="robotoregular txt mb">Product ID <span class="star">*</span></label>
     <div class="form-group position-relative">
-      <div class="custom-dropdown" id="productId" (click)="toggleDropdown30($event)">
+      <div class="custom-dropdown" style="color:black !important" id="productId" (click)="toggleDropdown30($event)">
         <div class="dropdown-selected robotoregular" [class.placeholder]="!productId">
           {{ productId ? getProductName(productId) : 'Select a product' }}
         </div>
@@ -394,7 +394,7 @@
           </svg>
         </span>
         <div class="dropdown-menu" *ngIf="isDropdownOpen30">
-          <div class="dropdown-item robotoregular" *ngFor="let product of products" (click)="selectProduct(product.id, $event)">
+          <div class="dropdown-item robotoregular" style="color:black" *ngFor="let product of products" (click)="selectProduct(product.id, $event)">
             {{ product.name }}
           </div>
         </div>
@@ -404,8 +404,8 @@
   <div class="col-6 ">
     <label for="approvalDocuments" class="robotoregular txt mb">Approval Documents <span class="star">*</span></label>
     <div class="form-group position-relative d-flex flex-column align-items-start">
-      <div class="custom-dropdown" id="approvalDocuments" (click)="toggleDropdown31($event)">
-        <div class="dropdown-selected robotoregular" [class.placeholder]="selectedApprovalDocuments.length === 0">
+      <div class="custom-dropdown"  id="approvalDocuments" (click)="toggleDropdown31($event)">
+        <div class="dropdown-selected robotoregular"  [class.placeholder]="selectedApprovalDocuments.length === 0">
           {{ selectedApprovalDocuments.length > 0 ? 'Select more documents' : 'Select approval documents' }}
         </div>
         <span class="dropdown-icon">
@@ -414,7 +414,7 @@
           </svg>
         </span>
         <div class="dropdown-menu" *ngIf="isDropdownOpen31">
-          <div class="dropdown-item robotoregular" *ngFor="let doc of filteredApprovalDocuments" (click)="selectApprovalDocument(doc.id, $event)">
+          <div class="dropdown-item robotoregular" *ngFor="let doc of filteredApprovalDocuments" style="color:black" (click)="selectApprovalDocument(doc.id, $event)">
             {{ doc.name }}
           </div>
         </div>
@@ -440,16 +440,18 @@
     <div class="wid2">
       <label class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
       <div class="form-group position-relative">
-        <div class="dropdown" id="dropdown-toggle-main-type">
-          <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownMainType($event)">
-            {{ attributeType === 'string' ? 'Free Text' : attributeType === 'list' ? 'List of Values' : 'Select Type' }}
-            <span class="dropdown-icon">
-              <!-- 123 -->
+        <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenMainType}" id="dropdown-toggle-main-type">
+          <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownMainType($event)">
+            <span>{{ attributeType === 'string' ? 'Free Text' : attributeType === 'list' ? 'List of Values' : 'Select Type' }}</span>
+            <span class="attributedropdown-icon">
+              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </span>
           </button>
-          <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenMainType}">
-            <a class="dropdown-item" (click)="selectMainType('string', $event)">Free Text</a>
-            <a class="dropdown-item" (click)="selectMainType('list', $event)">List of Values</a>
+          <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainType}">
+            <a class="attributedropdown-item" (click)="selectMainType('string', $event)">Free Text</a>
+            <a class="attributedropdown-item" (click)="selectMainType('list', $event)">List of Values</a>
           </div>
         </div>
       </div>
@@ -502,17 +504,17 @@
         <div class="col-6">
           <label class="robotoregular txt mb-1">Product ID</label>
           <div class="form-group position-relative">
-            <div class="dropdown" id="dropdown-toggle-main-product">
-              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownMainProduct($event)">
-                {{ getProductName(mainAttribute.productId) }}
-                <span class="dropdown-icon">
+            <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenMainProduct}" id="dropdown-toggle-main-product">
+              <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownMainProduct($event)">
+                <span>{{ getProductName(mainAttribute.productId) }}</span>
+                <span class="attributedropdown-icon">
                   <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
               </button>
-              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenMainProduct}">
-                <a class="dropdown-item" *ngFor="let product of products" (click)="selectMainProduct(product.id, $event)">{{ product.name }}</a>
+              <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainProduct}">
+                <a class="attributedropdown-item" *ngFor="let product of products" (click)="selectMainProduct(product.id, $event)">{{ product.name }}</a>
               </div>
             </div>
           </div>
@@ -520,17 +522,17 @@
         <div class="col-6">
           <label class="robotoregular txt mb-1">Approval Document</label>
           <div class="form-group position-relative">
-            <div class="dropdown" id="dropdown-toggle-main-approval">
-              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownMainApproval($event)">
-                Select an approval document
-                <span class="dropdown-icon">
+            <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenMainApproval}" id="dropdown-toggle-main-approval">
+              <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownMainApproval($event)">
+                <span>Select an approval document</span>
+                <span class="attributedropdown-icon">
                   <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
               </button>
-              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenMainApproval}">
-                <a class="dropdown-item" *ngFor="let doc of mainAttribute.filteredApprovalDocuments" (click)="addMainConditionalApprovalDocumentCustom(doc.id, $event)">{{ doc.name }}</a>
+              <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainApproval}">
+                <a class="attributedropdown-item" *ngFor="let doc of mainAttribute.filteredApprovalDocuments" (click)="addMainConditionalApprovalDocumentCustom(doc.id, $event)">{{ doc.name }}</a>
               </div>
             </div>
             <div class="mt-2 d-flex flex-wrap gap-2">
@@ -557,16 +559,18 @@
       <div style="width: 50% !important;">
         <label [for]="'attrType'+i" class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
         <div class="form-group position-relative">
-          <div class="dropdown" [id]="'dropdown-toggle-attr-type-'+i">
-            <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownAttrType(i, $event)">
-              {{ attr.type === 'string' ? 'Free Text' : attr.type === 'list' ? 'List of Values' : 'Select Type' }}
-              <span class="dropdown-icon">
-              
+          <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenAttrType[i]}" [id]="'dropdown-toggle-attr-type-'+i">
+            <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownAttrType(i, $event)">
+              <span>{{ attr.type === 'string' ? 'Free Text' : attr.type === 'list' ? 'List of Values' : 'Select Type' }}</span>
+              <span class="attributedropdown-icon">
+                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </span>
             </button>
-            <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenAttrType[i]}">
-              <a class="dropdown-item" (click)="selectAttrType(i, 'string', $event)">Free Text</a>
-              <a class="dropdown-item" (click)="selectAttrType(i, 'list', $event)">List of Values</a>
+            <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenAttrType[i]}">
+              <a class="attributedropdown-item" (click)="selectAttrType(i, 'string', $event)">Free Text</a>
+              <a class="attributedropdown-item" (click)="selectAttrType(i, 'list', $event)">List of Values</a>
             </div>
           </div>
         </div>
@@ -628,17 +632,17 @@
         <div class="col-6">
           <label class="robotoregular txt mb-1">Product ID</label>
           <div class="form-group position-relative">
-            <div class="dropdown" [id]="'dropdown-toggle-attr-product-'+i">
-              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownAttrProduct(i, $event)">
-                {{ getProductName(attr.productId) }}
-                <span class="dropdown-icon">
+            <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenAttrProduct[i]}" [id]="'dropdown-toggle-attr-product-'+i">
+              <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownAttrProduct(i, $event)">
+                <span>{{ getProductName(attr.productId) }}</span>
+                <span class="attributedropdown-icon">
                   <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
               </button>
-              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenAttrProduct[i]}">
-                <a class="dropdown-item" *ngFor="let product of products" (click)="selectAttrProduct(i, product.id, $event)">{{ product.name }}</a>
+              <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenAttrProduct[i]}">
+                <a class="attributedropdown-item" *ngFor="let product of products" (click)="selectAttrProduct(i, product.id, $event)">{{ product.name }}</a>
               </div>
             </div>
           </div>
@@ -646,17 +650,17 @@
         <div class="col-6">
           <label class="robotoregular txt mb-1">Approval Document</label>
           <div class="form-group position-relative">
-            <div class="dropdown" [id]="'dropdown-toggle-attr-approval-'+i">
-              <button class="form-control custom-select-icon dropdown-toggle" type="button" (click)="toggleDropdownAttrApproval(i, $event)">
-                Select an approval document
-                <span class="dropdown-icon">
+            <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenAttrApproval[i]}" [id]="'dropdown-toggle-attr-approval-'+i">
+              <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownAttrApproval(i, $event)">
+                <span>Select an approval document</span>
+                <span class="attributedropdown-icon">
                   <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15.918 6.5L9.66797 12.75L3.41797 6.5" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
               </button>
-              <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpenAttrApproval[i]}">
-                <a class="dropdown-item" *ngFor="let doc of attr.filteredApprovalDocuments" (click)="addAdditionalConditionalApprovalDocumentCustom(i, doc.id, $event)">{{ doc.name }}</a>
+              <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenAttrApproval[i]}">
+                <a class="attributedropdown-item" *ngFor="let doc of attr.filteredApprovalDocuments" (click)="addAdditionalConditionalApprovalDocumentCustom(i, doc.id, $event)">{{ doc.name }}</a>
               </div>
             </div>
             <div class="mt-2 d-flex flex-wrap gap-2">
@@ -719,7 +723,7 @@
       </svg>
     </span>
     <div class="dropdown-menu" *ngIf="isDropdownOpen5" (click)="stopPropagation($event)">
-      <div class="dropdown-item" *ngFor="let employee of filteredEmployees" (click)="selectOption5(employee.name, $event)">
+      <div class="dropdown-item" style="color: black !important;" *ngFor="let employee of filteredEmployees" (click)="selectOption5(employee.name, $event)">
         {{ employee.name }}
       </div>
     </div>
