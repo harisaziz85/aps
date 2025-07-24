@@ -156,6 +156,27 @@ export class PresentationComponent implements OnInit {
     });
   }
 
+  // Function to convert image URL to Base64
+  getBase64ImageFromURL(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL('image/png');
+        resolve(dataURL);
+      };
+      img.onerror = function(error) {
+        reject(error);
+      };
+      img.src = url;
+    });
+  }
+
   fetchProducts(): void {
     this.http.get<Product[]>('https://vps.allpassiveservices.com.au/api/product/list').subscribe({
       next: (response) => {
@@ -640,54 +661,12 @@ export class PresentationComponent implements OnInit {
     const maxContentHeight = pageHeight - margin - bottomMargin;
 
     const normalizeUrl = (url: string): string => {
-      if (!url) {
+      if (!url || url.includes('via.placeholder.com')) {
         return 'https://via.placeholder.com/200x200?text=No+Image';
       }
-      const cleanPath = url
-        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
-        .replace(/^\/*uploads\/*/i, '')
-        .replace(/^\/+/, '');
-      return `/uploads/${cleanPath}`;
-    };
-
-    const loadImage = async (url: string): Promise<string> => {
-      const normalizedUrl = normalizeUrl(url);
-      return new Promise((resolve) => {
-        fetch(normalizedUrl, {
-          method: 'GET',
-          headers: { 'Accept': 'image/*' },
-          credentials: 'same-origin'
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error();
-            }
-            return response.blob();
-          })
-          .then(blob => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = () => resolve('https://via.placeholder.com/200x200?text=Read+Error');
-            reader.readAsDataURL(blob);
-          })
-          .catch(() => resolve('https://via.placeholder.com/200x200?text=Image+Error'));
-      });
-    };
-
-    const loadLocalImage = async (url: string): Promise<string> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d')!;
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
-        };
-        img.onerror = () => resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
-      });
+      // Ensure the URL is absolute
+      const baseUrl = 'https://vps.allpassiveservices.com.au';
+      return url.startsWith('http') ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
     };
 
     const checkPageBreak = (requiredHeight: number) => {
@@ -746,9 +725,10 @@ export class PresentationComponent implements OnInit {
       }
     }
 
+    // Add logo
     try {
       const logoUrl = 'images/logo.png';
-      const logoData = await loadLocalImage(logoUrl);
+      const logoData = await this.getBase64ImageFromURL(logoUrl);
       const logoX = pageWidth - margin - logoWidth;
       checkPageBreak(logoHeight + lineHeight);
       doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
@@ -762,6 +742,7 @@ export class PresentationComponent implements OnInit {
       yOffset += logoHeight + lineHeight;
     }
 
+    // Add project details
     checkPageBreak(lineHeight * 2);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
@@ -773,6 +754,7 @@ export class PresentationComponent implements OnInit {
     doc.text(`Client Name: ${projectDetails.client?.clientName || projectDetails.clientName || 'Unknown Client'}`, margin, yOffset);
     yOffset += lineHeight + 10;
 
+    // Add site photos section
     checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
@@ -781,7 +763,7 @@ export class PresentationComponent implements OnInit {
 
     const projectImageUrl = normalizeUrl(projectDetails.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
     try {
-      const imgData = await loadImage(projectImageUrl);
+      const imgData = await this.getBase64ImageFromURL(projectImageUrl);
       checkPageBreak(imageHeight + lineHeight);
       doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
       
@@ -808,6 +790,7 @@ export class PresentationComponent implements OnInit {
       yOffset += lineHeight * 4;
     }
 
+    // Add inspection report overview
     checkPageBreak(inspectionTopMargin + lineHeight * 6);
     yOffset += inspectionTopMargin;
     const inspectionStartY = yOffset;
@@ -866,6 +849,7 @@ export class PresentationComponent implements OnInit {
     doc.text(infoLines, infoBoxX + 2, inspectionStartY + 5);
     yOffset = inspectionStartY + Math.max(inspectionHeight, infoBoxHeight);
 
+    // Add hierarchy images
     if (hierarchyImages.length > 0) {
       checkPageBreak(lineHeight);
       yOffset += lineHeight;
@@ -876,7 +860,7 @@ export class PresentationComponent implements OnInit {
       for (const { hierarchyName, imageUrl } of hierarchyImages.slice(0, 3)) {
         checkPageBreak(lineHeight + dynamicImageHeight);
         try {
-          const imgData = await loadImage(imageUrl);
+          const imgData = await this.getBase64ImageFromURL(imageUrl);
           checkPageBreak(dynamicImageHeight + lineHeight);
           doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, dynamicImageHeight);
           yOffset += dynamicImageHeight + lineHeight;
@@ -891,6 +875,7 @@ export class PresentationComponent implements OnInit {
       }
     }
 
+    // Prepare table data
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.instances?.length > 0) {
@@ -898,7 +883,7 @@ export class PresentationComponent implements OnInit {
         const row: TableRow = {
           'Ref No': (instance.instanceNumber || index).toString(),
           Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-          Plan: this.floorPlanImage || 'N/A',
+          Plan: this.floorPlanImage || 'https://via.placeholder.com/200x200?text=No+Image',
           Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
           Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
           FRL: this.selectedFieldValues['frl'] || 'N/A',
@@ -913,7 +898,7 @@ export class PresentationComponent implements OnInit {
       tableData.push({
         'Ref No': '1',
         Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-        Plan: this.floorPlanImage || 'N/A',
+        Plan: this.floorPlanImage || 'https://via.placeholder.com/200x200?text=No+Image',
         Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
         Substrate: this.getAttributeDisplayValue('Materils'),
         FRL: this.selectedFieldValues['frl'] || 'N/A',
@@ -923,6 +908,7 @@ export class PresentationComponent implements OnInit {
       });
     }
 
+    // Add table
     checkPageBreak(lineHeight * 3 + headerHeight + (tableData.length * baseRowHeight));
     yOffset += lineHeight * 3;
     const tableX = margin;
@@ -962,7 +948,7 @@ export class PresentationComponent implements OnInit {
         const colIndex = headers.indexOf(header);
         if (header === 'Plan') {
           try {
-            const imgData = await loadImage(row['Plan']);
+            const imgData = await this.getBase64ImageFromURL(row['Plan']);
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
             doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
@@ -973,7 +959,7 @@ export class PresentationComponent implements OnInit {
           }
         } else if (header === 'Photos' && row['Photos'].length > 0) {
           try {
-            const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
+            const photoPromises = row['Photos'].slice(0, 1).map(url => this.getBase64ImageFromURL(url));
             const [imgData] = await Promise.all(photoPromises);
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
@@ -1025,6 +1011,7 @@ export class PresentationComponent implements OnInit {
     doc.setDrawColor(0, 0, 0);
     doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
+    // Add approval document
     if (this.selectApproval && this.selectedApprovalDocument) {
       checkPageBreak(lineHeight * 2);
       yOffset += lineHeight;
@@ -1039,6 +1026,7 @@ export class PresentationComponent implements OnInit {
       yOffset += lineHeight;
     }
 
+    // Add report attachments
     const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
     const includeFloorPlans = (document.getElementById('includeFloorPlans') as HTMLInputElement)?.checked;
     const includeAdditionalDocs = (document.getElementById('includeAdditionalDocs') as HTMLInputElement)?.checked;
@@ -1067,8 +1055,10 @@ export class PresentationComponent implements OnInit {
       }
     }
 
+    // Save PDF
     doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
 
+    // Generate Excel report if selected
     if (this.selectedOption === 'Excel Reports') {
       const reportData: { [key: string]: string } = {};
       this.reportFields.forEach(field => {
