@@ -441,7 +441,7 @@
       <label class="robotoregular txt mb">Attribute Type <span class="star">*</span></label>
       <div class="form-group position-relative">
         <div class="attributedropdown" [ngClass]="{'open': isDropdownOpenMainType}" id="dropdown-toggle-main-type">
-          <button class="attributedropdown-toggle" type="button" (click)="toggleDropdownMainType($event)">
+          <button class="attributedropdown-toggle"  type="button" (click)="toggleDropdownMainType($event)">
             <span>{{ attributeType === 'string' ? 'Free Text' : attributeType === 'list' ? 'List of Values' : 'Select Type' }}</span>
             <span class="attributedropdown-icon">
               <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -449,8 +449,8 @@
               </svg>
             </span>
           </button>
-          <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainType}">
-            <a class="attributedropdown-item" (click)="selectMainType('string', $event)">Free Text</a>
+          <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainType}" >
+            <a class="attributedropdown-item" (click)="selectMainType('string', $event)">Free Text</a><br>
             <a class="attributedropdown-item" (click)="selectMainType('list', $event)">List of Values</a>
           </div>
         </div>
@@ -569,7 +569,7 @@
               </span>
             </button>
             <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenAttrType[i]}">
-              <a class="attributedropdown-item" (click)="selectAttrType(i, 'string', $event)">Free Text</a>
+              <a class="attributedropdown-item" (click)="selectAttrType(i, 'string', $event)">Free Text</a><br>
               <a class="attributedropdown-item" (click)="selectAttrType(i, 'list', $event)">List of Values</a>
             </div>
           </div>
