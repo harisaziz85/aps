@@ -24,7 +24,6 @@
 <path d="M14 4L4 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M4 4L14 14" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-
 </span>
           Cancel
         </button>
@@ -236,6 +235,7 @@
                           </button>
                           <ul class="dropdown-menu" [attr.aria-labelledby]="'statusDropdown-' + project._id">
                             <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Active')">Active</a></li>
+                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Waiting For Approval')">Waiting For Approval</a></li>
                             <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Completed')">Completed</a></li>
                           </ul>
                         </div>
@@ -245,14 +245,14 @@
                 </div>
               </div>
             </div>
-            <div class="tab-pane fade w-100" [ngClass]="{'show active': activeTab === 'completedProjects'}" id="completedProjects">
-              <div class="projcard">
+            <div class="tab-pane fade w-100 pe-0" [ngClass]="{'show active': activeTab === 'completedProjects'}" id="completedProjects">
+              <div class="projcard w-100">
                 <div *ngIf="completedProjects.length === 0" class="text-center robotoregular mt-3">
                   No completed projects
                 </div>
                 <div class="row w-100">
-                  <div *ngFor="let project of completedProjects; trackBy: trackByProjectId" class="col-md-12 mb-3 w-100">
-                    <div class="card project-card w-100">
+                  <div *ngFor="let project of completedProjects; trackBy: trackByProjectId" class="col-md-12 mb-3 w-100 pe-0">
+                    <div class="card project-card w-100 pe-0">
                       <div class="card-body d-flex justify-content-between align-items-center w-100">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2.33398 11.666C4.22865 12.4873 7.62198 13.67 12.0007 13.67C16.3793 13.67 19.7727 12.4873 21.6673 11.666" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -260,7 +260,6 @@
 <path d="M8.33398 6.33268V2.99935C8.33398 2.26335 8.93132 1.66602 9.66732 1.66602H14.334C15.07 1.66602 15.6673 2.26335 15.6673 2.99935V6.33268" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M19.0007 6.33203H5.00065C3.52789 6.33203 2.33398 7.52594 2.33398 8.9987V17.6654C2.33398 19.1381 3.52789 20.332 5.00065 20.332H19.0007C20.4734 20.332 21.6673 19.1381 21.6673 17.6654V8.9987C21.6673 7.52594 20.4734 6.33203 19.0007 6.33203Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-
                         <span class="robotoregular" style="margin-left: 5px;">{{ project.projectName }}</span>
                         <div class="dropdown">
                           <button class="btn btn-sm btn-outline-dark dropdown-toggle status-dropdown {{ getStatusClass(project.projectAdministration.projectStatus) }}" type="button" [id]="'statusDropdown-' + project._id" data-bs-toggle="dropdown" aria-expanded="false">
@@ -268,6 +267,7 @@
                           </button>
                           <ul class="dropdown-menu" [attr.aria-labelledby]="'statusDropdown-' + project._id">
                             <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Active')">Active</a></li>
+                            <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Waiting For Approval')">Waiting For Approval</a></li>
                             <li><a class="dropdown-item" (click)="updateProjectStatus(project._id, 'Completed')">Completed</a></li>
                           </ul>
                         </div>
@@ -280,9 +280,10 @@
           </div>
         </div>
         <div class="modal-footer w-100 px-3">
-          <button type="submit" class="btn btn-dark btn-dark1 w-100 th1 onestmedium mb-3" [disabled]="clientForm.invalid" (click)="onSubmit()">
+          <button type="submit" class="btn btn-dark btn-dark1 w-100 th1 onestmedium mb-3" [disabled]="clientForm.invalid || isSaving" (click)="onSubmit()">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             <app-svg-icons icon="save" size="16"></app-svg-icons>
-            Save
+            {{ isSaving ? 'Saving...' : 'Save' }}
           </button>
         </div>
       </div>

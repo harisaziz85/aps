@@ -113,7 +113,7 @@
                 <app-svg-icons icon="status" size="16"></app-svg-icons>
                 <div class="custom-status-dropdown"
                      [ngStyle]="{
-                       'background-color': project.status === 'Active' ? 'rgba(255, 224, 102, 1)' : project.status === 'Completed' ? 'rgba(115, 242, 181, 1)' : '#9e9e9e',
+                       'background-color': project.status === 'Active' ? 'rgba(255, 224, 102, 1)' : project.status === 'Completed' ? 'rgba(115, 242, 181, 1)' : project.status === 'Waiting For Approval' ? '#9e9e9e' : '#9e9e9e',
                        'color': 'black'
                      }"
                      [class.disabled]="loading || isUpdating(project.id)">

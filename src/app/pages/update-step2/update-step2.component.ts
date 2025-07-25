@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -278,6 +278,18 @@ export class UpdateStep2Component implements OnInit {
     private http: HttpClient
   ) {}
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown')) {
+      this.isTemplateDropdownOpen = false;
+      this.isProductDropdownOpen = false;
+      this.isApprovalDropdownOpen = false;
+      this.isEmployeeDropdownOpen = false;
+      this.isTypeDropdownOpen = this.isTypeDropdownOpen.map(() => false);
+    }
+  }
+
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.projectId = params['id'] || null;
@@ -409,6 +421,7 @@ export class UpdateStep2Component implements OnInit {
     this.isProductDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
     this.isEmployeeDropdownOpen = false;
+    this.isTypeDropdownOpen = this.isTypeDropdownOpen.map(() => false);
   }
 
   toggleProductDropdown() {
@@ -416,6 +429,7 @@ export class UpdateStep2Component implements OnInit {
     this.isTemplateDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
     this.isEmployeeDropdownOpen = false;
+    this.isTypeDropdownOpen = this.isTypeDropdownOpen.map(() => false);
   }
 
   toggleApprovalDropdown() {
@@ -423,6 +437,7 @@ export class UpdateStep2Component implements OnInit {
     this.isTemplateDropdownOpen = false;
     this.isProductDropdownOpen = false;
     this.isEmployeeDropdownOpen = false;
+    this.isTypeDropdownOpen = this.isTypeDropdownOpen.map(() => false);
   }
 
   toggleEmployeeDropdown() {
@@ -430,6 +445,7 @@ export class UpdateStep2Component implements OnInit {
     this.isTemplateDropdownOpen = false;
     this.isProductDropdownOpen = false;
     this.isApprovalDropdownOpen = false;
+    this.isTypeDropdownOpen = this.isTypeDropdownOpen.map(() => false);
   }
 
   toggleTypeDropdown(index: number) {

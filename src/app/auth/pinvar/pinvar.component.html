@@ -4,7 +4,7 @@
   <div class="d-flex justify-content-center align-items-center main1">
     <div class="card rounded-4" style="max-width: 700px; width: 100%;">
       <!-- Title -->
-      <h2 class="fw-bold mt-2 text-center">Enter Your Code</h2>
+      <h2 class="onestbold mt-2 text-center" style="font-size: 47px;">Enter Your Code</h2>
       <p class="onestbold head1 mt-4 text-center">
         We’ve sent a 4-digit code to {{ email }}. Please check your inbox for an email from us.
       </p>
@@ -44,7 +44,7 @@
       <!-- Resend OTP -->
       <p class="mb-1 text-center robotoregular txt">Didn’t receive the email?</p>
       <p class="text-center robotoregular txt">
-        <a href="javascript:void(0)" [class.disabled]="countdown > 0">
+        <a href="javascript:void(0)" [class.disabled]="countdown > 0" style="color:black; text-decoration:none">
           Resend {{ countdown > 0 ? 'in ' + countdown + 's' : 'now' }}
         </a>
       </p>

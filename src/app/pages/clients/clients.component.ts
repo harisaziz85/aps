@@ -35,6 +35,7 @@ export class ClientsComponent implements OnInit {
   selectedFile: File | null = null;
   searchQuery: string = '';
   isLoading: boolean = false;
+  isSaving: boolean = false;
   ongoingProjects: Project[] = [];
   completedProjects: Project[] = [];
   isAddingNewClient: boolean = false;
@@ -237,7 +238,7 @@ export class ClientsComponent implements OnInit {
 
     Promise.all(deleteRequests).then(() => {
       this.isLoading = false;
-     this.cdr.detectChanges();
+      this.cdr.detectChanges();
     });
   }
 
@@ -320,6 +321,9 @@ export class ClientsComponent implements OnInit {
 
   onSubmit(): void {
     if (this.clientForm.valid) {
+      this.isSaving = true;
+      this.cdr.detectChanges();
+      
       const formData = new FormData();
       formData.append('name', this.clientForm.get('name')!.value);
       formData.append('email', this.clientForm.get('email')!.value);
@@ -335,10 +339,12 @@ export class ClientsComponent implements OnInit {
           next: (response) => {
             console.log('Client registered:', response);
             this.fetchClients();
+            this.isSaving = false;
             this.closeModal();
           },
           error: (error) => {
             console.error('Error registering client:', error);
+            this.isSaving = false;
             if (error.error && error.error.errors) {
               this.backendErrors = error.error.errors;
               this.cdr.detectChanges();
@@ -351,10 +357,12 @@ export class ClientsComponent implements OnInit {
           next: (response: any) => {
             console.log('Client updated:', response);
             this.fetchClients();
+            this.isSaving = false;
             this.closeModal();
           },
           error: (error) => {
             console.error('Error updating client:', error);
+            this.isSaving = false;
             if (error.error && error.error.errors) {
               this.backendErrors = error.error.errors;
               this.cdr.detectChanges();
@@ -384,6 +392,8 @@ export class ClientsComponent implements OnInit {
     switch (normalizedStatus) {
       case 'active':
         return 'yellow-bg';
+      case 'waitingforapproval':
+        return 'red-bg';
       case 'completed':
         return 'green-bg';
       default:

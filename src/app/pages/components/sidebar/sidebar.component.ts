@@ -29,7 +29,8 @@ export class SidebarComponent implements OnInit {
           ...activity,
           icon: this.getIcon(activity.type),
           time: activity.date ? this.formatDate(activity.date) : 'N/A',
-          desc: activity.description
+          desc: activity.description ? activity.description.substring(0, 25) : '', // Truncate description to 25 characters
+          title: activity.title ? activity.title.substring(0, 25) : '' // Truncate title to 25 characters
         }));
 
         // Categorize activities

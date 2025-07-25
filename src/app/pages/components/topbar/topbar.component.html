@@ -134,8 +134,12 @@
       </div>
       <!-- Footer -->
       <div style="margin-bottom: 24px; padding-right: 16px;">
-        <button type="button" class="btn btn2 onestsemibold btn-dark w-100 btn1" (click)="saveSettings()">
-          Save
+        <button type="button" class="btn btn2 onestsemibold btn-dark w-100 btn1" (click)="saveSettings()" [disabled]="isSaving">
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ isSaving ? 'Saving...' : 'Save' }}
+          <svg width="13" height="16" viewBox="0 0 13 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.75 15.25L6.5 11.75L1.25 15.25V2.75C1.25 1.645 2.145 0.75 3.25 0.75H9.75C10.855 0.75 11.75 1.645 11.75 2.75V15.25Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </div>
     </div>
@@ -144,11 +148,17 @@
 
 <!-- Data Exchange Modal -->
 <div class="setting-modal-overlay zi" *ngIf="isModalOpen" (click)="closeModalIfOutside($event)">
-  <div class="setting-modal-container" (click)="$event.stopPropagation()">
-    <div class="setting-modal-header d-flex align-items-center">
+  <div class="setting-modal-container pt-0" (click)="$event.stopPropagation()">
+    <div class="setting-modal-header d-flex align-items-center" style="padding-top:24px">
       <p class="onestbold modal-title">Data Exchange</p>
       <button class="setting-close-button" (click)="closeModal()">
-        <span aria-hidden="true">×</span>
+        <span aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 10C0 4.47715 4.47715 0 10 0H30C35.5228 0 40 4.47715 40 10V30C40 35.5228 35.5228 40 30 40H10C4.47715 40 0 35.5228 0 30V10Z" fill="white"/>
+            <path d="M25 15L15 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 15L25 25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
       </button>
     </div>
     <div class="setting-modal-body">
@@ -192,20 +202,20 @@
                 <div class="w-100 text-center" (click)="newProjectFileInput.click()">
                   <input #newProjectFileInput type="file" (change)="onImportFileSelected($event, 'new')" style="display: none;" />
                   <div *ngIf="!newProjectFileName" class="w-100 text-center">
-                    <svg width="48" height="49" viewBox="0 0 48 49" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15.334 18.5H20.6673" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15.334 26.5H26.0007" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                   <svg width="48" height="49" viewBox="0 0 48 49" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15.334 18.5001H20.6673" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M15.334 26.5001H26.0007" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M40.428 17.1667H31.3346C29.8626 17.1667 28.668 15.9721 28.668 14.5001V5.43872" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M36.668 28.5V31.8333" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M42.7948 31.0388L40.4375 33.3962" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M36.668 28.5001V31.8335" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M42.7948 31.0387L40.4375 33.396" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M45.3333 37.1667H42" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M42.7948 43.2948L40.4375 40.9375" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M36.668 45.8333V42.5" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M30.5391 43.2948L32.8964 40.9375" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M42.7948 43.2947L40.4375 40.9374" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M36.668 45.8335V42.5001" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M30.5391 43.2947L32.8964 40.9374" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M28 37.1667H31.3333" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M30.5391 31.0388L32.8964 33.3962" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M30.5391 31.0387L32.8964 33.396" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M40.6673 22.9587V18.2707C40.6673 17.5641 40.3873 16.8841 39.886 16.3854L29.4487 5.94808C28.9473 5.44675 28.27 5.16675 27.5633 5.16675H12.6673C9.72065 5.16675 7.33398 7.55608 7.33398 10.5001V38.5001C7.33398 41.4441 9.72065 43.8334 12.6673 43.8334H23.9393" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M36.6667 41.8333C39.244 41.8333 41.3333 39.744 41.3333 37.1667C41.3333 34.5893 39.244 32.5 36.6667 32.5C34.0893 32.5 32 34.5893 32 37.1667C32 39.744 34.0893 41.8333 36.6667 41.8333Z" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M36.6667 41.8335C39.244 41.8335 41.3333 39.7441 41.3333 37.1668C41.3333 34.5895 39.244 32.5001 36.6667 32.5001C34.0893 32.5001 32 34.5895 32 37.1668C32 39.7441 34.0893 41.8335 36.6667 41.8335Z" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
                     <p class="txt3 robotoregular">Drag and Drop or <br> Browse</p>
@@ -218,8 +228,7 @@
             </div>
             <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;">
               <div>
-                <!-- <span style="margin-left: 8px;" class="robotoregular txt">Project Name</span> -->
-                 <span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -241,7 +250,7 @@
 
                 </button>
                 <button class="btn" style="border: 0px;" (click)="removeNewProjectFile()">
-                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M13.75 15.25H26.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M17.75 15.25V13.75C17.75 13.198 18.198 12.75 18.75 12.75H21.25C21.802 12.75 22.25 13.198 22.25 13.75V15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -256,23 +265,25 @@
             <div *ngIf="isEditingNewProjectName" class="card" style="margin-top: 16px;">
               <div class="form-group">
                 <div class="d-flex align-items-center">
-                    <span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <span class="me-2">
+                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M14.25 4.75049H3.75C2.64543 4.75049 1.75 5.64592 1.75 6.75049V13.2505C1.75 14.3551 2.64543 15.2505 3.75 15.2505H14.25C15.3546 15.2505 16.25 14.3551 16.25 13.2505V6.75049C16.25 5.64592 15.3546 4.75049 14.25 4.75049Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-</span>
+
+                  </span>
                   <input type="text" class="form-control" style="border: 0px;" [(ngModel)]="tempNewProjectName" placeholder="Enter project name" />
                   <button class="" (click)="confirmNewProjectName()" style="margin-left: 6px;border: 0px; background:rgba(255, 0, 0, 0)">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M13.75 20.25L17.75 25.25L26.25 14.75" stroke="#25EA8B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
                   </button>
-                  <button class="p-0 "  (click)="cancelNewProjectName()" style="margin-left: 4px; border: 0px; background:rgba(255, 0, 0, 0)">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <button class="p-0" (click)="cancelNewProjectName()" style="margin-left: 4px; border: 0px; background:rgba(255, 0, 0, 0)">
+                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M14.9997 25.75C14.8077 25.75 14.6158 25.677 14.4698 25.53C14.1768 25.237 14.1768 24.762 14.4698 24.469L24.4698 14.47C24.7628 14.177 25.2378 14.177 25.5308 14.47C25.8238 14.763 25.8238 15.238 25.5308 15.531L15.5298 25.53C15.3838 25.676 15.1917 25.75 14.9997 25.75Z" fill="#EC1919"/>
 <path d="M24.9998 25.75C24.8077 25.75 24.6158 25.677 24.4698 25.53L14.4698 15.53C14.1768 15.237 14.1768 14.762 14.4698 14.469C14.7628 14.176 15.2378 14.176 15.5308 14.469L25.5297 24.47C25.8228 24.763 25.8228 25.238 25.5297 25.531C25.3837 25.677 25.1918 25.751 24.9998 25.751V25.75Z" fill="#EC1919"/>
@@ -283,6 +294,8 @@
               </div>
             </div>
           </div>
+
+
 
           <div *ngIf="selectedOption === 'existing'">
             <div style="background-color: white; padding:16px;border-radius: 16px;">
@@ -301,16 +314,14 @@
                   </svg>
                 </span>
               </div>
-              
             </div>
-            
             <div class="checkbox-container">
               <p class="onestsemibold head2">Document Info</p>
               <div class="imgbr d-flex">
                 <div class="w-100 text-center" (click)="existingProjectFileInput.click()">
                   <input #existingProjectFileInput type="file" (change)="onImportFileSelected($event, 'existing')" style="display: none;" />
                   <div *ngIf="!existingProjectFileName" class="w-100 text-center">
-                    <svg width="48" height="49" viewBox="0 0 48 49" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <svg width="48" height="49" viewBox="0 0 48 49" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M15.334 18.5H20.6673" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M15.334 26.5H26.0007" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M40.428 17.1667H31.3346C29.8626 17.1667 28.668 15.9721 28.668 14.5001V5.43872" stroke="#0F0F0F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -335,18 +346,19 @@
               </div>
             </div>
             <div class="mt d-flex align-items-center justify-content-between" style="height: 70px;" *ngIf="existingProjectFileName">
-                <div>
-                  <span style="margin-left: 8px;" class="robotoregular txt"><span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div>
+                <span class="me-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M14.25 4.75049H3.75C2.64543 4.75049 1.75 5.64592 1.75 6.75049V13.2505C1.75 14.3551 2.64543 15.2505 3.75 15.2505H14.25C15.3546 15.2505 16.25 14.3551 16.25 13.2505V6.75049C16.25 5.64592 15.3546 4.75049 14.25 4.75049Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-</span>{{ existingProjectFileName }}</span>
-                </div>
-                <div class="d-flex align-items-center">
-                  <button class="btn" (click)="editExistingProjectName()" style="border: 0px;">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+</span>
+                <span style="margin-left: 8px;" class="robotoregular txt">{{ existingProjectFileName }}</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <button class="btn" (click)="editExistingProjectName()" style="border: 0px;">
+               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M16.75 17.75H18.75" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M16.75 20.75H21.25" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -355,9 +367,9 @@
 <path d="M24.207 27.401C24.35 27.352 24.48 27.27 24.587 27.163L27.89 23.86C28.373 23.377 28.368 22.599 27.885 22.115C27.402 21.632 26.624 21.626 26.14 22.11L22.837 25.413C22.73 25.52 22.648 25.65 22.599 25.793L21.75 28.25L24.207 27.401Z" stroke="#212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
-                  </button>
-                  <button class="btn" (click)="removeExistingProjectFile()" style="border: 0px;">
-                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                </button>
+                <button class="btn" (click)="removeExistingProjectFile()" style="border: 0px;">
+                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M13.75 15.25H26.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M17.75 15.25V13.75C17.75 13.198 18.198 12.75 18.75 12.75H21.25C21.802 12.75 22.25 13.198 22.25 13.75V15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -366,14 +378,13 @@
 <path d="M21.75 19.75V24.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
-
-                  </button>
-                </div>
+                </button>
               </div>
-              <div *ngIf="isEditingExistingProjectName" class="card" style="margin-top: 16px;">
+            </div>
+            <div *ngIf="isEditingExistingProjectName" class="card" style="margin-top: 16px;">
               <div class="form-group">
                 <div class="d-flex align-items-center">
-                   <span class="me-0 ps-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <span class="me-0 ps-2"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.75 8.75024C3.171 9.36624 5.716 10.2532 9 10.2532C12.284 10.2532 14.829 9.36624 16.25 8.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M9 9.25049V11.5005" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M6.25 4.75024V2.25024C6.25 1.69824 6.698 1.25024 7.25 1.25024H10.75C11.302 1.25024 11.75 1.69824 11.75 2.25024V4.75024" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -382,14 +393,14 @@
 </span>
                   <input type="text" class="form-control" [(ngModel)]="tempExistingProjectName" style="border: 0px;" placeholder="Enter project name" />
                   <button class="btn" (click)="confirmExistingProjectName()" style="margin-right: 5px; border:0px">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 0.5H30C35.2467 0.5 39.5 47.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
+                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M13.75 20.25L17.75 25.25L26.25 14.75" stroke="#25EA8B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
                   </button>
                   <button class="btn" (click)="cancelExistingProjectName()" style="margin-left: 4px; border:0px">
-                   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 0.5H30C35.2467 0.5 39.5 4.7533 39.5 10V30C39.5 35.2467 35.2467 39.5 30 39.5H10C4.7533 39.5 0.5 35.2467 0.5 30V10C0.5 4.7533 4.7533 0.5 10 0.5Z" stroke="#CDCCCB"/>
 <path d="M14.9997 25.75C14.8077 25.75 14.6158 25.677 14.4698 25.53C14.1768 25.237 14.1768 24.762 14.4698 24.469L24.4698 14.47C24.7628 14.177 25.2378 14.177 25.5308 14.47C25.8238 14.763 25.8238 15.238 25.5308 15.531L15.5298 25.53C15.3838 25.676 15.1917 25.75 14.9997 25.75Z" fill="#EC1919"/>
 <path d="M24.9998 25.75C24.8077 25.75 24.6158 25.677 24.4698 25.53L14.4698 15.53C14.1768 15.237 14.1768 14.762 14.4698 14.469C14.7628 14.176 15.2378 14.176 15.5308 14.469L25.5297 24.47C25.8228 24.763 25.8228 25.238 25.5297 25.531C25.3837 25.677 25.1918 25.751 24.9998 25.751V25.75Z" fill="#EC1919"/>
@@ -400,21 +411,30 @@
               </div>
             </div>
           </div>
+
+
+
+
+          
         </div>
         <div class="tab-pane fade" [class.show]="activeTab === 'ongoingProjects'" [class.active]="activeTab === 'ongoingProjects'" id="ongoingProjects">
           <div class="input-group" style="margin-bottom: 18px;">
             <span class="input-group-text" style="border: 1px solid #A4A3A2;">
-              <!-- <fa-icon [icon]="faSearch"></fa-icon> -->
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15.2499 15.9999C15.0579 15.9999 14.8659 15.9269 14.7199 15.7799L10.7549 11.8149C10.4619 11.5219 10.4619 11.0469 10.7549 10.7539C11.0479 10.4609 11.5229 10.4609 11.8159 10.7539L15.7809 14.7189C16.0739 15.0119 16.0739 15.4869 15.7809 15.7799C15.6349 15.9259 15.4429 15.9999 15.2509 15.9999H15.2499Z" fill="#0F0F0F"/>
+<path d="M7.75 13.5C4.58 13.5 2 10.92 2 7.75C2 4.58 4.58 2 7.75 2C10.92 2 13.5 4.58 13.5 7.75C13.5 10.92 10.92 13.5 7.75 13.5ZM7.75 3.5C5.407 3.5 3.5 5.407 3.5 7.75C3.5 10.093 5.407 12 7.75 12C10.093 12 12 10.093 12 7.75C12 5.407 10.093 3.5 7.75 3.5Z" fill="#0F0F0F"/>
+</svg>
+
             </span>
             <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchQuery"
                    (ngModelChange)="onSearchChange()" style="background-color: transparent;" />
           </div>
-          <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects">
+          <div class="project-card w-100 mb-2" *ngFor="let project of filteredProjects" (click)="toggleProjectDropdown(project.projectId)">
             <div class="project-header d-flex align-items-center">
               <input type="checkbox" class="cb1" [checked]="selectedProjects.includes(project.projectId)"
-                     (change)="toggleProjectSelection(project.projectId)" />
+                     (change)="toggleProjectSelection(project.projectId); $event.stopPropagation()" />
               <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
-              <span class="dropdown-icon" (click)="toggleProjectDropdown(project.projectId)">
+              <span class="dropdown-icon">
                 <ng-container *ngIf="projectDropdownStates[project.projectId]; else downArrow">
                   <svg width="12" height="12" viewBox="0 0 12 12">
                     <path d="M2 8l4-4 4 4H2z" />
@@ -434,7 +454,7 @@
                 </div>
                 <div class="instance-item" *ngFor="let instance of level.instances; let i = index">
                   <input type="checkbox" class="cbb1" [checked]="isInstanceSelected(project.projectId, instance.instanceId)"
-                         (change)="toggleInstanceSelection(project.projectId, instance.instanceId)" />
+                         (change)="toggleInstanceSelection(project.projectId, instance.instanceId); $event.stopPropagation()" />
                   <span class="robotoregular txt">{{ instance.subProjectCategory || 'No Category' }} ({{ i + 1 }})</span>
                 </div>
                 <div class="instance-item" *ngIf="!level.instances?.length">
@@ -450,9 +470,16 @@
       </div>
     </div>
     <div class="modal-footer w-100 mmm1" style="margin-top: 24px;">
-      <button type="button" class="w-100 btonn robotosemibold"
+      <button type="button" class="w-100 btonn robotosemibold" [disabled]="loading"
               (click)="activeTab === 'tab1' ? importProject() : exportSelectedProjects()">
-        {{ activeTab === 'tab1' ? 'Import' : 'Export' }}
+        <span *ngIf="loading" class="spinner"></span>
+        <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.25 7.25H13.25C14.355 7.25 15.25 8.145 15.25 9.25V14.25C15.25 15.355 14.355 16.25 13.25 16.25H5.75C4.645 16.25 3.75 15.355 3.75 14.25V9.25C3.75 8.145 4.645 7.25 5.75 7.25H6.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.5 4.25L9.5 1.25L12.5 4.25" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.5 1.25V12" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+        {{ activeTab === 'tab1' ? (loading ? 'Importing...' : 'Import') : (loading ? 'Exporting...' : 'Export') }}
       </button>
     </div>
   </div>

@@ -53,6 +53,8 @@ export class TopbarComponent implements AfterViewInit {
   selectedOption: 'new' | 'existing' = 'existing';
   isModalOpen = false;
   pageTitle: string = 'Welcome';
+  isSaving: boolean = false;
+  loading: boolean = false; // New loading state for spinner
 
   projects: ProjectExport[] = [];
   filteredProjects: ProjectExport[] = [];
@@ -140,17 +142,14 @@ export class TopbarComponent implements AfterViewInit {
 
   @HostListener('document:click', ['$event'])
   handleOutsideClick(event: MouseEvent) {
-    // Close user dropdown if clicking outside
     if (this.isDropdownOpen && this.userDropdown && !this.userDropdown.nativeElement.contains(event.target)) {
       this.isDropdownOpen = false;
     }
 
-    // Close notification dropdown if clicking outside
     if (this.showDropdown && this.notificationDropdown && !this.notificationDropdown.nativeElement.contains(event.target)) {
       this.showDropdown = false;
     }
 
-    // Close modal if clicking outside
     if (this.isModalOpen) {
       const modalOverlay = document.querySelector('.setting-modal-overlay');
       if (modalOverlay && modalOverlay.contains(event.target as Node) && !modalOverlay.contains(event.target as Node)) {
@@ -174,10 +173,10 @@ export class TopbarComponent implements AfterViewInit {
   toggleProjectDropdown(projectId: string): void {
     this.projectDropdownStates[projectId] = !this.projectDropdownStates[projectId];
     Object.keys(this.projectDropdownStates).forEach(key => {
-  if (key !== projectId) {
-    this.projectDropdownStates[key] = false;
-  }
-});
+      if (key !== projectId) {
+        this.projectDropdownStates[key] = false;
+      }
+    });
   }
 
   toggleNotificationDropdown(): void {
@@ -248,6 +247,7 @@ export class TopbarComponent implements AfterViewInit {
     this.projectDropdownStates = {};
     this.selectedProjects = [];
     this.selectedInstances = {};
+    this.loading = false; // Reset loading state
   }
 
   closeModalIfOutside(event: MouseEvent) {
@@ -258,6 +258,7 @@ export class TopbarComponent implements AfterViewInit {
   }
 
   saveSettings() {
+    this.isSaving = true;
     const formData = new FormData();
 
     formData.append('username', this.userName);
@@ -273,6 +274,7 @@ export class TopbarComponent implements AfterViewInit {
 
     this.authService.updateProfile(formData).subscribe({
       next: (response: ProfileResponse) => {
+        this.isSaving = false;
         if (!response.error && response.profile) {
           this.userName = response.profile.username || '';
           this.email = response.profile.email || '';
@@ -285,6 +287,7 @@ export class TopbarComponent implements AfterViewInit {
         }
       },
       error: (err) => {
+        this.isSaving = false;
         console.error('TopbarComponent: Error updating profile:', err);
         alert('Error updating profile. Please try again.');
       }
@@ -410,7 +413,6 @@ export class TopbarComponent implements AfterViewInit {
         delete this.selectedInstances[projectId];
       }
     }
-    // Ensure project is selected if instances are selected
     if (this.selectedInstances[projectId]?.length && !this.selectedProjects.includes(projectId)) {
       this.selectedProjects = [...this.selectedProjects, projectId];
     }
@@ -490,6 +492,7 @@ export class TopbarComponent implements AfterViewInit {
       return;
     }
 
+    this.loading = true; // Start loading
     let completedExports = 0;
     let failedExports = 0;
     const totalExports = this.selectedProjects.length;
@@ -500,20 +503,16 @@ export class TopbarComponent implements AfterViewInit {
         next: (response: any) => {
           let exportData = { ...response };
 
-          // Filter hierarchy levels to include only those with selected instances
           const selectedInstanceIds = this.selectedInstances[projectId] || [];
           if (selectedInstanceIds.length > 0) {
-            // Filter instances
             exportData.instances = (exportData.instances || []).filter((instance: any) =>
               selectedInstanceIds.includes(instance._id)
             );
 
-            // Filter hierarchy levels to include only those with selected instances
             exportData.hierarchy.levels = (exportData.hierarchy.levels || []).filter((level: any) =>
               exportData.instances.some((instance: any) => instance.hierarchyLevelId === level._id)
             );
 
-            // Filter documents to include only those with markers linked to selected instances
             exportData.documents = (exportData.documents || []).map((doc: any) => ({
               ...doc,
               files: doc.files.filter((file: any) =>
@@ -521,20 +520,17 @@ export class TopbarComponent implements AfterViewInit {
               )
             })).filter((doc: any) => doc.files.length > 0);
 
-            // If no instances are selected, exclude instances and documents
             if (!exportData.instances.length) {
               delete exportData.instances;
               delete exportData.documents;
             }
           } else {
-            // If no instances are selected, include only project and hierarchy data
             delete exportData.instances;
             delete exportData.documents;
             delete exportData.standardAttributes;
             delete exportData.reports;
           }
 
-          // Convert to JSON and trigger download
           const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -545,28 +541,29 @@ export class TopbarComponent implements AfterViewInit {
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
           completedExports++;
-          checkAllCompleted();
+          this.checkAllCompleted(completedExports, failedExports, totalExports);
         },
         error: (error) => {
           console.error(`Error exporting project ${projectId}:`, error);
           failedExports++;
-          checkAllCompleted();
+          this.checkAllCompleted(completedExports, failedExports, totalExports);
         }
       });
     });
+  }
 
-    const checkAllCompleted = () => {
-      if (completedExports + failedExports === totalExports) {
-        if (failedExports > 0) {
-          alert(completedExports > 0 
-            ? `Completed ${completedExports} exports with ${failedExports} failures.` 
-            : 'Failed to export any projects.');
-        } else {
-          alert('All projects exported successfully');
-        }
-        this.closeModal();
+  checkAllCompleted(completedExports: number, failedExports: number, totalExports: number) {
+    if (completedExports + failedExports === totalExports) {
+      this.loading = false; // Stop loading
+      if (failedExports > 0) {
+        alert(completedExports > 0 
+          ? `Completed ${completedExports} exports with ${failedExports} failures.` 
+          : 'Failed to export any projects.');
+      } else {
+        alert('All projects exported successfully');
       }
-    };
+      this.closeModal();
+    }
   }
 
   onImportFileSelected(event: Event, tab: 'new' | 'existing') {
@@ -594,6 +591,7 @@ export class TopbarComponent implements AfterViewInit {
       return;
     }
 
+    this.loading = true; // Start loading
     const formData = new FormData();
     formData.append('file', selectedFile);
     if (this.selectedOption === 'existing') {
@@ -605,10 +603,12 @@ export class TopbarComponent implements AfterViewInit {
 
     this.http.post(url, formData).subscribe({
       next: () => {
+        this.loading = false; // Stop loading
         alert('Project imported successfully');
         this.closeModal();
       },
       error: (error) => {
+        this.loading = false; // Stop loading
         console.error('Import failed:', error);
         alert('Failed to import project: ' + (error.message || 'Unknown error'));
       }

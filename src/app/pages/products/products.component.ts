@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ProductService } from '../../core/services/product.service';
 import { ApprovalDocumentsService } from '../../core/services/document.service';
@@ -30,6 +30,7 @@ export class ProductsComponent implements OnInit {
   productName: string = '';
   searchQuery: string = '';
   isLoading: boolean = false;
+  isSaving: boolean = false;
   private pendingRequests: number = 0;
   selectedProductIds: string[] = [];
   isConfirmationModalOpen: boolean = false;
@@ -39,6 +40,14 @@ export class ProductsComponent implements OnInit {
     private productService: ProductService,
     private approvalDocumentsService: ApprovalDocumentsService
   ) {}
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown') && !target.closest('.dropdown-menu')) {
+      this.isDropdownOpen = false;
+    }
+  }
 
   ngOnInit() {
     this.isLoading = true;
@@ -118,13 +127,10 @@ export class ProductsComponent implements OnInit {
     console.log('Dropdown toggled, isDropdownOpen:', this.isDropdownOpen);
   }
 
-  toggleDocumentSelection(docId: string, event: Event) {
-    const isChecked = (event.target as HTMLInputElement).checked;
-    if (isChecked) {
-      if (!this.selectedDocuments.includes(docId)) {
-        this.selectedDocuments.push(docId);
-        console.log('Selected document:', docId, 'Current selectedDocuments:', this.selectedDocuments);
-      }
+  toggleDocumentSelection(docId: string) {
+    if (!this.selectedDocuments.includes(docId)) {
+      this.selectedDocuments.push(docId);
+      console.log('Selected document:', docId, 'Current selectedDocuments:', this.selectedDocuments);
     } else {
       this.selectedDocuments = this.selectedDocuments.filter(id => id !== docId);
       console.log('Removed document:', docId, 'Current selectedDocuments:', this.selectedDocuments);
@@ -184,6 +190,7 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
+    this.isSaving = true;
     const productData = {
       name: this.productName,
       approvalDocumentIds: this.selectedDocuments
@@ -195,26 +202,25 @@ export class ProductsComponent implements OnInit {
       next: (newProduct) => {
         this.products.push(newProduct);
         this.filteredProducts = this.products;
+        this.isSaving = false;
         this.closeModal();
         alert('Product created successfully');
         console.log('Product created:', newProduct);
         window.location.reload();
       },
       error: (error) => {
+        this.isSaving = false;
         console.error('Failed to create product', error);
         alert(error.message || 'Failed to create product; please try again.');
       }
     });
   }
 
-  toggleProductSelection(productId: string, event: Event) {
-    const isChecked = (event.target as HTMLInputElement).checked;
-    if (isChecked) {
-      if (!this.selectedProductIds.includes(productId)) {
-        this.selectedProductIds.push(productId);
-      }
-    } else {
+  toggleProductSelection(productId: string) {
+    if (this.selectedProductIds.includes(productId)) {
       this.selectedProductIds = this.selectedProductIds.filter(id => id !== productId);
+    } else {
+      this.selectedProductIds.push(productId);
     }
     console.log('Selected product IDs:', this.selectedProductIds);
   }

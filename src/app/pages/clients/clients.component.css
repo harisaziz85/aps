@@ -121,7 +121,7 @@
 .projcard {
   border-radius: 15px;
   height: 60px;
-  padding-bottom: 11px ;
+  /* padding-bottom: 11px ; */
 }
 
 .serch {
@@ -368,7 +368,6 @@ tbody tr {
   color: #fff;
   font-size: 14px;
   border: 0px !important;
-  
 }
 
 .active-tab-bg {
@@ -472,7 +471,7 @@ input:focus {
 }
 
 .red-bg {
-  background-color: rgba(247, 161, 161, 1); /* Red for To-do */
+  background-color: rgba(247, 161, 161, 1); /* Red for Waiting For Approval */
   color: black;
   border: none;
 }
@@ -483,18 +482,18 @@ input:focus {
 }
 
 .yellow-bg {
-  background-color: rgba(255, 224, 102, 1); /* Yellow for In progress */
+  background-color: rgba(255, 224, 102, 1); /* Yellow for Active */
   color: #000;
   border: none;
 }
 
 .yellow-bg:hover {
-  background-color:rgba(255, 224, 102, 1);
+  background-color: rgba(255, 224, 102, 1);
   color: #000;
 }
 
 .green-bg {
-  background-color:rgba(115, 242, 181, 1); /* Green for Completed */
+  background-color: rgba(115, 242, 181, 1); /* Green for Completed */
   color: black;
   border: none;
 }
@@ -545,9 +544,10 @@ input:focus {
   padding: 12px;
 }
 
-.dropdown-menu{
+.dropdown-menu {
   z-index: 100000;
 }
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

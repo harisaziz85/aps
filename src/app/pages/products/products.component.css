@@ -51,6 +51,16 @@
   width: 11.11111111%; /* 100% / 9 */
 }
 
+/* Selected card style */
+.card.selected {
+  background-color: white !important;
+}
+
+/* Ensure approval document text stays black */
+.document-text {
+  color: black !important;
+}
+
 /* Existing Styles */
 option {
   width: 10% !important;
@@ -120,6 +130,11 @@ option {
   height: 20px !important;
   width: 20px !important;
   accent-color: black;
+  transition: none !important; /* Prevent any transition effects */
+}
+.cbox:focus, .cbox:active {
+  outline: none !important;
+  box-shadow: none !important;
 }
 .prodbtn {
   background-color: white !important;

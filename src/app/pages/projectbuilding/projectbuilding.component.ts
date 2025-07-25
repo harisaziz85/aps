@@ -376,7 +376,6 @@ export class ProjectbuildingComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Fixed toggleSelectAll method
   toggleSelectAll(): void {
     // Toggle the selectAll state
     this.selectAll = !this.selectAll;
@@ -398,7 +397,6 @@ export class ProjectbuildingComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Fixed toggleProjectSelection method
   toggleProjectSelection(project: any, event: Event): void {
     event.stopPropagation();
     

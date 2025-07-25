@@ -15,7 +15,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./project-list.component.css']
 })
 export class ProjectListComponent implements OnInit {
-  // Updated statusOptions to include "Waiting For Approval"
   statusOptions: string[] = ['Active', 'Waiting For Approval', 'Completed'];
   projects: ProjectDisplay[] = [];
   filteredProjects: ProjectDisplay[] = [];
