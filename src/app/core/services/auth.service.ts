@@ -5,6 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../enviornment/environment';
 import { ProjectExport } from '../models/project-export';
+import { ToastrService } from 'ngx-toastr'; // ✅ Toastr import
 
 interface CountResponse {
   totalClientsCount: number;
@@ -51,7 +52,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService // ✅ Injected
   ) {}
 
   login(username: string, password: string): Observable<LoginResponse> {
@@ -61,34 +63,55 @@ export class AuthService {
     }).pipe(
       tap(response => {
         if (response && response.token) {
-          console.log('AuthService: Login successful, storing token:', response.token);
           this.setToken(response.token);
           this.setUserData(response.employee);
+          this.toastr.success('Login successful!', 'Success');
         } else {
-          console.error('AuthService: No token received in login response:', response);
+          this.toastr.error('Login failed. Token not received.', 'Error');
         }
+      }),
+      catchError(error => {
+        this.toastr.error('Login failed. Please check your credentials.', 'Error');
+        return throwError(() => error);
       })
     );
   }
 
   forgetPassword(email: string): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/auth/forget-password`, { email });
+    return this.http.post<any>(`${this.baseUrl}/auth/forget-password`, { email }).pipe(
+      tap(() => this.toastr.success('Password reset link sent to your email.', 'Success')),
+      catchError(error => {
+        this.toastr.error('Failed to send reset link.', 'Error');
+        return throwError(() => error);
+      })
+    );
   }
 
   verifyOtp(email: string, verificationCode: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/auth/verify-otp`, {
       email,
       verificationCode
-    });
+    }).pipe(
+      tap(() => this.toastr.success('OTP verified successfully.', 'Success')),
+      catchError(error => {
+        this.toastr.error('Invalid or expired OTP.', 'Error');
+        return throwError(() => error);
+      })
+    );
   }
 
   resetPassword(data: { email: string; newPassword: string; confirmPassword: string }): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/auth/reset-password`, data);
+    return this.http.post<any>(`${this.baseUrl}/auth/reset-password`, data).pipe(
+      tap(() => this.toastr.success('Password reset successfully.', 'Success')),
+      catchError(error => {
+        this.toastr.error('Failed to reset password.', 'Error');
+        return throwError(() => error);
+      })
+    );
   }
 
   getProfile(): Observable<ProfileResponse> {
     const token = this.getToken();
-    console.log('AuthService: Fetching profile with token:', token ? 'Present' : 'Missing');
     return this.http.get<ProfileResponse>(`${this.baseUrl}/auth/profile`, {
       headers: { Authorization: `${token}` }
     });
@@ -96,7 +119,6 @@ export class AuthService {
 
   updateProfile(data: FormData): Observable<ProfileResponse> {
     const token = this.getToken();
-    console.log('AuthService: Updating profile with token:', token ? 'Present' : 'Missing');
     return this.http.put<ProfileResponse>('https://vps.allpassiveservices.com.au/api/auth/admin/profile', data, {
       headers: {
         Authorization: `${token}`
@@ -104,45 +126,46 @@ export class AuthService {
     }).pipe(
       tap(response => {
         if (!response.error && response.profile) {
-          console.log('AuthService: Profile updated successfully:', response.profile);
           this.setUserData(response.profile);
+          this.toastr.success('Profile updated successfully.', 'Success');
         } else {
-          console.error('AuthService: Profile update failed:', response.message);
+          this.toastr.error('Failed to update profile.', 'Error');
         }
+      }),
+      catchError(error => {
+        this.toastr.error('Error occurred while updating profile.', 'Error');
+        return throwError(() => error);
       })
     );
   }
 
   exportProject(projectId: string): Observable<ProjectExport> {
     const token = this.getToken();
-    console.log('AuthService: Exporting project with ID:', projectId, 'and token:', token ? 'Present' : 'Missing');
     return this.http.get<ProjectExport>(`${this.baseUrl}/exchangeData/export/${projectId}`, {
       headers: { Authorization: `${token}` }
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => {
+        this.toastr.error('Failed to export project.', 'Error');
+        return this.handleError(error);
+      })
     );
   }
 
   getCounts(): Observable<CountResponse> {
     const token = this.getToken();
-    console.log('AuthService: Fetching counts with token:', token ? 'Present' : 'Missing');
     return this.http.get<CountResponse>(`${this.baseUrl}/admin/count`);
   }
 
   setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
-    console.log('AuthService: Token stored in localStorage:', token);
   }
 
   getToken(): string | null {
-    const token = localStorage.getItem(this.tokenKey);
-    console.log('AuthService: Retrieved token from localStorage:', token);
-    return token;
+    return localStorage.getItem(this.tokenKey);
   }
 
   setUserData(userData: any): void {
     localStorage.setItem(this.userKey, JSON.stringify(userData));
-    console.log('AuthService: User data stored in localStorage:', userData);
   }
 
   getUserData(): any {
@@ -151,14 +174,13 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    const token = this.getToken();
-    return !!token;
+    return !!this.getToken();
   }
 
   logout(): void {
-    console.log('AuthService: Logging out, clearing localStorage');
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
+    this.toastr.info('You have been logged out.', 'Info');
     this.router.navigate(['/auth/signin']);
   }
 
@@ -169,7 +191,7 @@ export class AuthService {
     } else {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    console.error('AuthService: Error:', errorMessage);
+    this.toastr.error(errorMessage, 'HTTP Error');
     return throwError(() => new Error(errorMessage));
   }
 }

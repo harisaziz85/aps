@@ -12,6 +12,7 @@ import { FootComponent } from '../components/foot/foot.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { SvgIconsComponent } from "../../shared/svg-icons/svg-icons.component";
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-clients',
@@ -49,7 +50,8 @@ export class ClientsComponent implements OnInit {
     private clientService: ClientService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastr: ToastrService
   ) {
     this.clientForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -91,6 +93,7 @@ export class ClientsComponent implements OnInit {
       error: (error) => {
         console.error('Error fetching clients:', error);
         this.isLoading = false;
+        this.toastr.error('Failed to load clients', 'Error');
         this.cdr.detectChanges();
       }
     });
@@ -104,6 +107,7 @@ export class ClientsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching Active projects:', error);
+        this.toastr.error('Failed to load active projects', 'Error');
         this.cdr.detectChanges();
       }
     });
@@ -115,6 +119,7 @@ export class ClientsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching Completed projects:', error);
+        this.toastr.error('Failed to load completed projects', 'Error');
         this.cdr.detectChanges();
       }
     });
@@ -131,6 +136,7 @@ export class ClientsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching Active projects:', error);
+        this.toastr.error('Failed to load active projects', 'Error');
         this.cdr.detectChanges();
       }
     });
@@ -143,6 +149,7 @@ export class ClientsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching Completed projects:', error);
+        this.toastr.error('Failed to load completed projects', 'Error');
         this.cdr.detectChanges();
       }
     });
@@ -201,6 +208,7 @@ export class ClientsComponent implements OnInit {
 
   cancelSelection(): void {
     this.selectedClients.clear();
+    this.toastr.info('Selection cancelled', 'Info');
     this.cdr.detectChanges();
   }
 
@@ -220,11 +228,13 @@ export class ClientsComponent implements OnInit {
           this.filteredClients = [...this.clients];
           this.totalClients = this.clients.length;
           this.selectedClients.delete(clientId);
+          this.toastr.success(`Client ${clientId} deleted successfully`, 'Success');
           this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error deleting client:', error);
           this.backendErrors['delete'] = error.error?.message || 'Failed to delete client';
+          this.toastr.error(this.backendErrors['delete'], 'Error');
           this.cdr.detectChanges();
         },
         complete: () => {
@@ -340,6 +350,7 @@ export class ClientsComponent implements OnInit {
             console.log('Client registered:', response);
             this.fetchClients();
             this.isSaving = false;
+            this.toastr.success('Client added successfully', 'Success');
             this.closeModal();
           },
           error: (error) => {
@@ -347,6 +358,7 @@ export class ClientsComponent implements OnInit {
             this.isSaving = false;
             if (error.error && error.error.errors) {
               this.backendErrors = error.error.errors;
+              this.toastr.error('Failed to add client', 'Error');
               this.cdr.detectChanges();
             }
           }
@@ -358,6 +370,7 @@ export class ClientsComponent implements OnInit {
             console.log('Client updated:', response);
             this.fetchClients();
             this.isSaving = false;
+            this.toastr.success('Client updated successfully', 'Success');
             this.closeModal();
           },
           error: (error) => {
@@ -365,11 +378,14 @@ export class ClientsComponent implements OnInit {
             this.isSaving = false;
             if (error.error && error.error.errors) {
               this.backendErrors = error.error.errors;
+              this.toastr.error('Failed to update client', 'Error');
               this.cdr.detectChanges();
             }
           }
         });
       }
+    } else {
+      this.toastr.error('Please fill all required fields correctly', 'Form Invalid');
     }
   }
 
@@ -380,9 +396,11 @@ export class ClientsComponent implements OnInit {
         if (this.selectedClient) {
           this.fetchClientProjects(this.selectedClient._id);
         }
+        this.toastr.success(`Project status updated to ${status}`, 'Success');
       },
       error: (error) => {
         console.error('Error updating project status:', error);
+        this.toastr.error('Failed to update project status', 'Error');
       }
     });
   }

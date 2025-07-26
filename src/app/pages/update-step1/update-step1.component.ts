@@ -8,18 +8,18 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from "../components/navbar/navbar.component";
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { FootComponent } from "../components/foot/foot.component";
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-update-step1',
   standalone: true,
   templateUrl: './update-step1.component.html',
   styleUrls: ['./update-step1.component.css'],
-  imports: [FormsModule, CommonModule, NavbarComponent, FootComponent,TopbarComponent]
+  imports: [FormsModule, CommonModule, NavbarComponent, FootComponent, TopbarComponent]
 })
 export class UpdateStep1Component implements OnInit {
   projectId: string | null = null;
   projectData: any | null = null;
-  errorMessage: string | null = null;
   clientNames: string[] = [];
   hierarchyLevelsChangeValue: string = 'No';
   selectedSubProject: string = '';
@@ -32,7 +32,8 @@ export class UpdateStep1Component implements OnInit {
     private router: Router,
     private updateService: UpdateprojectService,
     private downloadProjectService: DownloadProjectService,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit() {
@@ -44,7 +45,6 @@ export class UpdateStep1Component implements OnInit {
         this.fetchProjectData(this.projectId);
         this.fetchClientNames();
       } else {
-        this.errorMessage = 'Invalid or missing project ID';
         console.error('Project ID is missing or undefined');
       }
     });
@@ -62,12 +62,10 @@ export class UpdateStep1Component implements OnInit {
           : '';
         console.log('subProjects format:', this.projectData.subProjects);
         console.log('Mapped Project Data:', this.projectData);
+        this.toastr.success('Project data loaded successfully', 'Success');
       },
       error: (error) => {
         console.error('Error fetching project data:', error);
-        this.errorMessage = error.status === 404 
-          ? 'Project not found. Please check the project ID.' 
-          : 'Failed to load project data';
       }
     });
   }
@@ -81,7 +79,6 @@ export class UpdateStep1Component implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching client data:', error);
-        this.errorMessage = 'Failed to load client data';
       }
     });
   }
@@ -101,11 +98,9 @@ export class UpdateStep1Component implements OnInit {
         },
         error: (error) => {
           console.error('Error updating project:', error);
-          this.errorMessage = error.message || 'Failed to update project: Invalid data format';
         }
       });
     } else {
-      this.errorMessage = 'Project ID or data is missing';
       console.error('Project ID or data is missing');
     }
   }

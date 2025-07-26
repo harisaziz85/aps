@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { FootComponent } from '../components/foot/foot.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-update-step3',
@@ -31,7 +32,8 @@ export class UpdateStep3Component implements OnInit {
     private router: Router,
     private updateService: UpdateService,
     private downloadProjectService: DownloadProjectService,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit() {
@@ -43,7 +45,7 @@ export class UpdateStep3Component implements OnInit {
       if (this.projectId) {
         this.fetchProjectData(this.projectId);
       } else {
-        this.errorMessage = 'No project ID provided in route';
+        this.toastr.error('No project ID provided in route', 'Error');
         this.isLoading = false;
       }
     });
@@ -66,10 +68,11 @@ export class UpdateStep3Component implements OnInit {
           };
         }
         this.isLoading = false;
+        this.toastr.success('Project data loaded successfully', 'Success');
       },
       error: (error) => {
         console.error('Error fetching project data:', error);
-        this.errorMessage = `Failed to load project data: ${error.error?.message || error.message}`;
+        this.toastr.error('Failed to load project data', 'Error');
         this.isLoading = false;
       }
     });

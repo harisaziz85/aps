@@ -344,7 +344,7 @@ option {
   border-radius: 15px;
   width: 500px;
   height: 48px;
-  border: 1px solid rgba(164, 163, 162, 1);
+  border: 1px solid rgba(205, 204, 203, 1);
   width: 100%;
 }
 .input-container svg {
@@ -461,7 +461,7 @@ body.modal-open::before {
   width: 600px;
   background-color: white;
   z-index: 1001;
-  border-radius: 15px;
+  border-radius: 0; /* Border radius 0 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .comodal-header {
@@ -476,6 +476,8 @@ body.modal-open::before {
   border: 1px solid black !important;
   margin-right: 8px;
   background-color: #00000000;
+  font-size: 15px; /* Font size 15px */
+  font-family: 'Onest', sans-serif; /* Onest font */
 }
 .del12 {
   height: 40px;
@@ -483,8 +485,10 @@ body.modal-open::before {
   border-radius: 10px;
   border: 0px !important;
   margin-right: 8px;
-  background-color: rgba(236, 25, 25, 1);
+  background-color: #EC1919 !important; /* Red button for delete */
   color: white;
+  font-size: 15px; /* Font size 15px */
+  font-family: 'Onest', sans-serif; /* Onest font */
 }
 .modal-header .btn-close {
   font-size: 5px !important;
@@ -493,7 +497,8 @@ body.modal-open::before {
 }
 .confirmation-modal-body {
   padding: 16px;
-  font-size: 14px;
+  font-size: 15px; /* Font size 15px */
+  font-family: 'Onest', sans-serif; /* Onest font */
 }
 .confirmation-modal-footer {
   padding: 16px;
@@ -507,7 +512,56 @@ body.modal-open::before {
   color: #343a40;
 }
 .btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
+  background-color: black; /* Black button for other danger buttons */
+  border-color: black;
   color: white;
+  font-size: 15px; /* Font size 15px */
+  font-family: 'Onest', sans-serif; /* Onest font */
+}
+
+/* Generic Alert Modal */
+.alert-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  background-color: white;
+  z-index: 1001;
+  border-radius: 0; /* Border radius 0 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.alert-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+.alert-modal-header {
+  padding: 16px 16px 0px 16px;
+  font-size: 21px !important;
+  margin-bottom: 0px !important;
+}
+.alert-modal-body {
+  padding: 16px;
+  font-size: 15px; /* Font size 15px */
+  font-family: 'Onest', sans-serif; /* Onest font */
+}
+.alert-modal-footer {
+  padding: 16px;
+  display: flex;
+  justify-content: end;
+}
+.ok-btn {
+  height: 40px;
+  width: 88px;
+  border-radius: 10px;
+  border: 0px !important;
+  background-color: black !important; /* Black button */
+  color: white;
+  font-size: 15px; /* Font size 15px */
+  font-family: 'Onest', sans-serif; /* Onest font */
 }

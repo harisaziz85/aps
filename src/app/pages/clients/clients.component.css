@@ -547,6 +547,33 @@ input:focus {
 .dropdown-menu {
   z-index: 100000;
 }
+/* Success toaster */
+.toast-success {
+  background-color: #000000 !important; /* Light green */
+  border: 1px solid #008000 !important; /* Green border */
+  color: black !important;
+  width: 600px;
+}
+
+/* Error toaster */
+.toast-error {
+  background-color: #fff0f0 !important; /* Light red */
+  border: 1px solid #ff0000 !important; /* Red border */
+  color: black !important;
+}
+
+/* Info toaster */
+.toast-info {
+  background-color: #f0f8ff !important; /* Light blue */
+  border: 1px solid #0000ff !important; /* Blue border */
+  color: black !important;
+}
+::ng-deep .toast-success {
+  background-color: #ffffff !important;
+  /* border: 1px solid #ffffff !important; */
+  border: 1px solid black;
+  color: black !important;
+}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

@@ -5,6 +5,7 @@
 @import '@syncfusion/ej2-inputs/styles/material.css';
 @import '@syncfusion/ej2-navigations/styles/material.css';
 @import '@syncfusion/ej2-image-editor/styles/material.css';
+
 .no-scroll {
     overflow: hidden !important;
     height: 100% !important;

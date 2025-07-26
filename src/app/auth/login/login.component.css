@@ -42,12 +42,11 @@ input:-webkit-autofill:active {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   border-color: rgba(205, 204, 203, 1);
-
-}.checkbox-wrapper {
+}
+.checkbox-wrapper {
   display: flex;
   align-items: center; /* Center checkbox and label */
 }
-
 
 .form-control1{
   border-right: 0px;
@@ -58,14 +57,12 @@ input:-webkit-autofill:active {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   border-color: rgba(205, 204, 203, 1);
-
 }
 
 .form-control:focus {
   box-shadow: none;
   border-radius: 15px;
   border-color: rgba(205, 204, 203, 1);
-  
 }
 
 .logincon{
@@ -94,7 +91,7 @@ label{
   color: #dc3545;
   font-size: 14px;
   margin-bottom: 20px;
-  margin-top:10px;
+  margin-top: 10px;
 }
 
 .btn-dark {
@@ -111,3 +108,13 @@ label{
   animation: shimmer 1.5s infinite;
 }
 
+/* Custom Toastr styles */
+.toast-error {
+  background-color: white !important;
+  border: 1px solid grey !important;
+  color: black !important;
+}
+
+.toast-error .toast-message {
+  color: black !important;
+}

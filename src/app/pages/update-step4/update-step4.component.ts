@@ -7,6 +7,7 @@ import { UpdateService } from '../../core/services/update-service.service';
 import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { FootComponent } from '../components/foot/foot.component';
+import { ToastrService } from 'ngx-toastr';
 
 interface HierarchyLevel {
   _id: string;
@@ -92,7 +93,8 @@ export class UpdateStep4Component implements OnInit {
     private route: ActivatedRoute,
     private http: HttpClient,
     private router: Router,
-    private updateService: UpdateService
+    private updateService: UpdateService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit() {
@@ -100,7 +102,7 @@ export class UpdateStep4Component implements OnInit {
       this.projectId = params['id'] || this.updateService.getProjectId();
       console.log('Project ID:', this.projectId);
       if (!this.projectId) {
-        this.errorMessage = 'No project ID provided in route or service';
+        this.toastr.error('No project ID provided in route or service', 'Error');
       } else {
         this.fetchHierarchyLevels(this.projectId);
         this.fetchDocuments(this.projectId);
@@ -110,8 +112,6 @@ export class UpdateStep4Component implements OnInit {
 
   private fetchHierarchyLevels(projectId: string) {
     this.isLoadingHierarchy = true;
-    this.errorMessage = null;
-    this.successMessage = null;
     this.http.get<any>(`https://vps.allpassiveservices.com.au/api/project/hierarchy/${projectId}`, {
       headers: { 'Accept': 'application/json' }
     }).subscribe({
@@ -119,17 +119,17 @@ export class UpdateStep4Component implements OnInit {
         console.log('Hierarchy response:', response);
         this.hierarchyLevels = response.hierarchyData?.levels || response.data?.levels || [];
         this.isLoadingHierarchy = false;
+        this.toastr.success('Hierarchy levels loaded successfully', 'Success');
       },
       error: (error: HttpErrorResponse) => {
         console.error('Hierarchy fetch error:', error);
-        this.errorMessage = error.error?.message || `Failed to load hierarchy levels (Status: ${error.status})`;
+        this.toastr.error('Failed to load hierarchy levels', 'Error');
         this.isLoadingHierarchy = false;
       }
     });
   }
 
   private fetchDocuments(projectId: string) {
-    this.errorMessage = null;
     this.http.get<GetDocumentsResponse>(`https://vps.allpassiveservices.com.au/api/project/getProjectDocuments/${projectId}`, {
       headers: { 'Accept': 'application/json' }
     }).subscribe({
@@ -154,10 +154,11 @@ export class UpdateStep4Component implements OnInit {
             });
           }
         });
+        this.toastr.success('Documents loaded successfully', 'Success');
       },
       error: (error: HttpErrorResponse) => {
         console.error('Documents fetch error:', error);
-        this.errorMessage = error.error?.message || `Failed to load documents (Status: ${error.status})`;
+        this.toastr.error('Failed to load documents', 'Error');
       }
     });
   }

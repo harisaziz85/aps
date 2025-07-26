@@ -11,6 +11,7 @@ import { FootComponent } from '../components/foot/foot.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { SliderComponent } from '../components/slider/slider.component';
 import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
+import { ToastrService } from 'ngx-toastr';
 import jsPDF from 'jspdf';
 
 @Component({
@@ -33,12 +34,12 @@ export class ProductsComponent implements OnInit {
   isSaving: boolean = false;
   private pendingRequests: number = 0;
   selectedProductIds: string[] = [];
-  isConfirmationModalOpen: boolean = false;
 
   constructor(
     private sanitizer: DomSanitizer,
     private productService: ProductService,
-    private approvalDocumentsService: ApprovalDocumentsService
+    private approvalDocumentsService: ApprovalDocumentsService,
+    private toastr: ToastrService
   ) {}
 
   @HostListener('document:click', ['$event'])
@@ -62,11 +63,12 @@ export class ProductsComponent implements OnInit {
         this.products = products;
         this.filteredProducts = products;
         console.log('Loaded products:', products);
+        this.toastr.success('Products loaded successfully', 'Success');
         this.checkLoadingComplete();
       },
       error: (error) => {
         console.error('Failed to load products', error);
-        alert('Failed to load products; please try again.');
+        this.toastr.error('Failed to load products. Please try again.', 'Error');
         this.checkLoadingComplete();
       }
     });
@@ -78,13 +80,13 @@ export class ProductsComponent implements OnInit {
         this.documents = documents;
         console.log('Loaded documents:', documents);
         if (documents.length === 0) {
-          alert('No approval documents available. Please upload documents first.');
+          this.toastr.warning('No approval documents available. Please upload documents first.', 'Warning');
         }
         this.checkLoadingComplete();
       },
       error: (error) => {
         console.error('Failed to load documents', error);
-        alert('Failed to load approval documents; please try again.');
+        this.toastr.error('Failed to load approval documents. Please try again.', 'Error');
         this.checkLoadingComplete();
       }
     });
@@ -107,6 +109,7 @@ export class ProductsComponent implements OnInit {
       this.filteredProducts = this.products;
     }
     console.log('Filtered products:', this.filteredProducts);
+    this.toastr.info('Products filtered', 'Info');
   }
 
   openModal() {
@@ -125,6 +128,7 @@ export class ProductsComponent implements OnInit {
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
     console.log('Dropdown toggled, isDropdownOpen:', this.isDropdownOpen);
+    // Removed toastr notification for dropdown toggle
   }
 
   toggleDocumentSelection(docId: string) {
@@ -140,6 +144,7 @@ export class ProductsComponent implements OnInit {
   removeDocument(docId: string) {
     this.selectedDocuments = this.selectedDocuments.filter(id => id !== docId);
     console.log('Removed document:', docId, 'Current selectedDocuments:', this.selectedDocuments);
+    this.toastr.info('Document removed from selection', 'Info');
   }
 
   getDocumentName(docId: string): string {
@@ -164,7 +169,7 @@ export class ProductsComponent implements OnInit {
     const doc = this.documents.find(d => d._id === docId);
     if (!doc) {
       console.warn(`Document with ID ${docId} not found`);
-      alert('Document not found');
+      this.toastr.error('Document not found', 'Error');
       return;
     }
 
@@ -175,17 +180,18 @@ export class ProductsComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
     console.log(`Initiated download for document: ${doc.name}`);
+    this.toastr.success(`Downloaded document: ${doc.name}`, 'Success');
   }
 
   createProduct() {
     if (!this.productName.trim()) {
-      alert('Product name is required');
+      this.toastr.error('Product name is required', 'Validation Error');
       console.log('Validation failed: Product name is empty');
       return;
     }
 
     if (this.selectedDocuments.length === 0) {
-      alert('At least one approval document is required');
+      this.toastr.error('At least one approval document is required', 'Validation Error');
       console.log('Validation failed: selectedDocuments is empty');
       return;
     }
@@ -204,14 +210,14 @@ export class ProductsComponent implements OnInit {
         this.filteredProducts = this.products;
         this.isSaving = false;
         this.closeModal();
-        alert('Product created successfully');
+        this.toastr.success('Product created successfully', 'Success');
         console.log('Product created:', newProduct);
         window.location.reload();
       },
       error: (error) => {
         this.isSaving = false;
         console.error('Failed to create product', error);
-        alert(error.message || 'Failed to create product; please try again.');
+        this.toastr.error(error.message || 'Failed to create product. Please try again.', 'Error');
       }
     });
   }
@@ -228,25 +234,25 @@ export class ProductsComponent implements OnInit {
   clearSelection() {
     this.selectedProductIds = [];
     console.log('Selection cleared, selectedProductIds:', this.selectedProductIds);
+    this.toastr.info('Selection cleared', 'Info');
   }
 
-  openConfirmationModal() {
-    this.isConfirmationModalOpen = true;
-    console.log('Confirmation modal opened');
-  }
-
-  closeConfirmationModal() {
-    this.isConfirmationModalOpen = false;
-    console.log('Confirmation modal closed');
-  }
-
-  deleteProducts() {
+  confirmDeleteProducts() {
     if (this.selectedProductIds.length === 0) {
-      alert('No products selected for deletion');
+      this.toastr.error('No products selected for deletion', 'Error');
       console.log('No products selected for deletion');
       return;
     }
 
+    if (!confirm('Are you sure you want to delete the selected product(s)? This action cannot be undone.')) {
+      this.toastr.info('Product deletion cancelled', 'Info');
+      return;
+    }
+
+    this.deleteProducts();
+  }
+
+  deleteProducts() {
     const deleteData = { ids: this.selectedProductIds };
     console.log('Deleting products with data:', deleteData);
 
@@ -255,15 +261,13 @@ export class ProductsComponent implements OnInit {
         this.products = this.products.filter(p => !this.selectedProductIds.includes(p._id));
         this.filteredProducts = this.filteredProducts.filter(p => !this.selectedProductIds.includes(p._id));
         this.selectedProductIds = [];
-        this.closeConfirmationModal();
-        alert('Product(s) deleted successfully');
+        this.toastr.success('Product(s) deleted successfully', 'Success');
         console.log('Products deleted successfully');
         window.location.reload();
       },
       error: (error) => {
         console.error('Failed to delete products', error);
-        alert(error.message || 'Failed to delete product(s); please try again.');
-        this.closeConfirmationModal();
+        this.toastr.error(error.message || 'Failed to delete product(s). Please try again.', 'Error');
       }
     });
   }
@@ -273,7 +277,7 @@ export class ProductsComponent implements OnInit {
     console.log('Documents available:', this.documents.length, this.documents);
     if (!this.documents || this.documents.length === 0) {
       console.warn('No documents loaded');
-      alert('No documents available. Please ensure documents are loaded.');
+      this.toastr.error('No documents available. Please ensure documents are loaded.', 'Error');
       return;
     }
     const doc = new jsPDF();
@@ -297,5 +301,6 @@ export class ProductsComponent implements OnInit {
 
     doc.save(`${product.name}_details.pdf`);
     console.log(`Downloaded PDF for product: ${product.name}`);
+    this.toastr.success(`Downloaded PDF for product: ${product.name}`, 'Success');
   }
 }

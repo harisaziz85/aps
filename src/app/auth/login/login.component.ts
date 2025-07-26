@@ -6,6 +6,7 @@ import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-i
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +27,11 @@ export class LoginComponent {
   errorMsg: string = '';
   isLoading: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastr: ToastrService
+  ) {}
 
   togglePasswordVisibility() {
     this.passwordVisible = !this.passwordVisible;
@@ -40,6 +45,7 @@ export class LoginComponent {
       next: (res: LoginResponse) => {
         if (!res.error) {
           console.log('LoginComponent: Login successful, navigating to dashboard');
+          this.toastr.success('Login successful!', 'Welcome');
           setTimeout(() => {
             this.isLoading = false;
             this.router.navigate(['/pages/dashboard']);
@@ -47,12 +53,14 @@ export class LoginComponent {
         } else {
           this.isLoading = false;
           this.errorMsg = res.message || 'Invalid username or password.';
+          this.toastr.error(this.errorMsg, 'Login Failed');
           console.warn('LoginComponent: Login failed', res.message);
         }
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMsg = 'Login failed. Please check your credentials.';
+        this.toastr.error(this.errorMsg, 'Login Failed');
         console.error('LoginComponent: Login error', err);
       }
     });
@@ -62,5 +70,3 @@ export class LoginComponent {
     this.router.navigate(['forget-password']);
   }
 }
-
-// 

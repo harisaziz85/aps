@@ -500,7 +500,9 @@ input[type="email"] {
 }
 
 .cf-confirmation-modal .cf-modal-body {
-  padding: 24px;
+  padding: 24征
+
+24px;
   font-family: 'Roboto', sans-serif;
   font-weight: normal;
   font-size: 1rem;
@@ -706,12 +708,31 @@ input[type="email"] {
 .dropdown-item:hover {
   background-color: rgba(252, 235, 232, 1);
 }
+
+/* Custom Toastr styles */
+.toast-error {
+  background-color: white !important;
+  border: 1px solid grey !important;
+  color: black !important;
+}
+.toast-error .toast-message {
+  color: black !important;
+}
+.toast-success {
+  background-color: white !important;
+  border: 1px solid grey !important;
+  color: black !important;
+}
+.toast-success .toast-message {
+  color: black !important;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
-  -webkit-text-fill-color: inherit !important; /* Keeps the text color as per your design */
-  background-color: transparent !important; /* Ensures background is transparent */
-  transition: background-color 5000s ease-in-out 0s; /* Prevents abrupt changes */
+  -webkit-text-fill-color: inherit !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

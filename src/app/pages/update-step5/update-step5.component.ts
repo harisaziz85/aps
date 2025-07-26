@@ -44,7 +44,6 @@ interface TableRow {
   Result: string;
   Photos: string[];
   Comments: string;
-  [key: string]: string | string[];
 }
 
 interface Product {
@@ -74,7 +73,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   projectId: string | null = null;
   serviceProjectId: string | null = null;
   reports: ProjectReport[] = [];
-  isReportsLoading: boolean = false;
   errorMessage: string | null = null;
   projectAttributes: any = {};
   private rightModalInstance: Modal | null = null;
@@ -88,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/Uploads/1752585290123-129536.jpg',
+    fileUrl: '/uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -142,7 +140,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
-    this.selectedAttributes['Report Type'] = 'standard';
+    this.selectedAttributes['Report Type'] = 'standard'; // Default to standard
   }
 
   ngAfterViewInit() {
@@ -259,7 +257,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   fetchProjectReports(projectId: string) {
-    this.isReportsLoading = true;
     this.http.get<{ data: ProjectReport[] }>(`https://vps.allpassiveservices.com.au/api/project/reports/${projectId}`)
       .subscribe({
         next: (response) => {
@@ -272,12 +269,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               }
             }
           }
-          this.isReportsLoading = false;
         },
         error: (err) => {
           this.errorMessage = 'Failed to load project reports. Please try again later.';
           console.error('Error fetching reports:', err);
-          this.isReportsLoading = false;
         }
       });
   }
@@ -341,9 +336,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     ];
 
     let convertedUrl = url;
-    for (const serverDomain of serverDomains) {
-      if (url.startsWith(serverDomain)) {
-        const path = url.replace(serverDomain, '').replace(/^\/uploads\//, '/');
+    for (const domain of serverDomains) {
+      if (url.startsWith(domain)) {
+        const path = url.replace(domain, '').replace(/^\/uploads\//, '/');
         convertedUrl = `${baseUrl}/uploads${path}`;
         return convertedUrl;
       }
@@ -358,48 +353,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     }
 
     return '/assets/placeholder.png';
-  }
-
-  private async getImageData(url: string): Promise<string | null> {
-    if (!url || url === '/assets/placeholder.png') {
-      return null;
-    }
-
-    try {
-      const headers = new HttpHeaders({
-        'Accept': 'image/*'
-      });
-
-      const response = await this.http.get(url, {
-        headers,
-        responseType: 'blob'
-      }).toPromise();
-
-      if (!response) {
-        console.error(`No response received for image: ${url}`);
-        return null;
-      }
-
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (typeof reader.result === 'string') {
-            resolve(reader.result);
-          } else {
-            console.error(`Failed to read image data: ${url}`);
-            resolve(null);
-          }
-        };
-        reader.onerror = () => {
-          console.error(`Error reading image: ${url}`);
-          resolve(null);
-        };
-        reader.readAsDataURL(response);
-      });
-    } catch (error) {
-      console.error(`Failed to fetch image: ${url}`, error);
-      return null;
-    }
   }
 
   getAttributeValue(attributeName: string): string {
@@ -745,6 +698,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
+        let tableEndY = yOffset;
         for (const row of tableData) {
           const commentsText = row['Comments'] || 'N/A';
           const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
@@ -757,34 +711,137 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           xOffset = tableX;
           for (const header of headers) {
             const colIndex = headers.indexOf(header);
-            if (header === 'Photos' && row['Photos'].length > 0) {
-              let photoX = xOffset;
-              for (const photoUrl of row['Photos']) {
-                const imgData = await this.getImageData(photoUrl);
-                if (imgData) {
-                  doc.addImage(imgData, 'PNG', photoX, yOffset, 10, 10);
-                  photoX += 12;
-                }
+            if (header === 'Plan' && this.projectData?.documents?.[0]?.files?.[0]?.documentUrl) {
+              const imgData = await this.getImageData(this.projectData.documents[0].files[0].documentUrl);
+              if (imgData) {
+                const imgWidth = columnWidths[colIndex] - 4;
+                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+              } else {
+                console.error(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
+                doc.setTextColor(255, 0, 0);
+                doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
+                doc.setTextColor(0, 0, 0);
               }
+            } else if (header === 'Photos' && row['Photos'].length > 0) {
+              const imgData = await this.getImageData(row['Photos'][0]);
+              if (imgData) {
+                const imgWidth = columnWidths[colIndex] - 4;
+                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+              } else {
+                console.error(`Photo not loaded: ${row['Photos'][0]}`);
+                doc.setTextColor(255, 0, 0);
+                doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
+                doc.setTextColor(0, 0, 0);
+              }
+            } else if (header === 'Result') {
+              const cellText = row[header] || 'N/A';
+              const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
+              const textHeight = cellLines.length * 6;
+              const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+              if (cellText.toUpperCase() === 'PASS') {
+                doc.setTextColor(92, 201, 110);
+              } else if (cellText.toUpperCase() === 'FAIL') {
+                doc.setTextColor(228, 66, 52);
+              } else if (cellText.toUpperCase() === 'TBC') {
+                doc.setTextColor(128, 128, 128);
+              } else {
+                doc.setTextColor(0, 0, 0);
+              }
+              doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+              doc.setTextColor(0, 0, 0);
             } else if (header === 'Comments') {
-              doc.text(commentsLines, xOffset + 2, yOffset + 6);
-            } else {
-              const text = row[header] || 'N/A';
-              const textLines = doc.splitTextToSize(text.toString(), columnWidths[colIndex] - 4);
-              doc.text(textLines, xOffset + 2, yOffset + 6);
+              const cellLines = doc.splitTextToSize(row[header] || 'N/A', columnWidths[colIndex] - 4);
+              const textHeight = cellLines.length * 6;
+              const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+              doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+            } else if (header !== 'Photos') {
+              const cellText = row[header as keyof TableRow] || 'N/A';
+              const cellLines = doc.splitTextToSize(cellText as string, columnWidths[colIndex] - 4);
+              const textHeight = cellLines.length * 6;
+              const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+              doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
             }
             doc.setLineWidth(0.2);
-            doc.setDrawColor(200, 200, 200);
+            doc.setDrawColor(0, 0, 0);
             doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
             xOffset += columnWidths[colIndex];
           }
           yOffset += rowHeight;
+          tableEndY = yOffset;
         }
 
-        doc.save('ASP_Report.pdf');
+        doc.setLineWidth(0.5);
+        doc.setDrawColor(0, 0, 0);
+        doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
+
+        doc.save('ASP Report.pdf');
       } catch (error) {
         console.error('Error generating PDF:', error);
-        this.errorMessage = 'Failed to generate report. Please try again.';
+        alert('Failed to generate PDF. Check console for details.');
+      }
+    }
+  }
+
+  private async getImageData(url: string): Promise<string | null> {
+    const fallbackImageUrl = '/assets/placeholder.png';
+    try {
+      // Fetch image as a blob with proper headers
+      const response = await this.http.get(url, {
+        headers: new HttpHeaders({
+          'Accept': 'image/*',
+          'Cache-Control': 'no-cache'
+        }),
+        responseType: 'blob'
+      }).toPromise();
+
+      if (!response) {
+        throw new Error('No response received');
+      }
+
+      // Convert blob to data URL
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result as string);
+        };
+        reader.onerror = () => {
+          console.error(`Failed to read blob for ${url}`);
+          reject('Failed to read blob');
+        };
+        reader.readAsDataURL(response);
+      });
+    } catch (error) {
+      console.error(`Error fetching image ${url}:`, error);
+      // Try fetching the fallback image
+      try {
+        const fallbackResponse = await this.http.get(fallbackImageUrl, {
+          headers: new HttpHeaders({
+            'Accept': 'image/*',
+            'Cache-Control': 'no-cache'
+          }),
+          responseType: 'blob'
+        }).toPromise();
+
+        if (!fallbackResponse) {
+          throw new Error('No response for fallback image');
+        }
+
+        return await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(reader.result as string);
+          };
+          reader.onerror = () => {
+            console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
+            reject('Failed to read fallback blob');
+          };
+          reader.readAsDataURL(fallbackResponse);
+        });
+      } catch (fallbackError) {
+        console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackError);
+        return null;
       }
     }
   }

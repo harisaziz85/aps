@@ -1,4 +1,3 @@
-/* Shimmer Effect Styles */
 .shimmer-container {
   width: 100%;
 }
@@ -371,4 +370,22 @@ input::placeholder {
   border-radius: 20px;
   border: 2px solid black !important;
   font-size: 16px;
+}
+
+/* Custom Toastr styles */
+.toast-error {
+  background-color: white !important;
+  border: 1px solid grey !important;
+  color: black !important;
+}
+.toast-error .toast-message {
+  color: black !important;
+}
+.toast-success {
+  background-color: white !important;
+  border: 1px solid grey !important;
+  color: black !important;
+}
+.toast-success .toast-message {
+  color: black !important;
 }

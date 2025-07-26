@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../components/navbar/navbar.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { FootComponent } from '../components/foot/foot.component';
+import { ToastrService } from 'ngx-toastr';
 
 interface Attribute {
   name: string;
@@ -275,7 +276,8 @@ export class UpdateStep2Component implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastr: ToastrService
   ) {}
 
   @HostListener('document:click', ['$event'])
@@ -298,7 +300,7 @@ export class UpdateStep2Component implements OnInit {
         this.fetchProducts();
         this.fetchEmployees();
       } else {
-        this.errorMessage = 'No project ID provided in route';
+        this.toastr.error('No project ID provided in route', 'Error');
       }
     });
   }
@@ -318,6 +320,7 @@ export class UpdateStep2Component implements OnInit {
           jobNotes: []
         };
         this.initializeForm(standardAttribute);
+        this.toastr.success('Project data loaded successfully', 'Success');
       },
       error: (error) => {
         console.error('Error fetching attributes data:', error);
@@ -327,10 +330,11 @@ export class UpdateStep2Component implements OnInit {
             this.projectData = data;
             const standardAttribute = data.standardAttributes?.[0] || null;
             this.initializeForm(standardAttribute);
+            this.toastr.success('Project data loaded successfully', 'Success');
           },
           error: (error) => {
             console.error('Error fetching project data:', error);
-            this.errorMessage = 'Failed to load project data';
+            this.toastr.error('Failed to load project data', 'Error');
           }
         });
       }

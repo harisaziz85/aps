@@ -10,7 +10,8 @@ import { authInterceptor } from './core/interceptor/auth.interceptor';
 import { SvgIconComponent } from './SVGS/shared/svg-icon/svg-icon.component';
 import { SafeHtmlPipe } from './SVGS/shared/safe-html.pipe';
 import { SvgIconsComponent } from './SVGS/shared/svg-icons/svg-icons.component';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 @NgModule({
   declarations: [
     AppComponent,
@@ -25,7 +26,15 @@ import { SvgIconsComponent } from './SVGS/shared/svg-icons/svg-icons.component';
     CommonModule,
     FontAwesomeModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+   BrowserAnimationsModule, // Required for animations
+    ToastrModule.forRoot({
+      timeOut: 8000, // Toast duration (5 seconds)
+      positionClass: 'toast-top-right', // Toast position
+      preventDuplicates: true, // Prevent duplicate toasts
+      closeButton: true, // Show close button
+      progressBar: true // Show progress bar
+    }),
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor]))

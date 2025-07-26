@@ -9,6 +9,7 @@ import { SliderComponent } from '../components/slider/slider.component';
 import { FootComponent } from '../components/foot/foot.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SvgIconsComponent } from "../../shared/svg-icons/svg-icons.component";
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-approvaldocuments',
@@ -35,7 +36,8 @@ export class ApprovaldocumentsComponent implements OnInit {
 
   constructor(
     private sanitizer: DomSanitizer,
-    private approvalDocumentsService: ApprovalDocumentsService
+    private approvalDocumentsService: ApprovalDocumentsService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -53,7 +55,7 @@ export class ApprovaldocumentsComponent implements OnInit {
       },
       error: () => {
         console.error('Error fetching documents');
-        alert('Failed to fetch documents. Please try again.');
+        this.toastr.error('Failed to fetch documents. Please try again.', 'Error');
         this.isLoading = false;
       }
     });
@@ -123,7 +125,7 @@ export class ApprovaldocumentsComponent implements OnInit {
 
   deleteDocuments(): void {
     if (this.selectedDocumentIds.length === 0) {
-      alert('No documents selected for deletion');
+      this.toastr.error('No documents selected for deletion', 'Error');
       console.log('No documents selected for deletion');
       return;
     }
@@ -137,13 +139,13 @@ export class ApprovaldocumentsComponent implements OnInit {
         this.applyFilters();
         this.selectedDocumentIds = [];
         this.closeConfirmationModal();
-        alert('Document(s) deleted successfully');
+        this.toastr.success('Document(s) deleted successfully', 'Success');
         console.log('Documents deleted successfully');
         window.location.reload();
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error deleting documents:', error);
-        alert(error.error?.message || 'Failed to delete document(s). Please try again.');
+        this.toastr.error(error.error?.message || 'Failed to delete document(s). Please try again.', 'Error');
         this.closeConfirmationModal();
       }
     });
@@ -178,11 +180,11 @@ export class ApprovaldocumentsComponent implements OnInit {
 
   uploadDocument(): void {
     if (!this.selectedFile) {
-      alert('Please select a file to upload.');
+      this.toastr.error('Please select a file to upload.', 'Error');
       return;
     }
     if (!this.documentName.trim()) {
-      alert('Please enter a document name.');
+      this.toastr.error('Please enter a document name.', 'Error');
       return;
     }
 
@@ -200,7 +202,7 @@ export class ApprovaldocumentsComponent implements OnInit {
           __v: response.document?.__v || 0
         };
         this.closeModal();
-        alert('Document uploaded successfully');
+        this.toastr.success('Document uploaded successfully', 'Success');
         window.location.reload();
       },
       error: (error: HttpErrorResponse) => {
@@ -214,7 +216,7 @@ export class ApprovaldocumentsComponent implements OnInit {
         } else if (error.error?.message) {
           errorMessage = error.error.message;
         }
-        alert(errorMessage);
+        this.toastr.error(errorMessage, 'Error');
       }
     });
   }
@@ -236,7 +238,7 @@ export class ApprovaldocumentsComponent implements OnInit {
 
   openDocument(doc: Document): void {
     if (!doc.fileUrl) {
-      alert('No file URL available for this document.');
+      this.toastr.error('No file URL available for this document.', 'Error');
       return;
     }
 
@@ -254,7 +256,7 @@ export class ApprovaldocumentsComponent implements OnInit {
 
   saveEdit(): void {
     if (!this.documentName.trim()) {
-      alert('Document name cannot be empty.');
+      this.toastr.error('Document name cannot be empty.', 'Error');
       this.documentName = this.originalDocumentName;
       this.isEditing = false;
       return;

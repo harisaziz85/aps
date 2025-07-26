@@ -8,6 +8,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FootComponent } from '../components/foot/foot.component';
 import { TopbarComponent } from '../components/topbar/topbar.component';
 import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-allusers',
@@ -22,7 +23,7 @@ export class AllUsersComponent implements OnInit {
   filteredUsers: User[] = [];
   searchTerm: string = '';
   selectedUserType: string = '';
-  isDropdownOpen: boolean = false; // Added for custom dropdown
+  isDropdownOpen: boolean = false;
   activeTab: string = 'tab1';
   userType: string = 'mobile user';
   name: string = '';
@@ -40,7 +41,7 @@ export class AllUsersComponent implements OnInit {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -57,17 +58,20 @@ export class AllUsersComponent implements OnInit {
         this.filteredUsers = this.users;
         this.showPassword = new Array(users.length).fill(false);
         this.isLoading = false;
+        this.toastr.success('Users loaded successfully', 'Success');
       },
       error: (error) => {
         console.error('Error loading users:', error);
         this.isLoading = false;
-        this.backendError = 'Failed to load users. Please try again.';
+        this.toastr.error('Failed to load users. Please try again.', 'Error');
       },
     });
   }
+
   getAsterisks(length: number): string {
     return '*'.repeat(length);
   }
+
   filterUsers(): void {
     this.filteredUsers = this.users.filter((user) => {
       const matchesSearch =
@@ -80,6 +84,7 @@ export class AllUsersComponent implements OnInit {
       return matchesSearch && matchesUserType;
     });
     this.showPassword = new Array(this.filteredUsers.length).fill(false);
+    this.toastr.info('Users filtered', 'Info');
   }
 
   setActiveTab(tab: string): void {
@@ -88,6 +93,7 @@ export class AllUsersComponent implements OnInit {
 
   setUserType(type: string): void {
     this.userType = type;
+    this.toastr.info(`User type set to ${type}`, 'Info');
   }
 
   triggerFileInput(): void {
@@ -101,6 +107,7 @@ export class AllUsersComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.profilePicPreview = e.target?.result as string;
+        this.toastr.success('Profile picture selected', 'Success');
       };
       reader.readAsDataURL(this.profilePic);
     }
@@ -143,6 +150,10 @@ export class AllUsersComponent implements OnInit {
     if (!this.userType) {
       this.errors['userType'] = 'User type is required.';
       isValid = false;
+    }
+
+    if (!isValid) {
+      this.toastr.error('Please fill all required fields correctly', 'Form Invalid');
     }
 
     return isValid;
@@ -208,7 +219,7 @@ export class AllUsersComponent implements OnInit {
           }
         }
         this.isLoading = false;
-        alert('User created successfully!');
+        this.toastr.success('User created successfully!', 'Success');
         window.location.reload();
       },
       error: (error) => {
@@ -220,6 +231,7 @@ export class AllUsersComponent implements OnInit {
             return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
           });
           this.backendError = errorMessages.join('; ');
+          this.toastr.error(this.backendError, 'Error');
           if (
             error.error.errors['name'] ||
             error.error.errors['email'] ||
@@ -232,6 +244,7 @@ export class AllUsersComponent implements OnInit {
         } else {
           console.log('Unexpected error:', error.status, error.statusText);
           this.backendError = error.message || `Error ${error.status || 'Unknown'}: Server error. Please check the API.`;
+          this.toastr.error(this.backendError, 'Error');
         }
       },
       complete: () => {
@@ -244,11 +257,12 @@ export class AllUsersComponent implements OnInit {
   deleteUser(_id: string | undefined): void {
     if (!_id) {
       console.error('User ID is undefined');
-      alert('Cannot delete user: Invalid user ID.');
+      this.toastr.error('Cannot delete user: Invalid user ID.', 'Error');
       return;
     }
 
     if (!confirm('Are you sure you want to delete this user?')) {
+      this.toastr.info('User deletion cancelled', 'Info');
       return;
     }
 
@@ -261,12 +275,12 @@ export class AllUsersComponent implements OnInit {
         this.filteredUsers = this.filteredUsers.filter((user) => user._id !== _id);
         this.showPassword = new Array(this.filteredUsers.length).fill(false);
         this.isLoading = false;
-        alert('User deleted successfully!');
+        this.toastr.success('User deleted successfully!', 'Success');
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error deleting user:', error);
-        this.backendError = error.message || 'Failed to delete user. Please try again.';
+        this.toastr.error(error.message || 'Failed to delete user. Please try again.', 'Error');
       },
       complete: () => {
         console.log('Delete API call completed');
@@ -288,30 +302,33 @@ export class AllUsersComponent implements OnInit {
     this.activeTab = 'tab1';
     this.errors = {};
     this.backendError = '';
+    this.toastr.info('Form reset', 'Info');
   }
 
   togglePassword(index: number): void {
     this.showPassword[index] = !this.showPassword[index];
+    this.toastr.info('Password visibility toggled', 'Info');
   }
 
   copyToClipboard(text: string | undefined): void {
     const textToCopy = text || '';
     navigator.clipboard.writeText(textToCopy).then(() => {
-      alert('Copied to clipboard!');
+      this.toastr.success('Copied to clipboard!', 'Success');
     }).catch((err) => {
       console.error('Failed to copy:', err);
-      alert('Failed to copy to clipboard.');
+      this.toastr.error('Failed to copy to clipboard.', 'Error');
     });
   }
 
-  // Custom dropdown methods
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
+    this.toastr.info(`Dropdown ${this.isDropdownOpen ? 'opened' : 'closed'}`, 'Info');
   }
 
   selectUserType(type: string): void {
     this.selectedUserType = type;
     this.isDropdownOpen = false;
     this.filterUsers();
+    this.toastr.success(`User type selected: ${type}`, 'Success');
   }
 }
