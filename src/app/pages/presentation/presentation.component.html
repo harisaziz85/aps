@@ -211,7 +211,7 @@
   </div>
 
   <!-- Report Modal -->
-  <div class="modal-overlay" *ngIf="isReportModalOpen">
+ <div class="modal-overlay" *ngIf="isReportModalOpen">
     <div class="modal-content4 modal-content">
       <div class="modal-header d-flex justify-content-between">
         <p class="head1 onestbold">Report</p>
@@ -223,6 +223,9 @@
           <label for="" class="robotoregular tst1">Report Type</label>
           <div class="custom-dropdown w-100 p-2" (click)="toggleDropdown1()">
             <input type="text" [value]="selectedOption" readonly />
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+              <path d="M1.75 4.25L6 8.5L10.25 4.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             <div class="dropdown-menu" *ngIf="isDropdownOpen">
               <div *ngFor="let type of reportTypes" (click)="selectOption1(type, $event)">{{ type }}</div>
             </div>
@@ -246,6 +249,9 @@
             <input type="checkbox" style="accent-color: black;" class="check1 mb-3 me-2" id="selectProduct" [(ngModel)]="isProductSelected" (change)="toggleSelectProduct($event)">
             <div class="custom-dropdown w-100 p-2" (click)="toggleProductDropdown()">
               <input type="text" [value]="selectedProductName" readonly />
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                <path d="M1.75 4.25L6 8.5L10.25 4.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               <div class="dropdown-menu" *ngIf="isProductDropdownOpen">
                 <div *ngFor="let product of products" (click)="selectProduct(product._id)">{{ product.name }}</div>
               </div>
@@ -263,6 +269,9 @@
             <input type="checkbox" style="accent-color: black;" class="check1 me-2 mb-3" id="selectApproval" [(ngModel)]="selectApproval" (change)="toggleSelectApproval($event)">
             <div class="custom-dropdown w-100 p-2" (click)="toggleApprovalDropdown()">
               <input type="text" [value]="selectedApprovalDocumentName" readonly />
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                <path d="M1.75 4.25L6 8.5L10.25 4.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               <div class="dropdown-menu" *ngIf="isApprovalDropdownOpen">
                 <div *ngFor="let doc of approvalDocuments" (click)="selectApprovalDocument(doc.fileUrl)">{{ doc.name }}</div>
               </div>
@@ -279,6 +288,9 @@
               <ng-container *ngIf="['level', 'frl', 'barrier', 'installer', 'inspector', 'safetyMeasures'].includes(field.key) && getAttributeDisplayValues(field.key).length > 1; else singleValue">
                 <div class="custom-dropdown w-100 p-2" (click)="toggleFieldDropdown(field.key)">
                   <input type="text" [value]="selectedFieldValues[field.key] || 'Select an option'" readonly />
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                    <path d="M1.75 4.25L6 8.5L10.25 4.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
                   <div class="dropdown-menu" *ngIf="dropdownStates[field.key]">
                     <div *ngFor="let value of getAttributeDisplayValues(field.key)" (click)="selectFieldValue(field.key, value, $event)">
                       {{ value }}
@@ -347,6 +359,11 @@
       </div>
     </div>
   </div>
+
+
+
+
+
 
  <div class="modal-overlay3" *ngIf="isImageModalOpen">
     <div class="modal-content3">
