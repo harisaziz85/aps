@@ -54,7 +54,7 @@ export class TopbarComponent implements AfterViewInit {
   isModalOpen = false;
   pageTitle: string = 'Welcome';
   isSaving: boolean = false;
-  loading: boolean = false; // New loading state for spinner
+  loading: boolean = false;
 
   projects: ProjectExport[] = [];
   filteredProjects: ProjectExport[] = [];
@@ -247,7 +247,7 @@ export class TopbarComponent implements AfterViewInit {
     this.projectDropdownStates = {};
     this.selectedProjects = [];
     this.selectedInstances = {};
-    this.loading = false; // Reset loading state
+    this.loading = false;
   }
 
   closeModalIfOutside(event: MouseEvent) {
@@ -492,7 +492,7 @@ export class TopbarComponent implements AfterViewInit {
       return;
     }
 
-    this.loading = true; // Start loading
+    this.loading = true;
     let completedExports = 0;
     let failedExports = 0;
     const totalExports = this.selectedProjects.length;
@@ -554,7 +554,7 @@ export class TopbarComponent implements AfterViewInit {
 
   checkAllCompleted(completedExports: number, failedExports: number, totalExports: number) {
     if (completedExports + failedExports === totalExports) {
-      this.loading = false; // Stop loading
+      this.loading = false;
       if (failedExports > 0) {
         alert(completedExports > 0 
           ? `Completed ${completedExports} exports with ${failedExports} failures.` 
@@ -591,7 +591,7 @@ export class TopbarComponent implements AfterViewInit {
       return;
     }
 
-    this.loading = true; // Start loading
+    this.loading = true;
     const formData = new FormData();
     formData.append('file', selectedFile);
     if (this.selectedOption === 'existing') {
@@ -603,15 +603,36 @@ export class TopbarComponent implements AfterViewInit {
 
     this.http.post(url, formData).subscribe({
       next: () => {
-        this.loading = false; // Stop loading
+        this.loading = false;
         alert('Project imported successfully');
         this.closeModal();
       },
       error: (error) => {
-        this.loading = false; // Stop loading
+        this.loading = false;
         console.error('Import failed:', error);
         alert('Failed to import project: ' + (error.message || 'Unknown error'));
       }
     });
+  }
+
+ logout(): void {
+    // Close the modal programmatically
+    const modalElement = document.getElementById('settingsModal');
+    if (modalElement) {
+      modalElement.classList.remove('show');
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
+    }
+
+    // Perform logout
+    try {
+      this.authService.logout(); // Synchronous logout from AuthService
+    } catch (error) {
+    }
   }
 }

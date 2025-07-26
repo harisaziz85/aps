@@ -5,7 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../enviornment/environment';
 import { ProjectExport } from '../models/project-export';
-import { ToastrService } from 'ngx-toastr'; // ✅ Toastr import
+import { ToastrService } from 'ngx-toastr';
 
 interface CountResponse {
   totalClientsCount: number;
@@ -53,7 +53,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private toastr: ToastrService // ✅ Injected
+    private toastr: ToastrService
   ) {}
 
   login(username: string, password: string): Observable<LoginResponse> {
@@ -178,10 +178,13 @@ export class AuthService {
   }
 
   logout(): void {
+    // Clear token and user data from localStorage
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
-    this.toastr.info('You have been logged out.', 'Info');
-    this.router.navigate(['/auth/signin']);
+    // Show success message
+    this.toastr.success('Logged out successfully.', 'Success');
+    // Navigate to login page
+    this.router.navigate(['']);
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -38,7 +38,7 @@ export class LoginComponent {
   }
 
   onLogin() {
-    this.errorMsg = ''; // Clear previous error to ensure it shows only once
+    this.errorMsg = '';
     this.isLoading = true;
 
     this.authService.login(this.username, this.password).subscribe({
@@ -49,7 +49,7 @@ export class LoginComponent {
           setTimeout(() => {
             this.isLoading = false;
             this.router.navigate(['/pages/dashboard']);
-          }, 0); // Delay set to 0 milliseconds
+          }, 0);
         } else {
           this.isLoading = false;
           this.errorMsg = res.message || 'Invalid username or password.';
