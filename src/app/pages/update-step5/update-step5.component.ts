@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/uploads/1752585290123-129536.jpg',
+    fileUrl: '/Uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -112,7 +112,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || '6887287840564909e64091fd'; // Use provided projectId
+      this.projectId = params['id'] || '6887287840564909e64091fd';
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -140,7 +140,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
-    this.selectedAttributes['Report Type'] = 'standard'; // Default to standard
+    this.selectedAttributes['Report Type'] = 'standard';
   }
 
   ngAfterViewInit() {
@@ -159,7 +159,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           this.products = response;
-          const defaultProductId = '6882a3f040564909e63f7772'; // From API response
+          const defaultProductId = '6882a3f040564909e63f7772';
           const defaultProduct = this.products.find(product => product._id === defaultProductId);
           this.selectedAttributes['Product Name'] = defaultProduct ? defaultProduct.name : '';
           this.updateApprovalDocuments();
@@ -193,7 +193,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 this.coverLetterData.fileUrl = this.convertToProxyUrl(this.coverLetterData.fileUrl);
               }
             }
-            // Set project image from API response
             if (response.project?.imageUrl) {
               this.coverLetterData.fileUrl = this.convertToProxyUrl(response.project.imageUrl);
             }
@@ -210,7 +209,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                   if (a.name === 'FRL' && Array.isArray(a.value)) {
                     this.attributeOptions['FRL'] = a.value;
                     this.selectedAttributes['FRL'] = a.value[0] || 'N/A';
-                  } else if (a.name === 'Compliance' && Array.isArray(a.value)) {
+                  } else if (a.name === 'Penetration Compliant' && Array.isArray(a.value)) {
                     this.attributeOptions['Compliance'] = a.value;
                     this.selectedAttributes['Compliance'] = a.value[0] || 'N/A';
                   } else if (a.name === 'Barrier') {
@@ -461,7 +460,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           };
           if (instance.attributes) {
             instance.attributes.forEach((attr: any) => {
-              if (attr.name === 'Materials') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
+              if (attr.name === 'Substrate Type') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
             });
           }
           tableData.push(row);
@@ -473,9 +472,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
           'Plan': 'N/A',
           'Type': this.selectedSubCategories[0] || this.getAttributeValue('Sub-category'),
-          'Substrate': this.getAttributeValue('Materials'),
+          'Substrate': this.getAttributeValue('Substrate Type') || 'N/A',
           'FRL': this.selectedAttributes['FRL'] || this.getAttributeValue('FRL'),
-          'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Compliance'),
+          'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Penetration Compliant') || 'N/A',
           'Photos': [],
           'Comments': this.selectedAttributes['Comments'] || this.getAttributeValue('Comments')
         });
@@ -540,14 +539,21 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.text('Site Logo : ', margin, yOffset);
         yOffset += lineHeight;
 
-        // Use dynamic project image from projectData or coverLetterData
         const projectImageUrl = this.projectData?.project?.imageUrl
           ? this.convertToProxyUrl(this.projectData.project.imageUrl)
           : this.coverLetterData?.fileUrl || '/assets/placeholder.png';
         
         const imgData = await this.getImageData(projectImageUrl);
         if (imgData) {
-          doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
+          try {
+            doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
+          } catch (imgError) {
+            console.error(`Error adding project image to PDF: ${projectImageUrl}`, imgError);
+            doc.setFontSize(10);
+            doc.setTextColor(255, 0, 0);
+            doc.text('Failed to add project image to PDF', margin, yOffset);
+            doc.setTextColor(0, 0, 0);
+          }
         } else {
           console.error(`Project image not loaded: ${projectImageUrl}`);
           doc.setFontSize(10);
@@ -557,7 +563,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.text(`Address: ${this.coverLetterData?.address || this.projectData?.project?.address?.line1 || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
+        const address = this.projectData?.project?.address
+          ? `${this.projectData.project.address.line1}, ${this.projectData.project.address.city}, ${this.projectData.project.address.state} ${this.projectData.project.address.zip}`
+          : this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001';
+        doc.text(`Address: ${address}`, textX, yOffset + 10);
         doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
         doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
         yOffset += imageHeight + lineHeight;
@@ -628,8 +637,17 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 yOffset += lineHeight;
                 const imgData = await this.getImageData(file.documentUrl);
                 if (imgData) {
-                  doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
-                  yOffset += docImageHeight + lineHeight;
+                  try {
+                    doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
+                    yOffset += docImageHeight + lineHeight;
+                  } catch (imgError) {
+                    console.error(`Error adding document image to PDF: ${file.documentUrl}`, imgError);
+                    doc.setFontSize(10);
+                    doc.setTextColor(255, 0, 0);
+                    doc.text(`Failed to add document image: ${file.documentName || 'N/A'}`, margin, yOffset);
+                    doc.setTextColor(0, 0, 0);
+                    yOffset += lineHeight * 2;
+                  }
                 } else {
                   console.error(`Document image not loaded: ${file.documentUrl}`);
                   doc.setFontSize(10);
@@ -666,7 +684,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             };
             if (instance.attributes) {
               instance.attributes.forEach((attr: any) => {
-                if (attr.name === 'Materials') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
+                if (attr.name === 'Substrate Type') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
               });
             }
             tableData.push(row);
@@ -678,9 +696,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
             'Plan': 'N/A',
             'Type': this.selectedSubCategories[0] || this.getAttributeValue('Sub-category'),
-            'Substrate': this.getAttributeValue('Substrate Type') || 'N/A', // Updated to match API
+            'Substrate': this.getAttributeValue('Substrate Type') || 'N/A',
             'FRL': this.selectedAttributes['FRL'] || this.getAttributeValue('FRL'),
-            'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Penetration Compliant') || 'N/A', // Updated to match API
+            'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Penetration Compliant') || 'N/A',
             'Photos': [],
             'Comments': this.selectedAttributes['Comments'] || this.getAttributeValue('Comments')
           });
@@ -727,9 +745,16 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             if (header === 'Plan' && this.projectData?.documents?.[0]?.files?.[0]?.documentUrl) {
               const imgData = await this.getImageData(this.projectData.documents[0].files[0].documentUrl);
               if (imgData) {
-                const imgWidth = columnWidths[colIndex] - 4;
-                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+                try {
+                  const imgWidth = columnWidths[colIndex] - 4;
+                  const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                  doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+                } catch (imgError) {
+                  console.error(`Error adding plan image to PDF: ${this.projectData.documents[0].files[0].documentUrl}`, imgError);
+                  doc.setTextColor(255, 0, 0);
+                  doc.text('Failed to add plan image', xOffset + 2, yOffset + 8);
+                  doc.setTextColor(0, 0, 0);
+                }
               } else {
                 console.error(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
                 doc.setTextColor(255, 0, 0);
@@ -739,9 +764,16 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             } else if (header === 'Photos' && row['Photos'].length > 0) {
               const imgData = await this.getImageData(row['Photos'][0]);
               if (imgData) {
-                const imgWidth = columnWidths[colIndex] - 4;
-                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+                try {
+                  const imgWidth = columnWidths[colIndex] - 4;
+                  const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                  doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+                } catch (imgError) {
+                  console.error(`Error adding photo to PDF: ${row['Photos'][0]}`, imgError);
+                  doc.setTextColor(255, 0, 0);
+                  doc.text('Failed to add photo', xOffset + 2, yOffset + 8);
+                  doc.setTextColor(0, 0, 0);
+                }
               } else {
                 console.error(`Photo not loaded: ${row['Photos'][0]}`);
                 doc.setTextColor(255, 0, 0);
@@ -799,10 +831,17 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
+    // Validate URL
+    if (!url || !/\.(png|jpg|jpeg|gif)$/i.test(url)) {
+      console.warn(`Invalid or unsupported image URL: ${url}. Using fallback.`);
+      url = fallbackImageUrl;
+    }
+
     try {
+      // Fetch image as blob
       const response = await this.http.get(url, {
         headers: new HttpHeaders({
-          'Accept': 'image/*',
+          'Accept': 'image/png,image/jpeg,image/gif',
           'Cache-Control': 'no-cache'
         }),
         responseType: 'blob'
@@ -812,23 +851,37 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         throw new Error('No response received');
       }
 
+      // Verify MIME type
+      const mimeType = response.type;
+      if (!['image/png', 'image/jpeg', 'image/gif'].includes(mimeType)) {
+        throw new Error(`Unsupported MIME type: ${mimeType}`);
+      }
+
+      // Convert blob to data URL
       return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-          resolve(reader.result as string);
+          const dataUrl = reader.result as string;
+          // Basic validation of data URL
+          if (dataUrl.startsWith('data:image/')) {
+            resolve(dataUrl);
+          } else {
+            reject(new Error('Invalid data URL format'));
+          }
         };
         reader.onerror = () => {
           console.error(`Failed to read blob for ${url}`);
-          reject('Failed to read blob');
+          reject(new Error('Failed to read blob'));
         };
         reader.readAsDataURL(response);
       });
     } catch (error) {
       console.error(`Error fetching image ${url}:`, error);
       try {
+        // Attempt to fetch fallback image
         const fallbackResponse = await this.http.get(fallbackImageUrl, {
           headers: new HttpHeaders({
-            'Accept': 'image/*',
+            'Accept': 'image/png,image/jpeg,image/gif',
             'Cache-Control': 'no-cache'
           }),
           responseType: 'blob'
@@ -838,14 +891,24 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           throw new Error('No response for fallback image');
         }
 
+        const mimeType = fallbackResponse.type;
+        if (!['image/png', 'image/jpeg', 'image/gif'].includes(mimeType)) {
+          throw new Error(`Unsupported fallback MIME type: ${mimeType}`);
+        }
+
         return await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => {
-            resolve(reader.result as string);
+            const dataUrl = reader.result as string;
+            if (dataUrl.startsWith('data:image/')) {
+              resolve(dataUrl);
+            } else {
+              reject(new Error('Invalid fallback data URL format'));
+            }
           };
           reader.onerror = () => {
             console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
-            reject('Failed to read fallback blob');
+            reject(new Error('Failed to read fallback blob'));
           };
           reader.readAsDataURL(fallbackResponse);
         });
