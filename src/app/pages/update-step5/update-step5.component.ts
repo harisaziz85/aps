@@ -325,23 +325,24 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       return '/assets/placeholder.png';
     }
 
-    // For PDF generation, use the original backend URL directly to avoid frontend proxy issues
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocal
+      ? 'http://localhost:4200'
+      : 'https://aps-app-frontend.vercel.app';
+
     const serverDomains = [
       'https://vps.allpassiveservices.com.au',
       'http://95.111.223.104:8000'
     ];
 
+    let convertedUrl = url;
     for (const domain of serverDomains) {
       if (url.startsWith(domain)) {
-        return url; // Use original backend URL for images in PDF
+        const path = url.replace(domain, '').replace(/^\/uploads\//, '/');
+        convertedUrl = `${baseUrl}/uploads${path}`;
+        return convertedUrl;
       }
     }
-
-    // For frontend display (e.g., <img> tags), proxy through Vercel if needed
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocal
-      ? 'http://localhost:4200'
-      : 'https://aps-app-frontend.vercel.app';
 
     if (url.startsWith('/uploads/')) {
       return `${baseUrl}${url}`;
@@ -503,7 +504,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
       try {
         const logoUrl = '/images/logo.png';
-        const logoData = await this.getImageData(logoUrl);
+        const logoData = await this.getImageData(this.convertToProxyUrl(logoUrl));
         if (logoData) {
           const logoX = pageWidth - margin - logoWidth;
           checkPageBreak(logoHeight + lineHeight);
@@ -538,7 +539,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.text('Site Logo : ', margin, yOffset);
         yOffset += lineHeight;
         if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
-          const imgData = await this.getImageData(this.coverLetterData.fileUrl);
+          const imgData = await this.getImageData(this.convertToProxyUrl(this.coverLetterData.fileUrl));
           if (imgData) {
             doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
           } else {
@@ -621,7 +622,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 doc.setFontSize(12);
                 doc.text(`Document Image: ${file.documentName || 'N/A'}`, margin, yOffset);
                 yOffset += lineHeight;
-                const imgData = await this.getImageData(file.documentUrl);
+                const imgData = await this.getImageData(this.convertToProxyUrl(file.documentUrl));
                 if (imgData) {
                   doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
                   yOffset += docImageHeight + lineHeight;
@@ -718,7 +719,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           for (const header of headers) {
             const colIndex = headers.indexOf(header);
             if (header === 'Plan' && this.projectData?.documents?.[0]?.files?.[0]?.documentUrl) {
-              const imgData = await this.getImageData(this.projectData.documents[0].files[0].documentUrl);
+              const imgData = await this.getImageData(this.convertToProxyUrl(this.projectData.documents[0].files[0].documentUrl));
               if (imgData) {
                 const imgWidth = columnWidths[colIndex] - 4;
                 const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
@@ -730,7 +731,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 doc.setTextColor(0, 0, 0);
               }
             } else if (header === 'Photos' && row['Photos'].length > 0) {
-              const imgData = await this.getImageData(row['Photos'][0]);
+              const imgData = await this.getImageData(this.convertToProxyUrl(row['Photos'][0]));
               if (imgData) {
                 const imgWidth = columnWidths[colIndex] - 4;
                 const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
