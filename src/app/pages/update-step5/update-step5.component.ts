@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/uploads/1752585290123-129536.jpg',
+    fileUrl: '/Uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -421,6 +421,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   async generateReport() {
+    console.log('Image URLs:', {
+      logoUrl: '/images/logo.png',
+      coverLetterFileUrl: this.coverLetterData?.fileUrl,
+      documentUrls: this.projectData?.documents?.flatMap((doc: any) => doc.files?.map((f: any) => f.documentUrl) || []),
+      photoUrls: this.projectData?.instances?.flatMap((inst: any) => inst.photos?.map((p: any) => p.url) || [])
+    });
+
     const margin = 10;
     const lineHeight = 10;
     const imageWidth = 52.92;
@@ -504,7 +511,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
           yOffset += logoHeight + lineHeight;
         } else {
-          console.error('Logo image not loaded:', logoUrl);
+          console.warn(`Logo image not loaded: ${logoUrl}`);
           checkPageBreak(lineHeight * 2);
           doc.setFontSize(10);
           doc.setTextColor(255, 0, 0);
@@ -536,7 +543,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           if (imgData) {
             doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
           } else {
-            console.error(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
+            console.warn(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
             doc.setFontSize(10);
             doc.setTextColor(255, 0, 0);
             doc.text('Failed to load project image', margin, yOffset);
@@ -620,7 +627,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                   doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
                   yOffset += docImageHeight + lineHeight;
                 } else {
-                  console.error(`Document image not loaded: ${file.documentUrl}`);
+                  console.warn(`Document image not loaded: ${file.documentUrl}`);
                   doc.setFontSize(10);
                   doc.setTextColor(255, 0, 0);
                   doc.text(`Failed to load document image: ${file.documentName || 'N/A'}`, margin, yOffset);
@@ -647,7 +654,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               'Plan': 'N/A',
               'Type': instance.subProjectCategory || this.selectedSubCategories[0] || 'N/A',
               'Substrate': 'N/A',
-              'FRL': this.selectedAttributes['FRL'] || 'N/A',
+              'FRL': this.selectedAttributes['FRL'] || ')N/A',
               'Result': this.selectedAttributes['Compliance'] || 'N/A',
               'Photos': instance.photos?.map((p: any) => p.url) || [],
               'Comments': this.selectedAttributes['Comments'] || 'N/A'
@@ -718,7 +725,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
                 doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
               } else {
-                console.error(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
+                console.warn(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
                 doc.setTextColor(255, 0, 0);
                 doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
                 doc.setTextColor(0, 0, 0);
@@ -730,7 +737,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
                 doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
               } else {
-                console.error(`Photo not loaded: ${row['Photos'][0]}`);
+                console.warn(`Photo not loaded: ${row['Photos'][0]}`);
                 doc.setTextColor(255, 0, 0);
                 doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
                 doc.setTextColor(0, 0, 0);
@@ -786,11 +793,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
+    console.log(`Fetching image: ${url}`);
+
     try {
-      // Fetch image as a blob with proper headers
       const response = await this.http.get(url, {
         headers: new HttpHeaders({
-          'Accept': 'image/*',
+          'Accept': 'image/png,image/jpeg',
           'Cache-Control': 'no-cache'
         }),
         responseType: 'blob'
@@ -800,10 +808,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         throw new Error('No response received');
       }
 
-      // Convert blob to data URL
+      const contentType = response.type;
+      if (!['image/png', 'image/jpeg'].includes(contentType)) {
+        throw new Error(`Invalid content type: ${contentType}`);
+      }
+
       return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
+          console.log(`Image loaded successfully: ${url}, size: ${response.size} bytes`);
           resolve(reader.result as string);
         };
         reader.onerror = () => {
@@ -814,11 +827,11 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       });
     } catch (error) {
       console.error(`Error fetching image ${url}:`, error);
-      // Try fetching the fallback image
       try {
+        console.log(`Attempting to load fallback image: ${fallbackImageUrl}`);
         const fallbackResponse = await this.http.get(fallbackImageUrl, {
           headers: new HttpHeaders({
-            'Accept': 'image/*',
+            'Accept': 'image/png,image/jpeg',
             'Cache-Control': 'no-cache'
           }),
           responseType: 'blob'
@@ -828,9 +841,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           throw new Error('No response for fallback image');
         }
 
+        const contentType = fallbackResponse.type;
+        if (!['image/png', 'image/jpeg'].includes(contentType)) {
+          throw new Error(`Invalid fallback content type: ${contentType}`);
+        }
+
         return await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => {
+            console.log(`Fallback image loaded successfully: ${fallbackImageUrl}, size: ${fallbackResponse.size} bytes`);
             resolve(reader.result as string);
           };
           reader.onerror = () => {
