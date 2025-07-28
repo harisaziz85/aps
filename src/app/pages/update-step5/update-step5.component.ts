@@ -325,24 +325,23 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       return '/assets/placeholder.png';
     }
 
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocal
-      ? 'http://localhost:4200'
-      : 'https://aps-app-frontend.vercel.app';
-
+    // For PDF generation, use the original backend URL directly to avoid frontend proxy issues
     const serverDomains = [
       'https://vps.allpassiveservices.com.au',
       'http://95.111.223.104:8000'
     ];
 
-    let convertedUrl = url;
     for (const domain of serverDomains) {
       if (url.startsWith(domain)) {
-        const path = url.replace(domain, '').replace(/^\/uploads\//, '/');
-        convertedUrl = `${baseUrl}/uploads${path}`;
-        return convertedUrl;
+        return url; // Use original backend URL for images in PDF
       }
     }
+
+    // For frontend display (e.g., <img> tags), proxy through Vercel if needed
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocal
+      ? 'http://localhost:4200'
+      : 'https://aps-app-frontend.vercel.app';
 
     if (url.startsWith('/uploads/')) {
       return `${baseUrl}${url}`;
@@ -802,13 +801,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     }
 
     try {
-      const response = await this.http.get(url, {
+      // Add a cache-busting query parameter to avoid stale responses
+      const cacheBustUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
+      const response = await this.http.get(cacheBustUrl, {
         headers: new HttpHeaders({
           'Accept': 'image/png,image/jpeg',
           'Cache-Control': 'no-cache'
         }),
         responseType: 'blob',
-        observe: 'response' // Observe full response to check headers
+        observe: 'response'
       }).toPromise();
 
       if (!response || !response.body) {
