@@ -639,94 +639,57 @@ export class PresentationComponent implements OnInit {
     let yOffset = margin;
     const maxContentHeight = pageHeight - margin - bottomMargin;
 
-    // Base URL for the backend server
-    const BASE_URL = 'https://vps.allpassiveservices.com.au';
-
-    // Normalize URL to ensure consistent image paths
     const normalizeUrl = (url: string): string => {
       if (!url) {
         return 'https://via.placeholder.com/200x200?text=No+Image';
       }
-      // Remove any existing base URL or incorrect prefixes and handle URL encoding
       const cleanPath = url
         .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
-        .replace(/^https?:\/\/aps-app-frontend\.vercel\.app\/?/, '') // Remove frontend URL if present
         .replace(/^\/*uploads\/*/i, '')
         .replace(/^\/+/, '');
-      // Ensure proper URL encoding for special characters
-      const encodedPath = encodeURI(cleanPath);
-      return `${BASE_URL}/uploads/${encodedPath}`;
+      return `/uploads/${cleanPath}`;
     };
 
-    // Load image as base64 data URL with CORS handling
     const loadImage = async (url: string): Promise<string> => {
       const normalizedUrl = normalizeUrl(url);
-      console.log('Fetching image:', normalizedUrl); // Debug log
-      try {
-        // Attempt to fetch through proxy endpoint
-        const proxyUrl = `/api/proxy?url=${encodeURIComponent(normalizedUrl)}`;
-        const response = await fetch(proxyUrl, {
+      return new Promise((resolve) => {
+        fetch(normalizedUrl, {
           method: 'GET',
           headers: { 'Accept': 'image/*' },
-          mode: 'cors',
-        });
-        if (!response.ok) {
-          // Fallback to direct fetch if proxy fails
-          console.warn('Proxy fetch failed, attempting direct fetch:', normalizedUrl);
-          const directResponse = await fetch(normalizedUrl, {
-            method: 'GET',
-            headers: { 'Accept': 'image/*' },
-            mode: 'cors',
-            credentials: 'omit', // Avoid sending credentials for direct fetch
-          });
-          if (!directResponse.ok) {
-            throw new Error(`HTTP error! status: ${directResponse.status}`);
-          }
-          const blob = await directResponse.blob();
-          return new Promise((resolve, reject) => {
+          credentials: 'same-origin'
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error();
+            }
+            return response.blob();
+          })
+          .then(blob => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result as string);
-            reader.onerror = () => reject(new Error('Failed to read image data'));
+            reader.onerror = () => resolve('https://via.placeholder.com/200x200?text=Read+Error');
             reader.readAsDataURL(blob);
-          });
-        }
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = () => reject(new Error('Failed to read image data'));
-          reader.readAsDataURL(blob);
-        });
-      } catch (error) {
-        console.error(`Failed to load image: ${normalizedUrl}`, error);
-        return 'https://via.placeholder.com/200x200?text=Image+Error';
-      }
+          })
+          .catch(() => resolve('https://via.placeholder.com/200x200?text=Image+Error'));
+      });
     };
 
-    // Load local image (e.g., logo) as base64
     const loadLocalImage = async (url: string): Promise<string> => {
-      try {
+      return new Promise((resolve) => {
         const img = new Image();
-        img.crossOrigin = 'Anonymous';
         img.src = url;
-        return new Promise((resolve, reject) => {
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d')!;
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-          };
-          img.onerror = () => reject(new Error('Failed to load local image'));
-        });
-      } catch (error) {
-        console.error(`Failed to load local image: ${url}`, error);
-        return 'https://via.placeholder.com/200x200?text=Local+Image+Error';
-      }
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+      });
     };
 
-    // Check for page break
     const checkPageBreak = (requiredHeight: number) => {
       if (yOffset + requiredHeight > maxContentHeight) {
         doc.addPage();
@@ -736,12 +699,11 @@ export class PresentationComponent implements OnInit {
       return false;
     };
 
-    // Fetch project details
     let projectDetails: ProjectResponse;
     try {
       const details = await this.presentationService.getProjectDetails(this.projectId).toPromise();
       if (!details) {
-        throw new Error('No project details found');
+        throw new Error();
       }
       projectDetails = details;
     } catch {
@@ -761,11 +723,10 @@ export class PresentationComponent implements OnInit {
         imageUrl: null,
         instances: [],
         documents: [],
-        hierarchyLevels: [],
+        hierarchyLevels: []
       };
     }
 
-    // Fetch hierarchy images
     const hierarchyImages: { hierarchyName: string; imageUrl: string }[] = [];
     if (projectDetails.subProjects && projectDetails.subProjects.length > 0) {
       for (const subProject of projectDetails.subProjects) {
@@ -776,7 +737,7 @@ export class PresentationComponent implements OnInit {
           if (!imageUrl.includes('via.placeholder.com')) {
             hierarchyImages.push({
               hierarchyName: subProject.hierarchyName,
-              imageUrl: imageUrl,
+              imageUrl: imageUrl
             });
           }
         } catch {
@@ -785,12 +746,12 @@ export class PresentationComponent implements OnInit {
       }
     }
 
-    // Add logo
     try {
-      const logoUrl = 'assets/images/logo.png'; // Update path if needed
+      const logoUrl = 'images/logo.png';
       const logoData = await loadLocalImage(logoUrl);
+      const logoX = pageWidth - margin - logoWidth;
       checkPageBreak(logoHeight + lineHeight);
-      doc.addImage(logoData, 'PNG', pageWidth - margin - logoWidth, yOffset, logoWidth, logoHeight);
+      doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
       yOffset += logoHeight + lineHeight;
     } catch {
       checkPageBreak(lineHeight * 2);
@@ -801,7 +762,6 @@ export class PresentationComponent implements OnInit {
       yOffset += logoHeight + lineHeight;
     }
 
-    // Add project details
     checkPageBreak(lineHeight * 2);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
@@ -813,7 +773,6 @@ export class PresentationComponent implements OnInit {
     doc.text(`Client Name: ${projectDetails.client?.clientName || projectDetails.clientName || 'Unknown Client'}`, margin, yOffset);
     yOffset += lineHeight + 10;
 
-    // Add site photos
     checkPageBreak(lineHeight);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
@@ -825,7 +784,7 @@ export class PresentationComponent implements OnInit {
       const imgData = await loadImage(projectImageUrl);
       checkPageBreak(imageHeight + lineHeight);
       doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-
+      
       const textX = pageWidth * 0.4;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
@@ -849,7 +808,6 @@ export class PresentationComponent implements OnInit {
       yOffset += lineHeight * 4;
     }
 
-    // Add inspection report overview
     checkPageBreak(inspectionTopMargin + lineHeight * 6);
     yOffset += inspectionTopMargin;
     const inspectionStartY = yOffset;
@@ -862,7 +820,7 @@ export class PresentationComponent implements OnInit {
     doc.setFontSize(10);
     const report = projectDetails.reports && projectDetails.reports.length > 0 ? projectDetails.reports[0] : null;
     const inspectionStats = report?.coverLetter?.inspectionOverview || { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' };
-
+    
     doc.setTextColor(0, 0, 0);
     doc.text(`Total number of items: ${inspectionStats.totalItems}`, margin, yOffset);
     yOffset += lineHeight;
@@ -908,7 +866,6 @@ export class PresentationComponent implements OnInit {
     doc.text(infoLines, infoBoxX + 2, inspectionStartY + 5);
     yOffset = inspectionStartY + Math.max(inspectionHeight, infoBoxHeight);
 
-    // Add hierarchy images
     if (hierarchyImages.length > 0) {
       checkPageBreak(lineHeight);
       yOffset += lineHeight;
@@ -934,7 +891,6 @@ export class PresentationComponent implements OnInit {
       }
     }
 
-    // Prepare table data
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.instances?.length > 0) {
@@ -948,7 +904,7 @@ export class PresentationComponent implements OnInit {
           FRL: this.selectedFieldValues['frl'] || 'N/A',
           Result: this.selectedFieldValues['compliance'] || 'N/A',
           Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
-          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments'),
+          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments')
         };
         tableData.push(row);
         index++;
@@ -963,12 +919,11 @@ export class PresentationComponent implements OnInit {
         FRL: this.selectedFieldValues['frl'] || 'N/A',
         Result: this.selectedFieldValues['compliance'] || 'N/A',
         Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
-        Comments: this.getAttributeDisplayValue('Comments'),
+        Comments: this.getAttributeDisplayValue('Comments')
       });
     }
 
-    // Add table
-    checkPageBreak(lineHeight * 3 + headerHeight + tableData.length * baseRowHeight);
+    checkPageBreak(lineHeight * 3 + headerHeight + (tableData.length * baseRowHeight));
     yOffset += lineHeight * 3;
     const tableX = margin;
     const tableStartY = yOffset;
@@ -1070,7 +1025,6 @@ export class PresentationComponent implements OnInit {
     doc.setDrawColor(0, 0, 0);
     doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-    // Add approval document
     if (this.selectApproval && this.selectedApprovalDocument) {
       checkPageBreak(lineHeight * 2);
       yOffset += lineHeight;
@@ -1085,7 +1039,6 @@ export class PresentationComponent implements OnInit {
       yOffset += lineHeight;
     }
 
-    // Add report attachments
     const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
     const includeFloorPlans = (document.getElementById('includeFloorPlans') as HTMLInputElement)?.checked;
     const includeAdditionalDocs = (document.getElementById('includeAdditionalDocs') as HTMLInputElement)?.checked;
@@ -1114,10 +1067,8 @@ export class PresentationComponent implements OnInit {
       }
     }
 
-    // Save PDF
     doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
 
-    // Generate Excel report if selected
     if (this.selectedOption === 'Excel Reports') {
       const reportData: { [key: string]: string } = {};
       this.reportFields.forEach(field => {
