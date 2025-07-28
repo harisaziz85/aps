@@ -84,7 +84,7 @@ export class PresentationComponent implements OnInit {
     { key: 'priceExcludingGST', name: 'Price Excluding GST' }
   ];
   projectId: string = '';
-  reportId: string | null = null;
+  reportId: String | null = null;
   hierarchyLevelId: string = '';
   instanceId: string = localStorage.getItem('instanceId') || '';
   dropdown2: any = { selected: '' };
@@ -987,7 +987,7 @@ export class PresentationComponent implements OnInit {
       const commentsText = row['Comments'] || 'N/A';
       const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
       const commentsHeight = commentsLines.length * 6;
-      const photosHeight = row['Photos'].length > 0 ? photoImageHeight : 6;
+      const photosHeight = row['Photos'].length > 0 ? photoImageHeight * Math.min(row['Photos'].length, 3) : 6; // Adjust for up to 3 photos
       const rowHeight = Math.max(baseRowHeight, commentsHeight, photosHeight);
 
       checkPageBreak(rowHeight);
@@ -1024,15 +1024,15 @@ export class PresentationComponent implements OnInit {
           }
         } else if (header === 'Photos' && row['Photos'].length > 0) {
           try {
-            const photoPromises = row['Photos'].slice(0, 2).map(url => loadImage(url)); // Show up to 2 photos
+            const photoPromises = row['Photos'].slice(0, 3).map(url => loadImage(url)); // Show up to 3 photos
             const photoData = await Promise.all(photoPromises);
-            const imgWidth = (columnWidths[colIndex] - 6) / Math.min(photoData.length, 2);
-            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-            let photoX = xOffset + 2;
+            const imgWidth = columnWidths[colIndex] - 4; // Full cell width
+            const imgHeight = photoImageHeight - 4;
+            let photoY = yOffset + 2;
             photoData.forEach((imgData, idx) => {
-              if (idx < 2) {
-                doc.addImage(imgData, 'PNG', photoX, yOffset + 2, imgWidth, imgHeight);
-                photoX += imgWidth + 2;
+              if (idx < 3) { // Limit to 3 photos
+                doc.addImage(imgData, 'PNG', xOffset + 2, photoY, imgWidth, imgHeight);
+                photoY += imgHeight + 2; // Stack vertically with 2px gap
               }
             });
           } catch {
