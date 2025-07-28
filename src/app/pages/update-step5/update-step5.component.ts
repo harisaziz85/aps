@@ -325,6 +325,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private convertToProxyUrl(url: string): string {
     if (!url || url === 'N/A') {
+      console.warn(`Invalid URL: ${url}. Using placeholder.`);
       return '/assets/placeholder.png';
     }
 
@@ -335,25 +336,33 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       'http://95.111.223.104:8000'
     ];
 
+    // Encode URL to handle spaces and special characters
+    let cleanUrl = encodeURI(url);
+
     // Check if the URL is already a frontend asset
-    if (url.startsWith('/assets/')) {
-      return url;
+    if (cleanUrl.startsWith('/assets/')) {
+      return cleanUrl;
     }
 
-    // Transform backend URLs to use the proxy
+    // Transform backend URLs to use the proxy, avoiding double /uploads
     for (const domain of serverDomains) {
-      if (url.startsWith(domain)) {
-        const path = url.replace(domain, '');
+      if (cleanUrl.startsWith(domain)) {
+        const path = cleanUrl.replace(domain, '').replace(/^\/uploads\/?/, '/');
         return `${baseUrl}/uploads${path}`;
       }
     }
 
-    // If the URL is already a relative path, prepend the base URL
-    if (url.startsWith('/uploads/')) {
-      return `${baseUrl}${url}`;
+    // If the URL is a relative path starting with /uploads/, prepend base URL
+    if (cleanUrl.startsWith('/uploads/')) {
+      return `${baseUrl}${cleanUrl}`;
     }
 
-    // Fallback to placeholder if the URL is invalid
+    // If the URL is already a full frontend URL, return it as is
+    if (cleanUrl.startsWith(baseUrl)) {
+      return cleanUrl.replace(/^\/uploads\/?/, '/uploads/');
+    }
+
+    // Fallback to placeholder for invalid URLs
     console.warn(`Invalid URL: ${url}. Using placeholder.`);
     return '/assets/placeholder.png';
   }
@@ -839,9 +848,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     try {
       const headers = new HttpHeaders({
         'Accept': 'image/png,image/jpeg,image/gif',
-        'Cache-Control': 'no-cache'
-        // Add Authorization header if needed, e.g.:
-        // 'Authorization': `Bearer ${yourToken}`
+        'Cache-Control': 'no-cache',
+        // Uncomment and add your token if authentication is required
+        // 'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
       });
 
       const response = await this.http.get(url, {
@@ -874,8 +883,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         };
         reader.readAsDataURL(response);
       });
-    } catch (error) {
-      console.error(`Error fetching image ${url}:`, error);
+    } catch (error: any) {
+      console.error(`Error fetching image ${url}:`, {
+        message: error.message,
+        status: error.status,
+        statusText: error.statusText
+      });
       try {
         const fallbackResponse = await this.http.get(fallbackImageUrl, {
           headers: new HttpHeaders({
