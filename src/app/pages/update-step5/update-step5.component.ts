@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/assets/placeholder.png',
+    fileUrl: '/uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -112,7 +112,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || '6887287840564909e64091fd';
+      this.projectId = params['id'] || '687f2fe240564909e63c3e8e';
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -133,14 +133,14 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       }
     });
 
-    ['Report Type', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference',
-     'Location', 'FRL', 'Barrier', 'Description', 'Installer', 'Inspector', 'Safety Measures',
-     'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Time', 'Price Excluding GST',
-     'Price', 'Sticker No', 'Test ID', 'Service', 'Separate Report', 'Email Notification',
+    ['Report Type', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference', 
+     'Location', 'FRL', 'Barrier', 'Description', 'Installer', 'Inspector', 'Safety Measures', 
+     'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Time', 'Price Excluding GST', 
+     'Price', 'Sticker No', 'Test ID', 'Service', 'Separate Report', 'Email Notification', 
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
-    this.selectedAttributes['Report Type'] = 'standard';
+    this.selectedAttributes['Report Type'] = 'standard'; // Default to standard
   }
 
   ngAfterViewInit() {
@@ -159,7 +159,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           this.products = response;
-          const defaultProductId = '6882a3f040564909e63f7772';
+          const defaultProductId = '687a1ed4f2107c9877732170';
           const defaultProduct = this.products.find(product => product._id === defaultProductId);
           this.selectedAttributes['Product Name'] = defaultProduct ? defaultProduct.name : '';
           this.updateApprovalDocuments();
@@ -193,23 +193,20 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 this.coverLetterData.fileUrl = this.convertToProxyUrl(this.coverLetterData.fileUrl);
               }
             }
-            if (response.project?.imageUrl) {
-              this.coverLetterData.fileUrl = this.convertToProxyUrl(response.project.imageUrl);
-            }
             this.subCategoryOptions = response.project?.subProjects || [];
             this.selectedSubCategories = response.project?.subProjects || [];
             this.selectedAttributes['Sub-category'] = this.selectedSubCategories[0] || 'N/A';
             this.hierarchyLevels = response.hierarchy?.levels?.map((level: any) => level.name) || [];
             this.selectedAttributes['Building'] = response.project?.buildingName || 'N/A';
             this.selectedAttributes['Level'] = this.hierarchyLevels.length > 0 ? this.hierarchyLevels[0] : 'N/A';
-
+            
             if (response.standardAttributes?.length > 0) {
               response.standardAttributes.forEach((attr: any) => {
                 attr.attributes.forEach((a: any) => {
                   if (a.name === 'FRL' && Array.isArray(a.value)) {
                     this.attributeOptions['FRL'] = a.value;
                     this.selectedAttributes['FRL'] = a.value[0] || 'N/A';
-                  } else if (a.name === 'Penetration Compliant' && Array.isArray(a.value)) {
+                  } else if (a.name === 'Compliance' && Array.isArray(a.value)) {
                     this.attributeOptions['Compliance'] = a.value;
                     this.selectedAttributes['Compliance'] = a.value[0] || 'N/A';
                   } else if (a.name === 'Barrier') {
@@ -307,7 +304,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               reportTitle: response.data.coverLetter.reportTitle || 'N/A',
               additionalInfo: response.data.coverLetter.additionalInfo || 'N/A',
               clientName: response.data.coverLetter.clientName || 'Mehtab',
-              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/assets/placeholder.png'),
+              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/Uploads/1752585290123-129536.jpg'),
               inspectionOverview: {
                 totalItems: response.data.coverLetter.inspectionOverview?.totalItems || '0',
                 passedItems: response.data.coverLetter.inspectionOverview?.passedItems || '0',
@@ -325,45 +322,36 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private convertToProxyUrl(url: string): string {
     if (!url || url === 'N/A') {
-      console.warn(`Invalid URL: ${url}. Using placeholder.`);
       return '/assets/placeholder.png';
     }
 
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocal ? 'http://localhost:4200' : 'https://aps-app-frontend.vercel.app';
+    const baseUrl = isLocal
+      ? 'http://localhost:4200'
+      : 'https://aps-app-frontend.vercel.app';
+
     const serverDomains = [
       'https://vps.allpassiveservices.com.au',
       'http://95.111.223.104:8000'
     ];
 
-    // Encode URL to handle spaces and special characters
-    let cleanUrl = encodeURI(url);
-
-    // Check if the URL is already a frontend asset
-    if (cleanUrl.startsWith('/assets/')) {
-      return cleanUrl;
-    }
-
-    // Transform backend URLs to use the proxy, avoiding double /uploads
+    let convertedUrl = url;
     for (const domain of serverDomains) {
-      if (cleanUrl.startsWith(domain)) {
-        const path = cleanUrl.replace(domain, '').replace(/^\/uploads\/?/, '/');
-        return `${baseUrl}/uploads${path}`;
+      if (url.startsWith(domain)) {
+        const path = url.replace(domain, '').replace(/^\/uploads\//, '/');
+        convertedUrl = `${baseUrl}/uploads${path}`;
+        return convertedUrl;
       }
     }
 
-    // If the URL is a relative path starting with /uploads/, prepend base URL
-    if (cleanUrl.startsWith('/uploads/')) {
-      return `${baseUrl}${cleanUrl}`;
+    if (url.startsWith('/uploads/')) {
+      return `${baseUrl}${url}`;
     }
 
-    // If the URL is already a full frontend URL, return it as is
-    if (cleanUrl.startsWith(baseUrl)) {
-      return cleanUrl.replace(/^\/uploads\/?/, '/uploads/');
+    if (url.startsWith('/assets/')) {
+      return url;
     }
 
-    // Fallback to placeholder for invalid URLs
-    console.warn(`Invalid URL: ${url}. Using placeholder.`);
     return '/assets/placeholder.png';
   }
 
@@ -452,12 +440,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
 
     if (this.selectedAttributes['Report Type'] === 'excel') {
-      const tableData: TableRow[] = [];
+      const tableData: any[] = [];
       let index = 1;
       if (this.projectData?.instances?.length > 0) {
         for (const instance of this.projectData.instances) {
-          const row: TableRow = {
-            'Ref No': index.toString(),
+          const row = {
+            'Ref No': index,
             'Location': instance.hierarchyName || this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
             'Plan': 'N/A',
             'Type': instance.subProjectCategory || this.selectedSubCategories[0] || 'N/A',
@@ -469,7 +457,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           };
           if (instance.attributes) {
             instance.attributes.forEach((attr: any) => {
-              if (attr.name === 'Substrate Type') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
+              if (attr.name === 'Materials') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
             });
           }
           tableData.push(row);
@@ -477,13 +465,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         }
       } else {
         tableData.push({
-          'Ref No': '1',
+          'Ref No': 1,
           'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
           'Plan': 'N/A',
           'Type': this.selectedSubCategories[0] || this.getAttributeValue('Sub-category'),
-          'Substrate': this.getAttributeValue('Substrate Type') || 'N/A',
+          'Substrate': this.getAttributeValue('Materials'),
           'FRL': this.selectedAttributes['FRL'] || this.getAttributeValue('FRL'),
-          'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Penetration Compliant') || 'N/A',
+          'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Compliance'),
           'Photos': [],
           'Comments': this.selectedAttributes['Comments'] || this.getAttributeValue('Comments')
         });
@@ -508,8 +496,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       };
 
       try {
-        // Add logo
-        const logoUrl = '/assets/logo.png';
+        const logoUrl = '/images/logo.png';
         const logoData = await this.getImageData(logoUrl);
         if (logoData) {
           const logoX = pageWidth - margin - logoWidth;
@@ -526,63 +513,48 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           yOffset += logoHeight + lineHeight;
         }
 
-        // Add project name
         checkPageBreak(lineHeight);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.text(`Project Name: ${this.projectData?.project?.projectName || 'N/A'}`, margin, yOffset);
         yOffset += lineHeight;
 
-        // Add client name
         checkPageBreak(lineHeight + clientNameMarginBottom);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.text(`Client Name: ${this.projectData?.project?.clientInfo?.name || this.coverLetterData?.clientName || 'N/A'}`, margin, yOffset);
         yOffset += lineHeight + clientNameMarginBottom;
 
-        // Add project image and details
         const textX = 105.6;
         checkPageBreak(lineHeight + imageHeight + lineHeight);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.text('Site Logo : ', margin, yOffset);
         yOffset += lineHeight;
-
-        const projectImageUrl = this.projectData?.project?.imageUrl
-          ? this.convertToProxyUrl(this.projectData.project.imageUrl)
-          : this.coverLetterData?.fileUrl || '/assets/placeholder.png';
-        
-        const imgData = await this.getImageData(projectImageUrl);
-        if (imgData) {
-          try {
+        if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
+          const imgData = await this.getImageData(this.coverLetterData.fileUrl);
+          if (imgData) {
             doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-          } catch (imgError) {
-            console.error(`Error adding project image to PDF: ${projectImageUrl}`, imgError);
+          } else {
+            console.error(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
             doc.setFontSize(10);
             doc.setTextColor(255, 0, 0);
-            doc.text('Failed to add project image to PDF', margin, yOffset);
+            doc.text('Failed to load project image', margin, yOffset);
             doc.setTextColor(0, 0, 0);
           }
         } else {
-          console.error(`Project image not loaded: ${projectImageUrl}`);
           doc.setFontSize(10);
-          doc.setTextColor(255, 0, 0);
-          doc.text('Failed to load project image', margin, yOffset);
-          doc.setTextColor(0, 0, 0);
+          doc.text('No project image available', margin, yOffset);
         }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        const address = this.projectData?.project?.address
-          ? `${this.projectData.project.address.line1}, ${this.projectData.project.address.city}, ${this.projectData.project.address.state} ${this.projectData.project.address.zip}`
-          : this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001';
-        doc.text(`Address: ${address}`, textX, yOffset + 10);
+        doc.text(`Address: ${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
         doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
         doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
         yOffset += imageHeight + lineHeight;
 
         yOffset += 13.2;
 
-        // Add inspection overview and additional info
         const overviewX = margin;
         const additionalInfoX = 105.6;
         const columnWidth = (contentWidth - 10) / 2;
@@ -634,7 +606,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
         yOffset += Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3;
 
-        // Add document images
         if (this.projectData?.documents?.length > 0) {
           for (const docItem of this.projectData.documents) {
             if (docItem.files?.length > 0) {
@@ -646,17 +617,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 yOffset += lineHeight;
                 const imgData = await this.getImageData(file.documentUrl);
                 if (imgData) {
-                  try {
-                    doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
-                    yOffset += docImageHeight + lineHeight;
-                  } catch (imgError) {
-                    console.error(`Error adding document image to PDF: ${file.documentUrl}`, imgError);
-                    doc.setFontSize(10);
-                    doc.setTextColor(255, 0, 0);
-                    doc.text(`Failed to add document image: ${file.documentName || 'N/A'}`, margin, yOffset);
-                    doc.setTextColor(0, 0, 0);
-                    yOffset += lineHeight * 2;
-                  }
+                  doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
+                  yOffset += docImageHeight + lineHeight;
                 } else {
                   console.error(`Document image not loaded: ${file.documentUrl}`);
                   doc.setFontSize(10);
@@ -675,7 +637,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           yOffset += lineHeight * 2;
         }
 
-        // Prepare table data
         const tableData: TableRow[] = [];
         let index = 1;
         if (this.projectData?.instances?.length > 0) {
@@ -693,7 +654,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             };
             if (instance.attributes) {
               instance.attributes.forEach((attr: any) => {
-                if (attr.name === 'Substrate Type') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
+                if (attr.name === 'Materials') row['Substrate'] = attr.selectedValue || attr.value || 'N/A';
               });
             }
             tableData.push(row);
@@ -705,15 +666,14 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
             'Plan': 'N/A',
             'Type': this.selectedSubCategories[0] || this.getAttributeValue('Sub-category'),
-            'Substrate': this.getAttributeValue('Substrate Type') || 'N/A',
+            'Substrate': this.getAttributeValue('Materials'),
             'FRL': this.selectedAttributes['FRL'] || this.getAttributeValue('FRL'),
-            'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Penetration Compliant') || 'N/A',
+            'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Compliance'),
             'Photos': [],
             'Comments': this.selectedAttributes['Comments'] || this.getAttributeValue('Comments')
           });
         }
 
-        // Add table
         checkPageBreak(lineHeight * 3 + headerHeight);
         yOffset += lineHeight * 3;
         const tableX = margin;
@@ -754,16 +714,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             if (header === 'Plan' && this.projectData?.documents?.[0]?.files?.[0]?.documentUrl) {
               const imgData = await this.getImageData(this.projectData.documents[0].files[0].documentUrl);
               if (imgData) {
-                try {
-                  const imgWidth = columnWidths[colIndex] - 4;
-                  const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-                  doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-                } catch (imgError) {
-                  console.error(`Error adding plan image to PDF: ${this.projectData.documents[0].files[0].documentUrl}`, imgError);
-                  doc.setTextColor(255, 0, 0);
-                  doc.text('Failed to add plan image', xOffset + 2, yOffset + 8);
-                  doc.setTextColor(0, 0, 0);
-                }
+                const imgWidth = columnWidths[colIndex] - 4;
+                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
               } else {
                 console.error(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
                 doc.setTextColor(255, 0, 0);
@@ -773,16 +726,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             } else if (header === 'Photos' && row['Photos'].length > 0) {
               const imgData = await this.getImageData(row['Photos'][0]);
               if (imgData) {
-                try {
-                  const imgWidth = columnWidths[colIndex] - 4;
-                  const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-                  doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-                } catch (imgError) {
-                  console.error(`Error adding photo to PDF: ${row['Photos'][0]}`, imgError);
-                  doc.setTextColor(255, 0, 0);
-                  doc.text('Failed to add photo', xOffset + 2, yOffset + 8);
-                  doc.setTextColor(0, 0, 0);
-                }
+                const imgWidth = columnWidths[colIndex] - 4;
+                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
               } else {
                 console.error(`Photo not loaded: ${row['Photos'][0]}`);
                 doc.setTextColor(255, 0, 0);
@@ -830,7 +776,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.setDrawColor(0, 0, 0);
         doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-        doc.save('ASP_Report.pdf');
+        doc.save('ASP Report.pdf');
       } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Check console for details.');
@@ -840,21 +786,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
-    if (!url || !/\.(png|jpg|jpeg|gif)$/i.test(url)) {
-      console.warn(`Invalid or unsupported image URL: ${url}. Using fallback.`);
-      url = fallbackImageUrl;
-    }
-
     try {
-      const headers = new HttpHeaders({
-        'Accept': 'image/png,image/jpeg,image/gif',
-        'Cache-Control': 'no-cache',
-        // Uncomment and add your token if authentication is required
-        // 'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
-      });
-
+      // Fetch image as a blob with proper headers
       const response = await this.http.get(url, {
-        headers,
+        headers: new HttpHeaders({
+          'Accept': 'image/*',
+          'Cache-Control': 'no-cache'
+        }),
         responseType: 'blob'
       }).toPromise();
 
@@ -862,37 +800,25 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         throw new Error('No response received');
       }
 
-      const mimeType = response.type;
-      if (!['image/png', 'image/jpeg', 'image/gif'].includes(mimeType)) {
-        throw new Error(`Unsupported MIME type: ${mimeType}`);
-      }
-
+      // Convert blob to data URL
       return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-          const dataUrl = reader.result as string;
-          if (dataUrl.startsWith('data:image/')) {
-            resolve(dataUrl);
-          } else {
-            reject(new Error('Invalid data URL format'));
-          }
+          resolve(reader.result as string);
         };
         reader.onerror = () => {
           console.error(`Failed to read blob for ${url}`);
-          reject(new Error('Failed to read blob'));
+          reject('Failed to read blob');
         };
         reader.readAsDataURL(response);
       });
-    } catch (error: any) {
-      console.error(`Error fetching image ${url}:`, {
-        message: error.message,
-        status: error.status,
-        statusText: error.statusText
-      });
+    } catch (error) {
+      console.error(`Error fetching image ${url}:`, error);
+      // Try fetching the fallback image
       try {
         const fallbackResponse = await this.http.get(fallbackImageUrl, {
           headers: new HttpHeaders({
-            'Accept': 'image/png,image/jpeg,image/gif',
+            'Accept': 'image/*',
             'Cache-Control': 'no-cache'
           }),
           responseType: 'blob'
@@ -902,24 +828,14 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           throw new Error('No response for fallback image');
         }
 
-        const mimeType = fallbackResponse.type;
-        if (!['image/png', 'image/jpeg', 'image/gif'].includes(mimeType)) {
-          throw new Error(`Unsupported fallback MIME type: ${mimeType}`);
-        }
-
         return await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => {
-            const dataUrl = reader.result as string;
-            if (dataUrl.startsWith('data:image/')) {
-              resolve(dataUrl);
-            } else {
-              reject(new Error('Invalid fallback data URL format'));
-            }
+            resolve(reader.result as string);
           };
           reader.onerror = () => {
             console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
-            reject(new Error('Failed to read fallback blob'));
+            reject('Failed to read fallback blob');
           };
           reader.readAsDataURL(fallbackResponse);
         });
