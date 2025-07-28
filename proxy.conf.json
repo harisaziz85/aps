@@ -1,11 +1,15 @@
 {
-     "/uploads/*": {
-       "target": "https://vps.allpassiveservices.com.au",
-       "secure": true,
-       "changeOrigin": true,
-       "pathRewrite": {
-         "^/uploads": "/uploads"
-       },
-       "logLevel": "debug"
-     }
-   }
+  "/uploads/*": {
+    "target": "https://vps.allpassiveservices.com.au",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/uploads": "/uploads"
+    }
+  },
+  "/api/*": {
+    "target": "https://vps.allpassiveservices.com.au",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/Uploads/1752585290123-129536.jpg',
+    fileUrl: '/assets/placeholder.png',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -133,10 +133,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       }
     });
 
-    ['Report Type', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference', 
-     'Location', 'FRL', 'Barrier', 'Description', 'Installer', 'Inspector', 'Safety Measures', 
-     'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Time', 'Price Excluding GST', 
-     'Price', 'Sticker No', 'Test ID', 'Service', 'Separate Report', 'Email Notification', 
+    ['Report Type', 'Product Name', 'Approval', 'Building', 'Level', 'Item #', 'Test Reference',
+     'Location', 'FRL', 'Barrier', 'Description', 'Installer', 'Inspector', 'Safety Measures',
+     'Relevance to Building Code', 'Compliance', 'Comments', 'Notes', 'Time', 'Price Excluding GST',
+     'Price', 'Sticker No', 'Test ID', 'Service', 'Separate Report', 'Email Notification',
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
@@ -202,7 +202,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             this.hierarchyLevels = response.hierarchy?.levels?.map((level: any) => level.name) || [];
             this.selectedAttributes['Building'] = response.project?.buildingName || 'N/A';
             this.selectedAttributes['Level'] = this.hierarchyLevels.length > 0 ? this.hierarchyLevels[0] : 'N/A';
-            
+
             if (response.standardAttributes?.length > 0) {
               response.standardAttributes.forEach((attr: any) => {
                 attr.attributes.forEach((a: any) => {
@@ -307,7 +307,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               reportTitle: response.data.coverLetter.reportTitle || 'N/A',
               additionalInfo: response.data.coverLetter.additionalInfo || 'N/A',
               clientName: response.data.coverLetter.clientName || 'Mehtab',
-              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/Uploads/1752585290123-129536.jpg'),
+              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/assets/placeholder.png'),
               inspectionOverview: {
                 totalItems: response.data.coverLetter.inspectionOverview?.totalItems || '0',
                 passedItems: response.data.coverLetter.inspectionOverview?.passedItems || '0',
@@ -329,32 +329,32 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     }
 
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocal
-      ? 'http://localhost:4200'
-      : 'https://aps-app-frontend.vercel.app';
-
+    const baseUrl = isLocal ? 'http://localhost:4200' : 'https://aps-app-frontend.vercel.app';
     const serverDomains = [
       'https://vps.allpassiveservices.com.au',
       'http://95.111.223.104:8000'
     ];
 
-    let convertedUrl = url;
-    for (const domain of serverDomains) {
-      if (url.startsWith(domain)) {
-        const path = url.replace(domain, '').replace(/^\/uploads\//, '/');
-        convertedUrl = `${baseUrl}/uploads${path}`;
-        return convertedUrl;
-      }
-    }
-
-    if (url.startsWith('/uploads/')) {
-      return `${baseUrl}${url}`;
-    }
-
+    // Check if the URL is already a frontend asset
     if (url.startsWith('/assets/')) {
       return url;
     }
 
+    // Transform backend URLs to use the proxy
+    for (const domain of serverDomains) {
+      if (url.startsWith(domain)) {
+        const path = url.replace(domain, '');
+        return `${baseUrl}/uploads${path}`;
+      }
+    }
+
+    // If the URL is already a relative path, prepend the base URL
+    if (url.startsWith('/uploads/')) {
+      return `${baseUrl}${url}`;
+    }
+
+    // Fallback to placeholder if the URL is invalid
+    console.warn(`Invalid URL: ${url}. Using placeholder.`);
     return '/assets/placeholder.png';
   }
 
@@ -500,7 +500,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
       try {
         // Add logo
-        const logoUrl = '/images/logo.png';
+        const logoUrl = '/assets/logo.png';
         const logoData = await this.getImageData(logoUrl);
         if (logoData) {
           const logoX = pageWidth - margin - logoWidth;
@@ -831,19 +831,21 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
-    // Validate URL
     if (!url || !/\.(png|jpg|jpeg|gif)$/i.test(url)) {
       console.warn(`Invalid or unsupported image URL: ${url}. Using fallback.`);
       url = fallbackImageUrl;
     }
 
     try {
-      // Fetch image as blob
+      const headers = new HttpHeaders({
+        'Accept': 'image/png,image/jpeg,image/gif',
+        'Cache-Control': 'no-cache'
+        // Add Authorization header if needed, e.g.:
+        // 'Authorization': `Bearer ${yourToken}`
+      });
+
       const response = await this.http.get(url, {
-        headers: new HttpHeaders({
-          'Accept': 'image/png,image/jpeg,image/gif',
-          'Cache-Control': 'no-cache'
-        }),
+        headers,
         responseType: 'blob'
       }).toPromise();
 
@@ -851,18 +853,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         throw new Error('No response received');
       }
 
-      // Verify MIME type
       const mimeType = response.type;
       if (!['image/png', 'image/jpeg', 'image/gif'].includes(mimeType)) {
         throw new Error(`Unsupported MIME type: ${mimeType}`);
       }
 
-      // Convert blob to data URL
       return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           const dataUrl = reader.result as string;
-          // Basic validation of data URL
           if (dataUrl.startsWith('data:image/')) {
             resolve(dataUrl);
           } else {
@@ -878,7 +877,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     } catch (error) {
       console.error(`Error fetching image ${url}:`, error);
       try {
-        // Attempt to fetch fallback image
         const fallbackResponse = await this.http.get(fallbackImageUrl, {
           headers: new HttpHeaders({
             'Accept': 'image/png,image/jpeg,image/gif',
