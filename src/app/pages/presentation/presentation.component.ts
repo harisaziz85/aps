@@ -616,7 +616,7 @@ export class PresentationComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-async generateReport(): Promise<void> {
+  async generateReport(): Promise<void> {
     const margin = 10;
     const lineHeight = 10;
     const imageWidth = 52.92;
@@ -717,6 +717,9 @@ async generateReport(): Promise<void> {
     console.log('Table Photos:', this.tablePhotos.map(p => p.url));
     console.log('Floor Plan Image:', this.floorPlanImage);
     console.log('Selected Approval Document:', this.selectedApprovalDocument);
+    console.log('Markers:', this.markers);
+    console.log('Pre-install Photos:', this.preInstallPhotos.map(p => p.url));
+    console.log('Post-install Photos:', this.postInstallPhotos.map(p => p.url));
 
     let projectDetails: ProjectResponse;
     try {
@@ -915,6 +918,12 @@ async generateReport(): Promise<void> {
     let index = 1;
     if (this.instances?.length > 0) {
       for (const instance of this.instances) {
+        const allPhotos = [
+          ...this.tablePhotos.map(p => normalizeUrl(p.url)),
+          ...this.preInstallPhotos.map(p => normalizeUrl(p.url)),
+          ...this.postInstallPhotos.map(p => normalizeUrl(p.url))
+        ].filter(url => url && url !== 'N/A' && url.trim() !== '');
+        
         const row: TableRow = {
           'Ref No': (instance.instanceNumber || index).toString(),
           Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
@@ -923,15 +932,19 @@ async generateReport(): Promise<void> {
           Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
           FRL: this.selectedFieldValues['frl'] || 'N/A',
           Result: this.selectedFieldValues['compliance'] || 'N/A',
-          Photos: this.tablePhotos
-            .filter(p => p.url && p.url !== 'N/A' && p.url.trim() !== '')
-            .map(p => normalizeUrl(p.url)),
+          Photos: allPhotos,
           Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments')
         };
         tableData.push(row);
         index++;
       }
     } else {
+      const allPhotos = [
+        ...this.tablePhotos.map(p => normalizeUrl(p.url)),
+        ...this.preInstallPhotos.map(p => normalizeUrl(p.url)),
+        ...this.postInstallPhotos.map(p => normalizeUrl(p.url))
+      ].filter(url => url && url !== 'N/A' && url.trim() !== '');
+      
       tableData.push({
         'Ref No': '1',
         Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
@@ -940,9 +953,7 @@ async generateReport(): Promise<void> {
         Substrate: this.getAttributeDisplayValue('Materils'),
         FRL: this.selectedFieldValues['frl'] || 'N/A',
         Result: this.selectedFieldValues['compliance'] || 'N/A',
-        Photos: this.tablePhotos
-          .filter(p => p.url && p.url !== 'N/A' && p.url.trim() !== '')
-          .map(p => normalizeUrl(p.url)),
+        Photos: allPhotos,
         Comments: this.getAttributeDisplayValue('Comments')
       });
     }
@@ -962,7 +973,7 @@ async generateReport(): Promise<void> {
       const headerLines = doc.splitTextToSize(header, columnWidths[index] - 4);
       doc.text(headerLines, xOffset + columnWidths[index] / 2, yOffset + 8, { align: 'center' });
       doc.setLineWidth(0.2);
-      doc.setDrawColor(255, 255, 255);
+      doc.setDrawColor(255, 255, 181);
       doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
       xOffset += columnWidths[index];
     });
@@ -991,6 +1002,21 @@ async generateReport(): Promise<void> {
             const imgWidth = columnWidths[colIndex] - 4;
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
             doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+
+            // Render markers on the floor plan image
+            const instance = this.instances?.find(inst => inst.instanceNumber?.toString() === row['Ref No']);
+            const instanceMarkers = this.markers.filter(m => m.instanceId === instance?.instanceId);
+            for (const marker of instanceMarkers) {
+              const scaleX = imgWidth / 600; // Assuming original image width is 600px
+              const scaleY = imgHeight / 400; // Assuming original image height is 400px
+              const markerX = xOffset + 2 + marker.position.x * scaleX;
+              const markerY = yOffset + 2 + marker.position.y * scaleY;
+              doc.setFillColor(255, 0, 0);
+              doc.circle(markerX, markerY, 2, 'F');
+              doc.setFontSize(marker.style.textSize || 8);
+              doc.setTextColor(0, 0, 0);
+              doc.text(marker.label || 'M', markerX + 3, markerY + 3);
+            }
           } catch {
             doc.setTextColor(255, 0, 0);
             doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
@@ -998,11 +1024,17 @@ async generateReport(): Promise<void> {
           }
         } else if (header === 'Photos' && row['Photos'].length > 0) {
           try {
-            const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
-            const [imgData] = await Promise.all(photoPromises);
-            const imgWidth = columnWidths[colIndex] - 4;
+            const photoPromises = row['Photos'].slice(0, 2).map(url => loadImage(url)); // Show up to 2 photos
+            const photoData = await Promise.all(photoPromises);
+            const imgWidth = (columnWidths[colIndex] - 6) / Math.min(photoData.length, 2);
             const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+            let photoX = xOffset + 2;
+            photoData.forEach((imgData, idx) => {
+              if (idx < 2) {
+                doc.addImage(imgData, 'PNG', photoX, yOffset + 2, imgWidth, imgHeight);
+                photoX += imgWidth + 2;
+              }
+            });
           } catch {
             doc.setTextColor(255, 0, 0);
             doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
