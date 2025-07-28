@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Modal } from 'bootstrap';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/Uploads/1752585290123-129536.jpg',
+    fileUrl: '/assets/placeholder.png',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -140,7 +140,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
-    this.selectedAttributes['Report Type'] = 'standard'; // Default to standard
+    this.selectedAttributes['Report Type'] = 'standard';
   }
 
   ngAfterViewInit() {
@@ -164,9 +164,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           this.selectedAttributes['Product Name'] = defaultProduct ? defaultProduct.name : '';
           this.updateApprovalDocuments();
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.errorMessage = 'Failed to load products. Please try again later.';
-          console.error('Error fetching products:', err);
+          console.error('Error fetching products:', err.message, err.status);
         }
       });
   }
@@ -249,9 +249,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             }
           }
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.errorMessage = 'Failed to load project data. Please try again later.';
-          console.error('Error fetching project data:', err);
+          console.error('Error fetching project data:', err.message, err.status);
         }
       });
   }
@@ -270,9 +270,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             }
           }
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.errorMessage = 'Failed to load project reports. Please try again later.';
-          console.error('Error fetching reports:', err);
+          console.error('Error fetching reports:', err.message, err.status);
         }
       });
   }
@@ -285,9 +285,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             this.projectAttributes = response.data;
           }
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.errorMessage = 'Failed to load project attributes. Please try again later.';
-          console.error('Error fetching attributes:', err);
+          console.error('Error fetching attributes:', err.message, err.status);
         }
       });
   }
@@ -304,7 +304,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               reportTitle: response.data.coverLetter.reportTitle || 'N/A',
               additionalInfo: response.data.coverLetter.additionalInfo || 'N/A',
               clientName: response.data.coverLetter.clientName || 'Mehtab',
-              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/Uploads/1752585290123-129536.jpg'),
+              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/assets/placeholder.png'),
               inspectionOverview: {
                 totalItems: response.data.coverLetter.inspectionOverview?.totalItems || '0',
                 passedItems: response.data.coverLetter.inspectionOverview?.passedItems || '0',
@@ -314,8 +314,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             };
           }
         },
-        error: (err) => {
-          console.error('Error fetching cover letter data:', err);
+        error: (err: HttpErrorResponse) => {
+          console.error('Error fetching cover letter data:', err.message, err.status);
         }
       });
   }
@@ -654,7 +654,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               'Plan': 'N/A',
               'Type': instance.subProjectCategory || this.selectedSubCategories[0] || 'N/A',
               'Substrate': 'N/A',
-              'FRL': this.selectedAttributes['FRL'] || ')N/A',
+              'FRL': this.selectedAttributes['FRL'] || 'N/A',
               'Result': this.selectedAttributes['Compliance'] || 'N/A',
               'Photos': instance.photos?.map((p: any) => p.url) || [],
               'Comments': this.selectedAttributes['Comments'] || 'N/A'
@@ -783,7 +783,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.setDrawColor(0, 0, 0);
         doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-        doc.save('ASP Report.pdf');
+        doc.save('ASP_Report.pdf');
       } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Check console for details.');
@@ -795,73 +795,90 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     const fallbackImageUrl = '/assets/placeholder.png';
     console.log(`Fetching image: ${url}`);
 
+    // Validate URL
+    if (!url || url === 'N/A' || !url.match(/\.(png|jpg|jpeg)$/i)) {
+      console.warn(`Invalid or unsupported image URL: ${url}`);
+      return this.getFallbackImage(fallbackImageUrl);
+    }
+
     try {
       const response = await this.http.get(url, {
         headers: new HttpHeaders({
           'Accept': 'image/png,image/jpeg',
           'Cache-Control': 'no-cache'
         }),
-        responseType: 'blob'
+        responseType: 'blob',
+        observe: 'response' // Observe full response to check headers
       }).toPromise();
 
-      if (!response) {
+      if (!response || !response.body) {
         throw new Error('No response received');
       }
 
-      const contentType = response.type;
-      if (!['image/png', 'image/jpeg'].includes(contentType)) {
-        throw new Error(`Invalid content type: ${contentType}`);
+      const contentType = response.headers.get('content-type');
+      console.log(`Content-Type for ${url}: ${contentType}`);
+
+      if (!contentType || !['image/png', 'image/jpeg'].includes(contentType)) {
+        throw new Error(`Invalid content type: ${contentType || 'unknown'}`);
       }
 
       return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-          console.log(`Image loaded successfully: ${url}, size: ${response.size} bytes`);
+          console.log(`Image loaded successfully: ${url}, size: ${response.body!.size} bytes`);
           resolve(reader.result as string);
         };
         reader.onerror = () => {
           console.error(`Failed to read blob for ${url}`);
-          reject('Failed to read blob');
+          reject(new Error('Failed to read blob'));
         };
-        reader.readAsDataURL(response);
+        reader.readAsDataURL(response.body!);
       });
-    } catch (error) {
-      console.error(`Error fetching image ${url}:`, error);
-      try {
-        console.log(`Attempting to load fallback image: ${fallbackImageUrl}`);
-        const fallbackResponse = await this.http.get(fallbackImageUrl, {
-          headers: new HttpHeaders({
-            'Accept': 'image/png,image/jpeg',
-            'Cache-Control': 'no-cache'
-          }),
-          responseType: 'blob'
-        }).toPromise();
+    } catch (error: any) {
+      console.error(`Error fetching image ${url}:`, error.message, error.status);
+      return this.getFallbackImage(fallbackImageUrl);
+    }
+  }
 
-        if (!fallbackResponse) {
-          throw new Error('No response for fallback image');
-        }
+  private async getFallbackImage(fallbackImageUrl: string): Promise<string | null> {
+    console.log(`Attempting to load fallback image: ${fallbackImageUrl}`);
 
-        const contentType = fallbackResponse.type;
-        if (!['image/png', 'image/jpeg'].includes(contentType)) {
-          throw new Error(`Invalid fallback content type: ${contentType}`);
-        }
+    try {
+      const response = await this.http.get(fallbackImageUrl, {
+        headers: new HttpHeaders({
+          'Accept': 'image/png,image/jpeg',
+          'Cache-Control': 'no-cache'
+        }),
+        responseType: 'blob',
+        observe: 'response'
+      }).toPromise();
 
-        return await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            console.log(`Fallback image loaded successfully: ${fallbackImageUrl}, size: ${fallbackResponse.size} bytes`);
-            resolve(reader.result as string);
-          };
-          reader.onerror = () => {
-            console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
-            reject('Failed to read fallback blob');
-          };
-          reader.readAsDataURL(fallbackResponse);
-        });
-      } catch (fallbackError) {
-        console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackError);
-        return null;
+      if (!response || !response.body) {
+        throw new Error('No response for fallback image');
       }
+
+      const contentType = response.headers.get('content-type');
+      console.log(`Content-Type for fallback ${fallbackImageUrl}: ${contentType}`);
+
+      if (!contentType || !['image/png', 'image/jpeg'].includes(contentType)) {
+        throw new Error(`Invalid fallback content type: ${contentType || 'unknown'}`);
+      }
+
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          console.log(`Fallback image loaded successfully: ${fallbackImageUrl}, size: ${response.body!.size} bytes`);
+          resolve(reader.result as string);
+        };
+        reader.onerror = () => {
+          console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
+          reject(new Error('Failed to read fallback blob'));
+        };
+        reader.readAsDataURL(response.body!);
+      });
+    } catch (error: any) {
+      console.error(`Failed to load fallback image ${fallbackImageUrl}:`, error.message, error.status);
+      return null;
     }
   }
 }
