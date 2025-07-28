@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Modal } from 'bootstrap';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -434,7 +434,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   async generateReport() {
     const margin = 10;
     const lineHeight = 10;
-    const imageWidth = 52.92;
     const imageHeight = 52.92;
     const docImageHeight = 132.29;
     const photoImageHeight = 30;
@@ -443,7 +442,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     const pageHeight = 420;
     const contentWidth = pageWidth - 2 * margin;
     const bottomMargin = 40;
-    const logoWidth = 40;
     const logoHeight = 20;
     const clientNameMarginBottom = 10.58;
     const headerHeight = 10;
@@ -507,22 +505,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       };
 
       try {
-        const logoUrl = '/images/logo.png';
-        const logoData = await this.getImageData(logoUrl);
-        if (logoData) {
-          const logoX = pageWidth - margin - logoWidth;
-          checkPageBreak(logoHeight + lineHeight);
-          doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
-          yOffset += logoHeight + lineHeight;
-        } else {
-          console.error('Logo image not loaded:', logoUrl);
-          checkPageBreak(lineHeight * 2);
-          doc.setFontSize(10);
-          doc.setTextColor(255, 0, 0);
-          doc.text('Failed to load logo image', pageWidth - margin - 40, yOffset + 10);
-          doc.setTextColor(0, 0, 0);
-          yOffset += logoHeight + lineHeight;
-        }
+        // Logo section (replaced with placeholder text)
+        checkPageBreak(logoHeight + lineHeight);
+        doc.setFontSize(10);
+        doc.setTextColor(255, 0, 0);
+        doc.text('Logo image not included', pageWidth - margin - 40, yOffset + 10);
+        doc.setTextColor(0, 0, 0);
+        yOffset += logoHeight + lineHeight;
 
         checkPageBreak(lineHeight);
         doc.setFont('helvetica', 'bold');
@@ -542,21 +531,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.setFontSize(12);
         doc.text('Site Logo : ', margin, yOffset);
         yOffset += lineHeight;
-        if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
-          const imgData = await this.getImageData(this.coverLetterData.fileUrl);
-          if (imgData) {
-            doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-          } else {
-            console.error(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
-            doc.setFontSize(10);
-            doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load project image', margin, yOffset);
-            doc.setTextColor(0, 0, 0);
-          }
-        } else {
-          doc.setFontSize(10);
-          doc.text('No project image available', margin, yOffset);
-        }
+        doc.setFontSize(10);
+        doc.text('No project image included', margin, yOffset);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
         doc.text(`Address: ${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
@@ -617,36 +593,11 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
         yOffset += Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3;
 
-        if (this.projectData?.documents?.length > 0) {
-          for (const docItem of this.projectData.documents) {
-            if (docItem.files?.length > 0) {
-              for (const file of docItem.files) {
-                checkPageBreak(lineHeight + docImageHeight + lineHeight);
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(12);
-                doc.text(`Document Image: ${file.documentName || 'N/A'}`, margin, yOffset);
-                yOffset += lineHeight;
-                const imgData = await this.getImageData(file.documentUrl);
-                if (imgData) {
-                  doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
-                  yOffset += docImageHeight + lineHeight;
-                } else {
-                  console.error(`Document image not loaded: ${file.documentUrl}`);
-                  doc.setFontSize(10);
-                  doc.setTextColor(255, 0, 0);
-                  doc.text(`Failed to load document image: ${file.documentName || 'N/A'}`, margin, yOffset);
-                  doc.setTextColor(0, 0, 0);
-                  yOffset += lineHeight * 2;
-                }
-              }
-            }
-          }
-        } else {
-          checkPageBreak(lineHeight * 2);
-          doc.setFontSize(10);
-          doc.text('No document images available', margin, yOffset);
-          yOffset += lineHeight * 2;
-        }
+        // Document images section (replaced with placeholder text)
+        checkPageBreak(lineHeight * 2);
+        doc.setFontSize(10);
+        doc.text('No document images included', margin, yOffset);
+        yOffset += lineHeight * 2;
 
         const tableData: TableRow[] = [];
         let index = 1;
@@ -722,32 +673,14 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           xOffset = tableX;
           for (const header of headers) {
             const colIndex = headers.indexOf(header);
-            if (header === 'Plan' && this.projectData?.documents?.[0]?.files?.[0]?.documentUrl) {
-              const imgData = await this.getImageData(this.projectData.documents[0].files[0].documentUrl);
-              if (imgData) {
-                const imgWidth = columnWidths[colIndex] - 4;
-                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-              } else {
-                console.error(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
-                doc.setFontSize(10);
-                doc.setTextColor(255, 0, 0);
-                doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
-                doc.setTextColor(0, 0, 0);
-              }
-            } else if (header === 'Photos' && row['Photos'].length > 0) {
-              const imgData = await this.getImageData(row['Photos'][0]);
-              if (imgData) {
-                const imgWidth = columnWidths[colIndex] - 4;
-                const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-                doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-              } else {
-                console.error(`Photo not loaded: ${row['Photos'][0]}`);
-                doc.setFontSize(10);
-                doc.setTextColor(255, 0, 0);
-                doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
-                doc.setTextColor(0, 0, 0);
-              }
+            if (header === 'Plan') {
+              doc.setTextColor(255, 0, 0);
+              doc.text('No plan image included', xOffset + 2, yOffset + 8);
+              doc.setTextColor(0, 0, 0);
+            } else if (header === 'Photos') {
+              doc.setTextColor(255, 0, 0);
+              doc.text('No photo included', xOffset + 2, yOffset + 8);
+              doc.setTextColor(0, 0, 0);
             } else if (header === 'Result') {
               const cellText = row[header] || 'N/A';
               const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
@@ -769,7 +702,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               const textHeight = cellLines.length * 6;
               const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
               doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
-            } else if (header !== 'Photos') {
+            } else {
               const cellText = row[header as keyof TableRow] || 'N/A';
               const cellLines = doc.splitTextToSize(cellText as string, columnWidths[colIndex] - 4);
               const textHeight = cellLines.length * 6;
@@ -779,7 +712,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             doc.setLineWidth(0.2);
             doc.setDrawColor(0, 0, 0);
             doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
-            xOffset += columnWidths[colIndex];
+            xOffset += columnWidths[index];
           }
           yOffset += rowHeight;
           tableEndY = yOffset;
