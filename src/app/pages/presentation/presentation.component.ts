@@ -616,7 +616,7 @@ export class PresentationComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  async generateReport(): Promise<void> {
+ async generateReport(): Promise<void> {
     const margin = 10;
     const lineHeight = 10;
     const imageWidth = 52.92;
@@ -639,140 +639,149 @@ export class PresentationComponent implements OnInit {
     let yOffset = margin;
     const maxContentHeight = pageHeight - margin - bottomMargin;
 
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocal ? 'http://localhost:3000' : 'https://vps.allpassiveservices.com.au';
+
     const normalizeUrl = (url: string): string => {
-      if (!url) {
-        return 'https://via.placeholder.com/200x200?text=No+Image';
-      }
-      // Ensure full URL with base domain
-      const baseUrl = 'https://vps.allpassiveservices.com.au';
-      const cleanPath = url
-        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
-        .replace(/^\/*uploads\/*/i, '')
-        .replace(/^\/+/, '');
-      return `${baseUrl}/uploads/${cleanPath}`;
+        if (!url || url.includes('via.placeholder.com')) {
+            return 'https://via.placeholder.com/200x200?text=No+Image';
+        }
+        // Remove any existing base URL to avoid duplication
+        const cleanPath = url
+            .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
+            .replace(/^http?:\/\/localhost:3000\/?/, '')
+            .replace(/^\/*uploads\/*/i, '')
+            .replace(/^\/+/, '');
+        // Use proxy endpoint to fetch images
+        return `${baseUrl}/api/get-image/${cleanPath}`;
     };
 
     const loadImage = async (url: string): Promise<string> => {
-      const normalizedUrl = normalizeUrl(url);
-      console.log(`Attempting to load image: ${normalizedUrl}`); // Debug log
-      try {
-        const response = await fetch(normalizedUrl, {
-          method: 'GET',
-          headers: { 'Accept': 'image/*' },
-          mode: 'cors', // Explicitly set CORS mode
-          credentials: 'same-origin'
-        });
-        if (!response.ok) {
-          console.error(`Failed to fetch image: ${normalizedUrl}, Status: ${response.status}`);
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        const normalizedUrl = normalizeUrl(url);
+        console.log(`Fetching image: ${normalizedUrl}`);
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+            const response = await fetch(normalizedUrl, {
+                method: 'GET',
+                headers: { 'Accept': 'image/*' },
+                mode: 'cors',
+                credentials: 'include', // Include credentials for authenticated requests
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+                console.error(`Failed to fetch image: ${normalizedUrl}, Status: ${response.status} ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = () => {
+                    console.error(`Failed to read image blob: ${normalizedUrl}`);
+                    reject(new Error('Failed to read image blob'));
+                };
+                reader.readAsDataURL(blob);
+            });
+        } catch (error: any) {
+            console.error(`Error loading image: ${normalizedUrl}`, error.message);
+            return 'https://via.placeholder.com/200x200?text=Image+Error';
         }
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = () => {
-            console.error(`Failed to read image blob: ${normalizedUrl}`);
-            reject(new Error('Failed to read image blob'));
-          };
-          reader.readAsDataURL(blob);
-        });
-      } catch (error) {
-        console.error(`Error loading image: ${normalizedUrl}`, error);
-        return 'https://via.placeholder.com/200x200?text=Image+Error';
-      }
     };
 
     const loadLocalImage = async (url: string): Promise<string> => {
-      console.log(`Attempting to load local image: ${url}`); // Debug log
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
-        img.crossOrigin = 'Anonymous'; // Handle cross-origin for local images
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d')!;
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
-        };
-        img.onerror = () => {
-          console.error(`Failed to load local image: ${url}`);
-          resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
-        };
-      });
+        const localUrl = isLocal ? url : normalizeUrl(url);
+        console.log(`Fetching local image: ${localUrl}`);
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = localUrl;
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = () => {
+                console.error(`Failed to load local image: ${localUrl}`);
+                resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+            };
+        });
     };
 
     const checkPageBreak = (requiredHeight: number) => {
-      if (yOffset + requiredHeight > maxContentHeight) {
-        doc.addPage();
-        yOffset = margin;
-        return true;
-      }
-      return false;
+        if (yOffset + requiredHeight > maxContentHeight) {
+            doc.addPage();
+            yOffset = margin;
+            return true;
+        }
+        return false;
     };
 
     let projectDetails: ProjectResponse;
     try {
-      const details = await this.presentationService.getProjectDetails(this.projectId).toPromise();
-      if (!details) {
-        throw new Error();
-      }
-      projectDetails = details;
+        const details = await this.presentationService.getProjectDetails(this.projectId).toPromise();
+        if (!details) {
+            throw new Error();
+        }
+        projectDetails = details;
     } catch {
-      projectDetails = {
-        projectId: this.projectId,
-        projectName: 'Unknown Project',
-        buildingName: 'N/A',
-        address: 'N/A',
-        client: { clientId: '', clientName: 'Unknown Client', clientPhone: '' },
-        clientName: 'Unknown Client',
-        createdAt: '',
-        buildingType: '',
-        assignedEmployees: [],
-        reports: [],
-        subProjects: [],
-        status: '',
-        imageUrl: null,
-        instances: [],
-        documents: [],
-        hierarchyLevels: []
-      };
+        projectDetails = {
+            projectId: this.projectId,
+            projectName: 'Unknown Project',
+            buildingName: 'N/A',
+            address: 'N/A',
+            client: { clientId: '', clientName: 'Unknown Client', clientPhone: '' },
+            clientName: 'Unknown Client',
+            createdAt: '',
+            buildingType: '',
+            assignedEmployees: [],
+            reports: [],
+            subProjects: [],
+            status: '',
+            imageUrl: null,
+            instances: [],
+            documents: [],
+            hierarchyLevels: []
+        };
     }
 
     const hierarchyImages: { hierarchyName: string; imageUrl: string }[] = [];
     if (projectDetails.subProjects && projectDetails.subProjects.length > 0) {
-      for (const subProject of projectDetails.subProjects) {
-        try {
-          const response = await this.presentationService.getDocumentByHierarchy(this.projectId, subProject.hierarchyLevelId).toPromise();
-          const documentWithImage = response?.data.find(doc => doc.documentUrl && doc.documentType === '2D Plan');
-          const imageUrl = documentWithImage ? normalizeUrl(documentWithImage.documentUrl) : 'https://via.placeholder.com/200x200?text=No+Hierarchy+Image';
-          if (!imageUrl.includes('via.placeholder.com')) {
-            hierarchyImages.push({
-              hierarchyName: subProject.hierarchyName,
-              imageUrl: imageUrl
-            });
-          }
-        } catch {
-          // Skip if no valid image is found
+        for (const subProject of projectDetails.subProjects) {
+            try {
+                const response = await this.presentationService.getDocumentByHierarchy(this.projectId, subProject.hierarchyLevelId).toPromise();
+                const documentWithImage = response?.data.find(doc => doc.documentUrl && doc.documentType === '2D Plan');
+                const imageUrl = documentWithImage ? normalizeUrl(documentWithImage.documentUrl) : 'https://via.placeholder.com/200x200?text=No+Hierarchy+Image';
+                if (!imageUrl.includes('via.placeholder.com')) {
+                    hierarchyImages.push({
+                        hierarchyName: subProject.hierarchyName,
+                        imageUrl: imageUrl
+                    });
+                }
+            } catch {
+                // Skip if no valid image is found
+            }
         }
-      }
     }
 
     try {
-      const logoUrl = 'images/logo.png';
-      const logoData = await loadLocalImage(logoUrl);
-      const logoX = pageWidth - margin - logoWidth;
-      checkPageBreak(logoHeight + lineHeight);
-      doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
-      yOffset += logoHeight + lineHeight;
+        const logoUrl = 'images/logo.png';
+        const logoData = await loadLocalImage(logoUrl);
+        const logoX = pageWidth - margin - logoWidth;
+        checkPageBreak(logoHeight + lineHeight);
+        doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
+        yOffset += logoHeight + lineHeight;
     } catch {
-      checkPageBreak(lineHeight * 2);
-      doc.setFontSize(10);
-      doc.setTextColor(255, 0, 0);
-      doc.text('Failed to load logo image', pageWidth - margin - 40, yOffset + 10);
-      doc.setTextColor(0, 0, 0);
-      yOffset += logoHeight + lineHeight;
+        checkPageBreak(lineHeight * 2);
+        doc.setFontSize(10);
+        doc.setTextColor(255, 0, 0);
+        doc.text('Failed to load logo image', pageWidth - margin - 40, yOffset + 10);
+        doc.setTextColor(0, 0, 0);
+        yOffset += logoHeight + lineHeight;
     }
 
     checkPageBreak(lineHeight * 2);
@@ -794,31 +803,31 @@ export class PresentationComponent implements OnInit {
 
     const projectImageUrl = normalizeUrl(projectDetails.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
     try {
-      const imgData = await loadImage(projectImageUrl);
-      checkPageBreak(imageHeight + lineHeight);
-      doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-      
-      const textX = pageWidth * 0.4;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
-      doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
-      doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
-      yOffset += Math.max(imageHeight, 40) + lineHeight;
+        const imgData = await loadImage(projectImageUrl);
+        checkPageBreak(imageHeight + lineHeight);
+        doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
+        
+        const textX = pageWidth * 0.4;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
+        doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
+        doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
+        yOffset += Math.max(imageHeight, 40) + lineHeight;
     } catch {
-      checkPageBreak(lineHeight * 2);
-      doc.setFontSize(10);
-      doc.setTextColor(255, 0, 0);
-      doc.text(`Failed to load image: ${projectImageUrl}`, margin, yOffset);
-      doc.setTextColor(0, 0, 0);
+        checkPageBreak(lineHeight * 2);
+        doc.setFontSize(10);
+        doc.setTextColor(255, 0, 0);
+        doc.text(`Failed to load image: ${projectImageUrl}`, margin, yOffset);
+        doc.setTextColor(0, 0, 0);
 
-      const textX = pageWidth * 0.4;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
-      doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
-      doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
-      yOffset += lineHeight * 4;
+        const textX = pageWidth * 0.4;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
+        doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
+        doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
+        yOffset += lineHeight * 4;
     }
 
     checkPageBreak(inspectionTopMargin + lineHeight * 6);
@@ -880,60 +889,60 @@ export class PresentationComponent implements OnInit {
     yOffset = inspectionStartY + Math.max(inspectionHeight, infoBoxHeight);
 
     if (hierarchyImages.length > 0) {
-      checkPageBreak(lineHeight);
-      yOffset += lineHeight;
+        checkPageBreak(lineHeight);
+        yOffset += lineHeight;
 
-      const availableHeight = maxContentHeight - yOffset - lineHeight;
-      const dynamicImageHeight = Math.min(maxHierarchyImageHeight, availableHeight / hierarchyImages.length - lineHeight);
+        const availableHeight = maxContentHeight - yOffset - lineHeight;
+        const dynamicImageHeight = Math.min(maxHierarchyImageHeight, availableHeight / hierarchyImages.length - lineHeight);
 
-      for (const { hierarchyName, imageUrl } of hierarchyImages.slice(0, 3)) {
-        checkPageBreak(lineHeight + dynamicImageHeight);
-        try {
-          const imgData = await loadImage(imageUrl);
-          checkPageBreak(dynamicImageHeight + lineHeight);
-          doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, dynamicImageHeight);
-          yOffset += dynamicImageHeight + lineHeight;
-        } catch {
-          checkPageBreak(lineHeight);
-          doc.setFontSize(10);
-          doc.setTextColor(255, 0, 0);
-          doc.text(`Failed to load image: ${imageUrl}`, margin, yOffset);
-          doc.setTextColor(0, 0, 0);
-          yOffset += lineHeight;
+        for (const { hierarchyName, imageUrl } of hierarchyImages.slice(0, 3)) {
+            checkPageBreak(lineHeight + dynamicImageHeight);
+            try {
+                const imgData = await loadImage(imageUrl);
+                checkPageBreak(dynamicImageHeight + lineHeight);
+                doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, dynamicImageHeight);
+                yOffset += dynamicImageHeight + lineHeight;
+            } catch {
+                checkPageBreak(lineHeight);
+                doc.setFontSize(10);
+                doc.setTextColor(255, 0, 0);
+                doc.text(`Failed to load image: ${imageUrl}`, margin, yOffset);
+                doc.setTextColor(0, 0, 0);
+                yOffset += lineHeight;
+            }
         }
-      }
     }
 
     const tableData: TableRow[] = [];
     let index = 1;
     if (this.instances?.length > 0) {
-      for (const instance of this.instances) {
-        const row: TableRow = {
-          'Ref No': (instance.instanceNumber || index).toString(),
-          Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-          Plan: this.floorPlanImage || 'N/A',
-          Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-          Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
-          FRL: this.selectedFieldValues['frl'] || 'N/A',
-          Result: this.selectedFieldValues['compliance'] || 'N/A',
-          Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
-          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments')
-        };
-        tableData.push(row);
-        index++;
-      }
+        for (const instance of this.instances) {
+            const row: TableRow = {
+                'Ref No': (instance.instanceNumber || index).toString(),
+                Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
+                Plan: this.floorPlanImage || 'N/A',
+                Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+                Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
+                FRL: this.selectedFieldValues['frl'] || 'N/A',
+                Result: this.selectedFieldValues['compliance'] || 'N/A',
+                Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
+                Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments')
+            };
+            tableData.push(row);
+            index++;
+        }
     } else {
-      tableData.push({
-        'Ref No': '1',
-        Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-        Plan: this.floorPlanImage || 'N/A',
-        Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-        Substrate: this.getAttributeDisplayValue('Materils'),
-        FRL: this.selectedFieldValues['frl'] || 'N/A',
-        Result: this.selectedFieldValues['compliance'] || 'N/A',
-        Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
-        Comments: this.getAttributeDisplayValue('Comments')
-      });
+        tableData.push({
+            'Ref No': '1',
+            Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
+            Plan: this.floorPlanImage || 'N/A',
+            Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+            Substrate: this.getAttributeDisplayValue('Materils'),
+            FRL: this.selectedFieldValues['frl'] || 'N/A',
+            Result: this.selectedFieldValues['compliance'] || 'N/A',
+            Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
+            Comments: this.getAttributeDisplayValue('Comments')
+        });
     }
 
     checkPageBreak(lineHeight * 3 + headerHeight + (tableData.length * baseRowHeight));
@@ -945,15 +954,15 @@ export class PresentationComponent implements OnInit {
     doc.setFontSize(10);
     let xOffset = tableX;
     headers.forEach((header, index) => {
-      doc.setFillColor(0, 0, 0);
-      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight, 'F');
-      doc.setTextColor(255, 255, 255);
-      const headerLines = doc.splitTextToSize(header, columnWidths[index] - 4);
-      doc.text(headerLines, xOffset + columnWidths[index] / 2, yOffset + 8, { align: 'center' });
-      doc.setLineWidth(0.2);
-      doc.setDrawColor(255, 255, 255);
-      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
-      xOffset += columnWidths[index];
+        doc.setFillColor(0, 0, 0);
+        doc.rect(xOffset, yOffset, columnWidths[index], headerHeight, 'F');
+        doc.setTextColor(255, 255, 255);
+        const headerLines = doc.splitTextToSize(header, columnWidths[index] - 4);
+        doc.text(headerLines, xOffset + columnWidths[index] / 2, yOffset + 8, { align: 'center' });
+        doc.setLineWidth(0.2);
+        doc.setDrawColor(255, 255, 255);
+        doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
+        xOffset += columnWidths[index];
     });
     doc.setTextColor(0, 0, 0);
     yOffset += headerHeight;
@@ -962,76 +971,76 @@ export class PresentationComponent implements OnInit {
     doc.setFontSize(8);
     let tableEndY = yOffset;
     for (const row of tableData) {
-      const commentsText = row['Comments'] || 'N/A';
-      const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
-      const commentsHeight = commentsLines.length * 6;
-      const photosHeight = row['Photos'].length > 0 ? photoImageHeight : 6;
-      const rowHeight = Math.max(baseRowHeight, commentsHeight, photosHeight);
+        const commentsText = row['Comments'] || 'N/A';
+        const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
+        const commentsHeight = commentsLines.length * 6;
+        const photosHeight = row['Photos'].length > 0 ? photoImageHeight : 6;
+        const rowHeight = Math.max(baseRowHeight, commentsHeight, photosHeight);
 
-      checkPageBreak(rowHeight);
-      const rowStartY = yOffset;
-      xOffset = tableX;
-      for (const header of headers) {
-        const colIndex = headers.indexOf(header);
-        if (header === 'Plan') {
-          try {
-            const imgData = await loadImage(row['Plan']);
-            const imgWidth = columnWidths[colIndex] - 4;
-            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-          } catch {
-            doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
-            doc.setTextColor(0, 0, 0);
-          }
-        } else if (header === 'Photos' && row['Photos'].length > 0) {
-          try {
-            const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
-            const [imgData] = await Promise.all(photoPromises);
-            const imgWidth = columnWidths[colIndex] - 4;
-            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-          } catch {
-            doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
-            doc.setTextColor(0, 0, 0);
-          }
-        } else if (header === 'Result') {
-          const cellText = row[header] || 'N/A';
-          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
-          const textHeight = cellLines.length * 6;
-          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
-          if (cellText.toUpperCase() === 'PASS') {
-            doc.setTextColor(92, 201, 110);
-          } else if (cellText.toUpperCase() === 'FAIL') {
-            doc.setTextColor(228, 66, 52);
-          } else if (cellText.toUpperCase() === 'TBC') {
-            doc.setTextColor(128, 128, 128);
-          } else {
-            doc.setTextColor(0, 0, 0);
-          }
-          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
-          doc.setTextColor(0, 0, 0);
-        } else if (header === 'Comments') {
-          const cellLines = doc.splitTextToSize(row[header] || 'N/A', columnWidths[colIndex] - 4);
-          const textHeight = cellLines.length * 6;
-          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
-          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
-        } else if (header !== 'Photos') {
-          const cellValue = row[header as keyof TableRow];
-          const cellText = typeof cellValue === 'string' ? cellValue : Array.isArray(cellValue) ? (cellValue.length > 0 ? 'Photo Available' : 'N/A') : 'N/A';
-          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
-          const textHeight = cellLines.length * 6;
-          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
-          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+        checkPageBreak(rowHeight);
+        const rowStartY = yOffset;
+        xOffset = tableX;
+        for (const header of headers) {
+            const colIndex = headers.indexOf(header);
+            if (header === 'Plan') {
+                try {
+                    const imgData = await loadImage(row['Plan']);
+                    const imgWidth = columnWidths[colIndex] - 4;
+                    const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                    doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+                } catch {
+                    doc.setTextColor(255, 0, 0);
+                    doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
+                    doc.setTextColor(0, 0, 0);
+                }
+            } else if (header === 'Photos' && row['Photos'].length > 0) {
+                try {
+                    const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
+                    const [imgData] = await Promise.all(photoPromises);
+                    const imgWidth = columnWidths[colIndex] - 4;
+                    const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+                    doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+                } catch {
+                    doc.setTextColor(255, 0, 0);
+                    doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
+                    doc.setTextColor(0, 0, 0);
+                }
+            } else if (header === 'Result') {
+                const cellText = row[header] || 'N/A';
+                const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
+                const textHeight = cellLines.length * 6;
+                const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+                if (cellText.toUpperCase() === 'PASS') {
+                    doc.setTextColor(92, 201, 110);
+                } else if (cellText.toUpperCase() === 'FAIL') {
+                    doc.setTextColor(228, 66, 52);
+                } else if (cellText.toUpperCase() === 'TBC') {
+                    doc.setTextColor(128, 128, 128);
+                } else {
+                    doc.setTextColor(0, 0, 0);
+                }
+                doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+                doc.setTextColor(0, 0, 0);
+            } else if (header === 'Comments') {
+                const cellLines = doc.splitTextToSize(row[header] || 'N/A', columnWidths[colIndex] - 4);
+                const textHeight = cellLines.length * 6;
+                const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+                doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+            } else if (header !== 'Photos') {
+                const cellValue = row[header as keyof TableRow];
+                const cellText = typeof cellValue === 'string' ? cellValue : Array.isArray(cellValue) ? (cellValue.length > 0 ? 'Photo Available' : 'N/A') : 'N/A';
+                const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
+                const textHeight = cellLines.length * 6;
+                const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+                doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+            }
+            doc.setLineWidth(0.2);
+            doc.setDrawColor(0, 0, 0);
+            doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
+            xOffset += columnWidths[colIndex];
         }
-        doc.setLineWidth(0.2);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
-        xOffset += columnWidths[colIndex];
-      }
-      yOffset += rowHeight;
-      tableEndY = yOffset;
+        yOffset += rowHeight;
+        tableEndY = yOffset;
     }
 
     doc.setLineWidth(0.5);
@@ -1039,17 +1048,17 @@ export class PresentationComponent implements OnInit {
     doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
     if (this.selectApproval && this.selectedApprovalDocument) {
-      checkPageBreak(lineHeight * 2);
-      yOffset += lineHeight;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text('Selected Approval Document:', margin, yOffset);
-      yOffset += lineHeight;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
-      doc.text(`Document: ${docName}`, margin, yOffset);
-      yOffset += lineHeight;
+        checkPageBreak(lineHeight * 2);
+        yOffset += lineHeight;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Selected Approval Document:', margin, yOffset);
+        yOffset += lineHeight;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
+        doc.text(`Document: ${docName}`, margin, yOffset);
+        yOffset += lineHeight;
     }
 
     const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
@@ -1058,80 +1067,80 @@ export class PresentationComponent implements OnInit {
     const excludeBlankFields = (document.getElementById('excludeBlankFields') as HTMLInputElement)?.checked;
 
     if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
-      checkPageBreak(lineHeight * 3);
-      yOffset += lineHeight * 2;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text('Report Attachments:', margin, yOffset);
-      yOffset += lineHeight;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      if (includeTechnicalDocs) {
-        doc.text('- Technical Documents', margin, yOffset);
+        checkPageBreak(lineHeight * 3);
+        yOffset += lineHeight * 2;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Report Attachments:', margin, yOffset);
         yOffset += lineHeight;
-      }
-      if (includeFloorPlans) {
-        doc.text('- Floor Plans', margin, yOffset);
-        yOffset += lineHeight;
-      }
-      if (includeAdditionalDocs) {
-        doc.text('- Additional Documents', margin, yOffset);
-        yOffset += lineHeight;
-      }
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        if (includeTechnicalDocs) {
+            doc.text('- Technical Documents', margin, yOffset);
+            yOffset += lineHeight;
+        }
+        if (includeFloorPlans) {
+            doc.text('- Floor Plans', margin, yOffset);
+            yOffset += lineHeight;
+        }
+        if (includeAdditionalDocs) {
+            doc.text('- Additional Documents', margin, yOffset);
+            yOffset += lineHeight;
+        }
     }
 
     doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
 
     if (this.selectedOption === 'Excel Reports') {
-      const reportData: { [key: string]: string } = {};
-      this.reportFields.forEach(field => {
-        reportData[field.key] = this.selectedFieldValues[field.key] || 'N/A';
-      });
+        const reportData: { [key: string]: string } = {};
+        this.reportFields.forEach(field => {
+            reportData[field.key] = this.selectedFieldValues[field.key] || 'N/A';
+        });
 
-      const data: any[] = [];
-      this.reportFields.forEach(field => {
-        if (this.selectedFields[field.key]) {
-          const value = reportData[field.key];
-          const displayValue = Array.isArray(value) ? value.join(', ') : value || 'N/A';
-          if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
-            data.push({ Field: field.name, Value: displayValue });
-          }
+        const data: any[] = [];
+        this.reportFields.forEach(field => {
+            if (this.selectedFields[field.key]) {
+                const value = reportData[field.key];
+                const displayValue = Array.isArray(value) ? value.join(', ') : value || 'N/A';
+                if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
+                    data.push({ Field: field.name, Value: displayValue });
+                }
+            }
+        });
+
+        data.push({ Field: 'Address', Value: projectDetails.address || 'N/A' });
+        data.push({ Field: 'Building Name', Value: projectDetails.buildingName || 'N/A' });
+        data.push({ Field: 'Hierarchy Name', Value: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A' });
+        if (this.isProductSelected && this.selectedProduct) {
+            const productName = this.products.find(p => p._id === this.selectedProduct)?.name || 'N/A';
+            data.push({ Field: 'Product Name', Value: productName });
         }
-      });
+        if (this.selectApproval && this.selectedApprovalDocument) {
+            const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
+            data.push({ Field: 'Approval', Value: docName });
+        }
 
-      data.push({ Field: 'Address', Value: projectDetails.address || 'N/A' });
-      data.push({ Field: 'Building Name', Value: projectDetails.buildingName || 'N/A' });
-      data.push({ Field: 'Hierarchy Name', Value: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A' });
-      if (this.isProductSelected && this.selectedProduct) {
-        const productName = this.products.find(p => p._id === this.selectedProduct)?.name || 'N/A';
-        data.push({ Field: 'Product Name', Value: productName });
-      }
-      if (this.selectApproval && this.selectedApprovalDocument) {
-        const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
-        data.push({ Field: 'Approval', Value: docName });
-      }
+        hierarchyImages.forEach((img, index) => {
+            data.push({ Field: `Hierarchy Image ${index + 1} (${img.hierarchyName})`, Value: img.imageUrl });
+        });
 
-      hierarchyImages.forEach((img, index) => {
-        data.push({ Field: `Hierarchy Image ${index + 1} (${img.hierarchyName})`, Value: img.imageUrl });
-      });
+        if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
+            let attachments: string[] = [];
+            if (includeTechnicalDocs) attachments.push('Technical Documents');
+            if (includeFloorPlans) attachments.push('Floor Plans');
+            if (includeAdditionalDocs) attachments.push('Additional Documents');
+            data.push({ Field: 'Attachments', Value: attachments.join(', ') });
+        }
 
-      if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
-        let attachments: string[] = [];
-        if (includeTechnicalDocs) attachments.push('Technical Documents');
-        if (includeFloorPlans) attachments.push('Floor Plans');
-        if (includeAdditionalDocs) attachments.push('Additional Documents');
-        data.push({ Field: 'Attachments', Value: attachments.join(', ') });
-      }
-
-      const ws = XLSX.utils.json_to_sheet(data, { header: ['Field', 'Value'] });
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Report');
-      XLSX.writeFile(wb, `Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        const ws = XLSX.utils.json_to_sheet(data, { header: ['Field', 'Value'] });
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Report');
+        XLSX.writeFile(wb, `Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
     alert('Report generated successfully!');
     this.closeReportModal();
-  }
+}
 
   getAttributeDisplayValue(key: string): string {
     const value = this.selectedFieldValues[key] || 'N/A';
