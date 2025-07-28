@@ -616,68 +616,79 @@ export class PresentationComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  async generateReport(): Promise<void> {
-    const margin = 10;
-    const lineHeight = 10;
-    const imageWidth = 52.92;
-    const imageHeight = 52.92;
-    const photoImageHeight = 30;
-    const baseRowHeight = 30;
-    const pageWidth = 297;
-    const pageHeight = 420;
-    const contentWidth = pageWidth - 2 * margin;
-    const bottomMargin = 40;
-    const logoWidth = 40;
-    const logoHeight = 20;
-    const headerHeight = 10;
-    const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
-    const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
-    const maxHierarchyImageHeight = 141.7;
-    const inspectionTopMargin = 20;
+ async generateReport(): Promise<void> {
+  const margin = 10;
+  const lineHeight = 10;
+  const imageWidth = 52.92;
+  const imageHeight = 52.92;
+  const photoImageHeight = 30;
+  const baseRowHeight = 30;
+  const pageWidth = 297;
+  const pageHeight = 420;
+  const contentWidth = pageWidth - 2 * margin;
+  const bottomMargin = 40;
+  const logoWidth = 40;
+  const logoHeight = 20;
+  const headerHeight = 10;
+  const headers = ['Ref No', 'Location', 'Plan', 'Type', 'Substrate', 'FRL', 'Result', 'Photos', 'Comments'];
+  const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
+  const maxHierarchyImageHeight = 141.7;
+  const inspectionTopMargin = 20;
 
-    const doc = new jsPDF({ format: 'a3' });
-    let yOffset = margin;
-    const maxContentHeight = pageHeight - margin - bottomMargin;
+  const doc = new jsPDF({ format: 'a3' });
+  let yOffset = margin;
+  const maxContentHeight = pageHeight - margin - bottomMargin;
 
-    const normalizeUrl = (url: string): string => {
-      if (!url) {
-        return 'https://via.placeholder.com/200x200?text=No+Image';
-      }
-      const cleanPath = url
-        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
-        .replace(/^\/*uploads\/*/i, '')
-        .replace(/^\/+/, '');
-      return `/uploads/${cleanPath}`;
-    };
+  // Base URL for the backend server
+  const BASE_URL = 'https://vps.allpassiveservices.com.au';
 
-    const loadImage = async (url: string): Promise<string> => {
-      const normalizedUrl = normalizeUrl(url);
-      return new Promise((resolve) => {
-        fetch(normalizedUrl, {
-          method: 'GET',
-          headers: { 'Accept': 'image/*' },
-          credentials: 'same-origin'
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error();
-            }
-            return response.blob();
-          })
-          .then(blob => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = () => resolve('https://via.placeholder.com/200x200?text=Read+Error');
-            reader.readAsDataURL(blob);
-          })
-          .catch(() => resolve('https://via.placeholder.com/200x200?text=Image+Error'));
+  // Normalize URL to ensure consistent image paths
+  const normalizeUrl = (url: string): string => {
+    if (!url) {
+      return 'https://via.placeholder.com/200x200?text=No+Image';
+    }
+    // Remove any existing base URL or incorrect prefixes
+    const cleanPath = url
+      .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
+      .replace(/^\/*uploads\/*/i, '')
+      .replace(/^\/+/, '');
+    // Always prepend the correct backend base URL
+    return `${BASE_URL}/uploads/${cleanPath}`;
+  };
+
+  // Load image as base64 data URL with CORS handling
+  const loadImage = async (url: string): Promise<string> => {
+    const normalizedUrl = normalizeUrl(url);
+    try {
+      const response = await fetch(normalizedUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'image/*' },
+        mode: 'cors', // Explicitly set CORS mode
+        credentials: 'same-origin', // Adjust based on your auth requirements
       });
-    };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read image data'));
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error(`Failed to load image: ${normalizedUrl}`, error);
+      return 'https://via.placeholder.com/200x200?text=Image+Error';
+    }
+  };
 
-    const loadLocalImage = async (url: string): Promise<string> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
+  // Load local image (e.g., logo) as base64
+  const loadLocalImage = async (url: string): Promise<string> => {
+    try {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous'; // Enable CORS for local images
+      img.src = url;
+      return new Promise((resolve, reject) => {
         img.onload = () => {
           const canvas = document.createElement('canvas');
           canvas.width = img.width;
@@ -686,439 +697,456 @@ export class PresentationComponent implements OnInit {
           ctx.drawImage(img, 0, 0);
           resolve(canvas.toDataURL('image/png'));
         };
-        img.onerror = () => resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+        img.onerror = () => reject(new Error('Failed to load local image'));
       });
-    };
-
-    const checkPageBreak = (requiredHeight: number) => {
-      if (yOffset + requiredHeight > maxContentHeight) {
-        doc.addPage();
-        yOffset = margin;
-        return true;
-      }
-      return false;
-    };
-
-    let projectDetails: ProjectResponse;
-    try {
-      const details = await this.presentationService.getProjectDetails(this.projectId).toPromise();
-      if (!details) {
-        throw new Error();
-      }
-      projectDetails = details;
-    } catch {
-      projectDetails = {
-        projectId: this.projectId,
-        projectName: 'Unknown Project',
-        buildingName: 'N/A',
-        address: 'N/A',
-        client: { clientId: '', clientName: 'Unknown Client', clientPhone: '' },
-        clientName: 'Unknown Client',
-        createdAt: '',
-        buildingType: '',
-        assignedEmployees: [],
-        reports: [],
-        subProjects: [],
-        status: '',
-        imageUrl: null,
-        instances: [],
-        documents: [],
-        hierarchyLevels: []
-      };
+    } catch (error) {
+      console.error(`Failed to load local image: ${url}`, error);
+      return 'https://via.placeholder.com/200x200?text=Local+Image+Error';
     }
+  };
 
-    const hierarchyImages: { hierarchyName: string; imageUrl: string }[] = [];
-    if (projectDetails.subProjects && projectDetails.subProjects.length > 0) {
-      for (const subProject of projectDetails.subProjects) {
-        try {
-          const response = await this.presentationService.getDocumentByHierarchy(this.projectId, subProject.hierarchyLevelId).toPromise();
-          const documentWithImage = response?.data.find(doc => doc.documentUrl && doc.documentType === '2D Plan');
-          const imageUrl = documentWithImage ? normalizeUrl(documentWithImage.documentUrl) : 'https://via.placeholder.com/200x200?text=No+Hierarchy+Image';
-          if (!imageUrl.includes('via.placeholder.com')) {
-            hierarchyImages.push({
-              hierarchyName: subProject.hierarchyName,
-              imageUrl: imageUrl
-            });
-          }
-        } catch {
-          // Skip if no valid image is found
+  // Check for page break
+  const checkPageBreak = (requiredHeight: number) => {
+    if (yOffset + requiredHeight > maxContentHeight) {
+      doc.addPage();
+      yOffset = margin;
+      return true;
+    }
+    return false;
+  };
+
+  // Fetch project details
+  let projectDetails: ProjectResponse;
+  try {
+    const details = await this.presentationService.getProjectDetails(this.projectId).toPromise();
+    if (!details) {
+      throw new Error('No project details found');
+    }
+    projectDetails = details;
+  } catch {
+    projectDetails = {
+      projectId: this.projectId,
+      projectName: 'Unknown Project',
+      buildingName: 'N/A',
+      address: 'N/A',
+      client: { clientId: '', clientName: 'Unknown Client', clientPhone: '' },
+      clientName: 'Unknown Client',
+      createdAt: '',
+      buildingType: '',
+      assignedEmployees: [],
+      reports: [],
+      subProjects: [],
+      status: '',
+      imageUrl: null,
+      instances: [],
+      documents: [],
+      hierarchyLevels: [],
+    };
+  }
+
+  // Fetch hierarchy images
+  const hierarchyImages: { hierarchyName: string; imageUrl: string }[] = [];
+  if (projectDetails.subProjects && projectDetails.subProjects.length > 0) {
+    for (const subProject of projectDetails.subProjects) {
+      try {
+        const response = await this.presentationService.getDocumentByHierarchy(this.projectId, subProject.hierarchyLevelId).toPromise();
+        const documentWithImage = response?.data.find(doc => doc.documentUrl && doc.documentType === '2D Plan');
+        const imageUrl = documentWithImage ? normalizeUrl(documentWithImage.documentUrl) : 'https://via.placeholder.com/200x200?text=No+Hierarchy+Image';
+        if (!imageUrl.includes('via.placeholder.com')) {
+          hierarchyImages.push({
+            hierarchyName: subProject.hierarchyName,
+            imageUrl: imageUrl,
+          });
         }
+      } catch {
+        // Skip if no valid image is found
       }
     }
+  }
 
-    try {
-      const logoUrl = 'images/logo.png';
-      const logoData = await loadLocalImage(logoUrl);
-      const logoX = pageWidth - margin - logoWidth;
-      checkPageBreak(logoHeight + lineHeight);
-      doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
-      yOffset += logoHeight + lineHeight;
-    } catch {
-      checkPageBreak(lineHeight * 2);
-      doc.setFontSize(10);
-      doc.setTextColor(255, 0, 0);
-      doc.text('Failed to load logo image', pageWidth - margin - 40, yOffset + 10);
-      doc.setTextColor(0, 0, 0);
-      yOffset += logoHeight + lineHeight;
-    }
-
+  // Add logo
+  try {
+    const logoUrl = 'images/logo.png'; // Ensure this path is correct for your live environment
+    const logoData = await loadLocalImage(logoUrl);
+    checkPageBreak(logoHeight + lineHeight);
+    doc.addImage(logoData, 'PNG', pageWidth - margin - logoWidth, yOffset, logoWidth, logoHeight);
+    yOffset += logoHeight + lineHeight;
+  } catch {
     checkPageBreak(lineHeight * 2);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text(`Project Name: ${projectDetails.projectName || 'Unknown Project'}`, margin, yOffset);
-    yOffset += lineHeight;
+    doc.setFontSize(10);
+    doc.setTextColor(255, 0, 0);
+    doc.text('Failed to load logo image', pageWidth - margin - 40, yOffset + 10);
+    doc.setTextColor(0, 0, 0);
+    yOffset += logoHeight + lineHeight;
+  }
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text(`Client Name: ${projectDetails.client?.clientName || projectDetails.clientName || 'Unknown Client'}`, margin, yOffset);
-    yOffset += lineHeight + 10;
+  // Add project details
+  checkPageBreak(lineHeight * 2);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text(`Project Name: ${projectDetails.projectName || 'Unknown Project'}`, margin, yOffset);
+  yOffset += lineHeight;
 
-    checkPageBreak(lineHeight);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('Site Photos', margin, yOffset);
-    yOffset += lineHeight;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text(`Client Name: ${projectDetails.client?.clientName || projectDetails.clientName || 'Unknown Client'}`, margin, yOffset);
+  yOffset += lineHeight + 10;
 
-    const projectImageUrl = normalizeUrl(projectDetails.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
-    try {
-      const imgData = await loadImage(projectImageUrl);
-      checkPageBreak(imageHeight + lineHeight);
-      doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-      
-      const textX = pageWidth * 0.4;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
-      doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
-      doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
-      yOffset += Math.max(imageHeight, 40) + lineHeight;
-    } catch {
-      checkPageBreak(lineHeight * 2);
-      doc.setFontSize(10);
-      doc.setTextColor(255, 0, 0);
-      doc.text(`Failed to load image: ${projectImageUrl}`, margin, yOffset);
-      doc.setTextColor(0, 0, 0);
+  // Add site photos
+  checkPageBreak(lineHeight);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text('Site Photos', margin, yOffset);
+  yOffset += lineHeight;
 
-      const textX = pageWidth * 0.4;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
-      doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
-      doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
-      yOffset += lineHeight * 4;
-    }
+  const projectImageUrl = normalizeUrl(projectDetails.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image');
+  try {
+    const imgData = await loadImage(projectImageUrl);
+    checkPageBreak(imageHeight + lineHeight);
+    doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
 
-    checkPageBreak(inspectionTopMargin + lineHeight * 6);
-    yOffset += inspectionTopMargin;
-    const inspectionStartY = yOffset;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('Inspection Report Overview', margin, yOffset);
-    yOffset += lineHeight;
-
+    const textX = pageWidth * 0.4;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    const report = projectDetails.reports && projectDetails.reports.length > 0 ? projectDetails.reports[0] : null;
-    const inspectionStats = report?.coverLetter?.inspectionOverview || { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' };
-    
+    doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
+    doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
+    doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
+    yOffset += Math.max(imageHeight, 40) + lineHeight;
+  } catch {
+    checkPageBreak(lineHeight * 2);
+    doc.setFontSize(10);
+    doc.setTextColor(255, 0, 0);
+    doc.text(`Failed to load image: ${projectImageUrl}`, margin, yOffset);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Total number of items: ${inspectionStats.totalItems}`, margin, yOffset);
+
+    const textX = pageWidth * 0.4;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Address: ${projectDetails.address || 'N/A'}`, textX, yOffset + 10);
+    doc.text(`Building Name: ${projectDetails.buildingName || 'N/A'}`, textX, yOffset + 20);
+    doc.text(`Hierarchy Name: ${projectDetails.subProjects?.[0]?.hierarchyName || 'N/A'}`, textX, yOffset + 30);
+    yOffset += lineHeight * 4;
+  }
+
+  // Add inspection report overview
+  checkPageBreak(inspectionTopMargin + lineHeight * 6);
+  yOffset += inspectionTopMargin;
+  const inspectionStartY = yOffset;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text('Inspection Report Overview', margin, yOffset);
+  yOffset += lineHeight;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  const report = projectDetails.reports && projectDetails.reports.length > 0 ? projectDetails.reports[0] : null;
+  const inspectionStats = report?.coverLetter?.inspectionOverview || { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' };
+
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Total number of items: ${inspectionStats.totalItems}`, margin, yOffset);
+  yOffset += lineHeight;
+
+  const passText = `Number of PASS: `;
+  const passValue = `${inspectionStats.passedItems}`;
+  doc.setTextColor(0, 0, 0);
+  doc.text(passText, margin, yOffset);
+  doc.setTextColor(92, 201, 110);
+  doc.text('PASS', margin + doc.getTextWidth(passText), yOffset);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`: ${passValue}`, margin + doc.getTextWidth(passText + 'PASS'), yOffset);
+  yOffset += lineHeight;
+
+  const failText = `Number of FAIL: `;
+  const failValue = `${inspectionStats.failedItems}`;
+  doc.setTextColor(0, 0, 0);
+  doc.text(failText, margin, yOffset);
+  doc.setTextColor(228, 66, 52);
+  doc.text('FAIL', margin + doc.getTextWidth(failText), yOffset);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`: ${failValue}`, margin + doc.getTextWidth(failText + 'FAIL'), yOffset);
+  yOffset += lineHeight;
+
+  const tbcText = `Number of TBC: `;
+  const tbcValue = `${inspectionStats.tbcItems}`;
+  doc.setTextColor(0, 0, 0);
+  doc.text(tbcText, margin, yOffset);
+  doc.setTextColor(128, 128, 128);
+  doc.text('TBC', margin + doc.getTextWidth(tbcText), yOffset);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`: ${tbcValue}`, margin + doc.getTextWidth(tbcText + 'TBC'), yOffset);
+  const inspectionHeight = lineHeight * 4;
+
+  const infoBoxX = pageWidth * 0.4;
+  const infoBoxWidth = contentWidth * 0.6 - margin;
+  const infoBoxHeight = 40;
+  doc.setFillColor(255, 255, 255);
+  doc.rect(infoBoxX, inspectionStartY, infoBoxWidth, infoBoxHeight, 'S');
+  const additionalInfo = report?.coverLetter?.additionalInfo || 'N/A';
+  const infoLines = doc.splitTextToSize(`Additional Info: ${additionalInfo}`, infoBoxWidth - 4);
+  doc.setTextColor(0, 0, 0);
+  doc.text(infoLines, infoBoxX + 2, inspectionStartY + 5);
+  yOffset = inspectionStartY + Math.max(inspectionHeight, infoBoxHeight);
+
+  // Add hierarchy images
+  if (hierarchyImages.length > 0) {
+    checkPageBreak(lineHeight);
     yOffset += lineHeight;
 
-    const passText = `Number of PASS: `;
-    const passValue = `${inspectionStats.passedItems}`;
-    doc.setTextColor(0, 0, 0);
-    doc.text(passText, margin, yOffset);
-    doc.setTextColor(92, 201, 110);
-    doc.text('PASS', margin + doc.getTextWidth(passText), yOffset);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`: ${passValue}`, margin + doc.getTextWidth(passText + 'PASS'), yOffset);
-    yOffset += lineHeight;
+    const availableHeight = maxContentHeight - yOffset - lineHeight;
+    const dynamicImageHeight = Math.min(maxHierarchyImageHeight, availableHeight / hierarchyImages.length - lineHeight);
 
-    const failText = `Number of FAIL: `;
-    const failValue = `${inspectionStats.failedItems}`;
-    doc.setTextColor(0, 0, 0);
-    doc.text(failText, margin, yOffset);
-    doc.setTextColor(228, 66, 52);
-    doc.text('FAIL', margin + doc.getTextWidth(failText), yOffset);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`: ${failValue}`, margin + doc.getTextWidth(failText + 'FAIL'), yOffset);
-    yOffset += lineHeight;
-
-    const tbcText = `Number of TBC: `;
-    const tbcValue = `${inspectionStats.tbcItems}`;
-    doc.setTextColor(0, 0, 0);
-    doc.text(tbcText, margin, yOffset);
-    doc.setTextColor(128, 128, 128);
-    doc.text('TBC', margin + doc.getTextWidth(tbcText), yOffset);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`: ${tbcValue}`, margin + doc.getTextWidth(tbcText + 'TBC'), yOffset);
-    const inspectionHeight = lineHeight * 4;
-
-    const infoBoxX = pageWidth * 0.4;
-    const infoBoxWidth = contentWidth * 0.6 - margin;
-    const infoBoxHeight = 40;
-    doc.setFillColor(255, 255, 255);
-    doc.rect(infoBoxX, inspectionStartY, infoBoxWidth, infoBoxHeight, 'S');
-    const additionalInfo = report?.coverLetter?.additionalInfo || 'N/A';
-    const infoLines = doc.splitTextToSize(`Additional Info: ${additionalInfo}`, infoBoxWidth - 4);
-    doc.setTextColor(0, 0, 0);
-    doc.text(infoLines, infoBoxX + 2, inspectionStartY + 5);
-    yOffset = inspectionStartY + Math.max(inspectionHeight, infoBoxHeight);
-
-    if (hierarchyImages.length > 0) {
-      checkPageBreak(lineHeight);
-      yOffset += lineHeight;
-
-      const availableHeight = maxContentHeight - yOffset - lineHeight;
-      const dynamicImageHeight = Math.min(maxHierarchyImageHeight, availableHeight / hierarchyImages.length - lineHeight);
-
-      for (const { hierarchyName, imageUrl } of hierarchyImages.slice(0, 3)) {
-        checkPageBreak(lineHeight + dynamicImageHeight);
-        try {
-          const imgData = await loadImage(imageUrl);
-          checkPageBreak(dynamicImageHeight + lineHeight);
-          doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, dynamicImageHeight);
-          yOffset += dynamicImageHeight + lineHeight;
-        } catch {
-          checkPageBreak(lineHeight);
-          doc.setFontSize(10);
-          doc.setTextColor(255, 0, 0);
-          doc.text(`Failed to load image: ${imageUrl}`, margin, yOffset);
-          doc.setTextColor(0, 0, 0);
-          yOffset += lineHeight;
-        }
+    for (const { hierarchyName, imageUrl } of hierarchyImages.slice(0, 3)) {
+      checkPageBreak(lineHeight + dynamicImageHeight);
+      try {
+        const imgData = await loadImage(imageUrl);
+        checkPageBreak(dynamicImageHeight + lineHeight);
+        doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, dynamicImageHeight);
+        yOffset += dynamicImageHeight + lineHeight;
+      } catch {
+        checkPageBreak(lineHeight);
+        doc.setFontSize(10);
+        doc.setTextColor(255, 0, 0);
+        doc.text(`Failed to load image: ${imageUrl}`, margin, yOffset);
+        doc.setTextColor(0, 0, 0);
+        yOffset += lineHeight;
       }
     }
+  }
 
-    const tableData: TableRow[] = [];
-    let index = 1;
-    if (this.instances?.length > 0) {
-      for (const instance of this.instances) {
-        const row: TableRow = {
-          'Ref No': (instance.instanceNumber || index).toString(),
-          Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-          Plan: this.floorPlanImage || 'N/A',
-          Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-          Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
-          FRL: this.selectedFieldValues['frl'] || 'N/A',
-          Result: this.selectedFieldValues['compliance'] || 'N/A',
-          Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
-          Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments')
-        };
-        tableData.push(row);
-        index++;
-      }
-    } else {
-      tableData.push({
-        'Ref No': '1',
-        Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
+  // Prepare table data
+  const tableData: TableRow[] = [];
+  let index = 1;
+  if (this.instances?.length > 0) {
+    for (const instance of this.instances) {
+      const row: TableRow = {
+        'Ref No': (instance.instanceNumber || index).toString(),
+        Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
         Plan: this.floorPlanImage || 'N/A',
-        Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
-        Substrate: this.getAttributeDisplayValue('Materils'),
+        Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+        Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
         FRL: this.selectedFieldValues['frl'] || 'N/A',
         Result: this.selectedFieldValues['compliance'] || 'N/A',
         Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
-        Comments: this.getAttributeDisplayValue('Comments')
-      });
+        Comments: instance.attributes?.find(attr => attr.name === 'Comments')?.selectedValue || this.getAttributeDisplayValue('Comments'),
+      };
+      tableData.push(row);
+      index++;
     }
-
-    checkPageBreak(lineHeight * 3 + headerHeight + (tableData.length * baseRowHeight));
-    yOffset += lineHeight * 3;
-    const tableX = margin;
-    const tableStartY = yOffset;
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    let xOffset = tableX;
-    headers.forEach((header, index) => {
-      doc.setFillColor(0, 0, 0);
-      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight, 'F');
-      doc.setTextColor(255, 255, 255);
-      const headerLines = doc.splitTextToSize(header, columnWidths[index] - 4);
-      doc.text(headerLines, xOffset + columnWidths[index] / 2, yOffset + 8, { align: 'center' });
-      doc.setLineWidth(0.2);
-      doc.setDrawColor(255, 255, 255);
-      doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
-      xOffset += columnWidths[index];
+  } else {
+    tableData.push({
+      'Ref No': '1',
+      Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
+      Plan: this.floorPlanImage || 'N/A',
+      Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
+      Substrate: this.getAttributeDisplayValue('Materils'),
+      FRL: this.selectedFieldValues['frl'] || 'N/A',
+      Result: this.selectedFieldValues['compliance'] || 'N/A',
+      Photos: this.tablePhotos.map(p => normalizeUrl(p.url)),
+      Comments: this.getAttributeDisplayValue('Comments'),
     });
-    doc.setTextColor(0, 0, 0);
-    yOffset += headerHeight;
+  }
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    let tableEndY = yOffset;
-    for (const row of tableData) {
-      const commentsText = row['Comments'] || 'N/A';
-      const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
-      const commentsHeight = commentsLines.length * 6;
-      const photosHeight = row['Photos'].length > 0 ? photoImageHeight : 6;
-      const rowHeight = Math.max(baseRowHeight, commentsHeight, photosHeight);
+  // Add table
+  checkPageBreak(lineHeight * 3 + headerHeight + tableData.length * baseRowHeight);
+  yOffset += lineHeight * 3;
+  const tableX = margin;
+  const tableStartY = yOffset;
 
-      checkPageBreak(rowHeight);
-      const rowStartY = yOffset;
-      xOffset = tableX;
-      for (const header of headers) {
-        const colIndex = headers.indexOf(header);
-        if (header === 'Plan') {
-          try {
-            const imgData = await loadImage(row['Plan']);
-            const imgWidth = columnWidths[colIndex] - 4;
-            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-          } catch {
-            doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
-            doc.setTextColor(0, 0, 0);
-          }
-        } else if (header === 'Photos' && row['Photos'].length > 0) {
-          try {
-            const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
-            const [imgData] = await Promise.all(photoPromises);
-            const imgWidth = columnWidths[colIndex] - 4;
-            const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
-            doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
-          } catch {
-            doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
-            doc.setTextColor(0, 0, 0);
-          }
-        } else if (header === 'Result') {
-          const cellText = row[header] || 'N/A';
-          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
-          const textHeight = cellLines.length * 6;
-          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
-          if (cellText.toUpperCase() === 'PASS') {
-            doc.setTextColor(92, 201, 110);
-          } else if (cellText.toUpperCase() === 'FAIL') {
-            doc.setTextColor(228, 66, 52);
-          } else if (cellText.toUpperCase() === 'TBC') {
-            doc.setTextColor(128, 128, 128);
-          } else {
-            doc.setTextColor(0, 0, 0);
-          }
-          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  let xOffset = tableX;
+  headers.forEach((header, index) => {
+    doc.setFillColor(0, 0, 0);
+    doc.rect(xOffset, yOffset, columnWidths[index], headerHeight, 'F');
+    doc.setTextColor(255, 255, 255);
+    const headerLines = doc.splitTextToSize(header, columnWidths[index] - 4);
+    doc.text(headerLines, xOffset + columnWidths[index] / 2, yOffset + 8, { align: 'center' });
+    doc.setLineWidth(0.2);
+    doc.setDrawColor(255, 255, 255);
+    doc.rect(xOffset, yOffset, columnWidths[index], headerHeight);
+    xOffset += columnWidths[index];
+  });
+  doc.setTextColor(0, 0, 0);
+  yOffset += headerHeight;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  let tableEndY = yOffset;
+  for (const row of tableData) {
+    const commentsText = row['Comments'] || 'N/A';
+    const commentsLines = doc.splitTextToSize(commentsText, columnWidths[headers.indexOf('Comments')] - 4);
+    const commentsHeight = commentsLines.length * 6;
+    const photosHeight = row['Photos'].length > 0 ? photoImageHeight : 6;
+    const rowHeight = Math.max(baseRowHeight, commentsHeight, photosHeight);
+
+    checkPageBreak(rowHeight);
+    const rowStartY = yOffset;
+    xOffset = tableX;
+    for (const header of headers) {
+      const colIndex = headers.indexOf(header);
+      if (header === 'Plan') {
+        try {
+          const imgData = await loadImage(row['Plan']);
+          const imgWidth = columnWidths[colIndex] - 4;
+          const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+          doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+        } catch {
+          doc.setTextColor(255, 0, 0);
+          doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
           doc.setTextColor(0, 0, 0);
-        } else if (header === 'Comments') {
-          const cellLines = doc.splitTextToSize(row[header] || 'N/A', columnWidths[colIndex] - 4);
-          const textHeight = cellLines.length * 6;
-          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
-          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
-        } else if (header !== 'Photos') {
-          const cellValue = row[header as keyof TableRow];
-          const cellText = typeof cellValue === 'string' ? cellValue : Array.isArray(cellValue) ? (cellValue.length > 0 ? 'Photo Available' : 'N/A') : 'N/A';
-          const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
-          const textHeight = cellLines.length * 6;
-          const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
-          doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
         }
-        doc.setLineWidth(0.2);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
-        xOffset += columnWidths[colIndex];
+      } else if (header === 'Photos' && row['Photos'].length > 0) {
+        try {
+          const photoPromises = row['Photos'].slice(0, 1).map(url => loadImage(url));
+          const [imgData] = await Promise.all(photoPromises);
+          const imgWidth = columnWidths[colIndex] - 4;
+          const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
+          doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
+        } catch {
+          doc.setTextColor(255, 0, 0);
+          doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
+          doc.setTextColor(0, 0, 0);
+        }
+      } else if (header === 'Result') {
+        const cellText = row[header] || 'N/A';
+        const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
+        const textHeight = cellLines.length * 6;
+        const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+        if (cellText.toUpperCase() === 'PASS') {
+          doc.setTextColor(92, 201, 110);
+        } else if (cellText.toUpperCase() === 'FAIL') {
+          doc.setTextColor(228, 66, 52);
+        } else if (cellText.toUpperCase() === 'TBC') {
+          doc.setTextColor(128, 128, 128);
+        } else {
+          doc.setTextColor(0, 0, 0);
+        }
+        doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+      } else if (header === 'Comments') {
+        const cellLines = doc.splitTextToSize(row[header] || 'N/A', columnWidths[colIndex] - 4);
+        const textHeight = cellLines.length * 6;
+        const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+        doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
+      } else if (header !== 'Photos') {
+        const cellValue = row[header as keyof TableRow];
+        const cellText = typeof cellValue === 'string' ? cellValue : Array.isArray(cellValue) ? (cellValue.length > 0 ? 'Photo Available' : 'N/A') : 'N/A';
+        const cellLines = doc.splitTextToSize(cellText, columnWidths[colIndex] - 4);
+        const textHeight = cellLines.length * 6;
+        const yCenter = yOffset + (rowHeight - textHeight) / 2 + 2;
+        doc.text(cellLines, xOffset + columnWidths[colIndex] / 2, yCenter, { align: 'center' });
       }
-      yOffset += rowHeight;
-      tableEndY = yOffset;
+      doc.setLineWidth(0.2);
+      doc.setDrawColor(0, 0, 0);
+      doc.rect(xOffset, yOffset, columnWidths[colIndex], rowHeight);
+      xOffset += columnWidths[colIndex];
     }
+    yOffset += rowHeight;
+    tableEndY = yOffset;
+  }
 
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(0, 0, 0);
-    doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(0, 0, 0);
+  doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
+  // Add approval document
+  if (this.selectApproval && this.selectedApprovalDocument) {
+    checkPageBreak(lineHeight * 2);
+    yOffset += lineHeight;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Selected Approval Document:', margin, yOffset);
+    yOffset += lineHeight;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
+    doc.text(`Document: ${docName}`, margin, yOffset);
+    yOffset += lineHeight;
+  }
+
+  // Add report attachments
+  const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
+  const includeFloorPlans = (document.getElementById('includeFloorPlans') as HTMLInputElement)?.checked;
+  const includeAdditionalDocs = (document.getElementById('includeAdditionalDocs') as HTMLInputElement)?.checked;
+  const excludeBlankFields = (document.getElementById('excludeBlankFields') as HTMLInputElement)?.checked;
+
+  if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
+    checkPageBreak(lineHeight * 3);
+    yOffset += lineHeight * 2;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Report Attachments:', margin, yOffset);
+    yOffset += lineHeight;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    if (includeTechnicalDocs) {
+      doc.text('- Technical Documents', margin, yOffset);
+      yOffset += lineHeight;
+    }
+    if (includeFloorPlans) {
+      doc.text('- Floor Plans', margin, yOffset);
+      yOffset += lineHeight;
+    }
+    if (includeAdditionalDocs) {
+      doc.text('- Additional Documents', margin, yOffset);
+      yOffset += lineHeight;
+    }
+  }
+
+  // Save PDF
+  doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+  // Generate Excel report if selected
+  if (this.selectedOption === 'Excel Reports') {
+    const reportData: { [key: string]: string } = {};
+    this.reportFields.forEach(field => {
+      reportData[field.key] = this.selectedFieldValues[field.key] || 'N/A';
+    });
+
+    const data: any[] = [];
+    this.reportFields.forEach(field => {
+      if (this.selectedFields[field.key]) {
+        const value = reportData[field.key];
+        const displayValue = Array.isArray(value) ? value.join(', ') : value || 'N/A';
+        if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
+          data.push({ Field: field.name, Value: displayValue });
+        }
+      }
+    });
+
+    data.push({ Field: 'Address', Value: projectDetails.address || 'N/A' });
+    data.push({ Field: 'Building Name', Value: projectDetails.buildingName || 'N/A' });
+    data.push({ Field: 'Hierarchy Name', Value: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A' });
+    if (this.isProductSelected && this.selectedProduct) {
+      const productName = this.products.find(p => p._id === this.selectedProduct)?.name || 'N/A';
+      data.push({ Field: 'Product Name', Value: productName });
+    }
     if (this.selectApproval && this.selectedApprovalDocument) {
-      checkPageBreak(lineHeight * 2);
-      yOffset += lineHeight;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text('Selected Approval Document:', margin, yOffset);
-      yOffset += lineHeight;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
       const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
-      doc.text(`Document: ${docName}`, margin, yOffset);
-      yOffset += lineHeight;
+      data.push({ Field: 'Approval', Value: docName });
     }
 
-    const includeTechnicalDocs = (document.getElementById('includeTechnicalDocs') as HTMLInputElement)?.checked;
-    const includeFloorPlans = (document.getElementById('includeFloorPlans') as HTMLInputElement)?.checked;
-    const includeAdditionalDocs = (document.getElementById('includeAdditionalDocs') as HTMLInputElement)?.checked;
-    const excludeBlankFields = (document.getElementById('excludeBlankFields') as HTMLInputElement)?.checked;
+    hierarchyImages.forEach((img, index) => {
+      data.push({ Field: `Hierarchy Image ${index + 1} (${img.hierarchyName})`, Value: img.imageUrl });
+    });
 
     if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
-      checkPageBreak(lineHeight * 3);
-      yOffset += lineHeight * 2;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text('Report Attachments:', margin, yOffset);
-      yOffset += lineHeight;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      if (includeTechnicalDocs) {
-        doc.text('- Technical Documents', margin, yOffset);
-        yOffset += lineHeight;
-      }
-      if (includeFloorPlans) {
-        doc.text('- Floor Plans', margin, yOffset);
-        yOffset += lineHeight;
-      }
-      if (includeAdditionalDocs) {
-        doc.text('- Additional Documents', margin, yOffset);
-        yOffset += lineHeight;
-      }
+      let attachments: string[] = [];
+      if (includeTechnicalDocs) attachments.push('Technical Documents');
+      if (includeFloorPlans) attachments.push('Floor Plans');
+      if (includeAdditionalDocs) attachments.push('Additional Documents');
+      data.push({ Field: 'Attachments', Value: attachments.join(', ') });
     }
 
-    doc.save(`Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.pdf`);
-
-    if (this.selectedOption === 'Excel Reports') {
-      const reportData: { [key: string]: string } = {};
-      this.reportFields.forEach(field => {
-        reportData[field.key] = this.selectedFieldValues[field.key] || 'N/A';
-      });
-
-      const data: any[] = [];
-      this.reportFields.forEach(field => {
-        if (this.selectedFields[field.key]) {
-          const value = reportData[field.key];
-          const displayValue = Array.isArray(value) ? value.join(', ') : value || 'N/A';
-          if (!excludeBlankFields || (excludeBlankFields && displayValue !== 'N/A')) {
-            data.push({ Field: field.name, Value: displayValue });
-          }
-        }
-      });
-
-      data.push({ Field: 'Address', Value: projectDetails.address || 'N/A' });
-      data.push({ Field: 'Building Name', Value: projectDetails.buildingName || 'N/A' });
-      data.push({ Field: 'Hierarchy Name', Value: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A' });
-      if (this.isProductSelected && this.selectedProduct) {
-        const productName = this.products.find(p => p._id === this.selectedProduct)?.name || 'N/A';
-        data.push({ Field: 'Product Name', Value: productName });
-      }
-      if (this.selectApproval && this.selectedApprovalDocument) {
-        const docName = this.approvalDocuments.find(doc => doc.fileUrl === this.selectedApprovalDocument)?.name || 'N/A';
-        data.push({ Field: 'Approval', Value: docName });
-      }
-
-      hierarchyImages.forEach((img, index) => {
-        data.push({ Field: `Hierarchy Image ${index + 1} (${img.hierarchyName})`, Value: img.imageUrl });
-      });
-
-      if (includeTechnicalDocs || includeFloorPlans || includeAdditionalDocs) {
-        let attachments: string[] = [];
-        if (includeTechnicalDocs) attachments.push('Technical Documents');
-        if (includeFloorPlans) attachments.push('Floor Plans');
-        if (includeAdditionalDocs) attachments.push('Additional Documents');
-        data.push({ Field: 'Attachments', Value: attachments.join(', ') });
-      }
-
-      const ws = XLSX.utils.json_to_sheet(data, { header: ['Field', 'Value'] });
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Report');
-      XLSX.writeFile(wb, `Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    }
-
-    alert('Report generated successfully!');
-    this.closeReportModal();
+    const ws = XLSX.utils.json_to_sheet(data, { header: ['Field', 'Value'] });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Report');
+    XLSX.writeFile(wb, `Report_${this.projectId}_${this.instanceId}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
+
+  alert('Report generated successfully!');
+  this.closeReportModal();
+}
 
   getAttributeDisplayValue(key: string): string {
     const value = this.selectedFieldValues[key] || 'N/A';
