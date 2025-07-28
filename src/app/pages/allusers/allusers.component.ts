@@ -38,6 +38,7 @@ export class AllUsersComponent implements OnInit {
   isLoading: boolean = false;
   errors: { [key: string]: string } = {};
   backendError: string = '';
+  userIdToDelete: string | undefined = undefined;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -84,7 +85,6 @@ export class AllUsersComponent implements OnInit {
       return matchesSearch && matchesUserType;
     });
     this.showPassword = new Array(this.filteredUsers.length).fill(false);
-    this.toastr.info('Users filtered', 'Info');
   }
 
   setActiveTab(tab: string): void {
@@ -93,7 +93,6 @@ export class AllUsersComponent implements OnInit {
 
   setUserType(type: string): void {
     this.userType = type;
-    this.toastr.info(`User type set to ${type}`, 'Info');
   }
 
   triggerFileInput(): void {
@@ -107,7 +106,6 @@ export class AllUsersComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.profilePicPreview = e.target?.result as string;
-        this.toastr.success('Profile picture selected', 'Success');
       };
       reader.readAsDataURL(this.profilePic);
     }
@@ -254,33 +252,39 @@ export class AllUsersComponent implements OnInit {
     });
   }
 
-  deleteUser(_id: string | undefined): void {
+  openDeleteModal(_id: string | undefined): void {
     if (!_id) {
       console.error('User ID is undefined');
       this.toastr.error('Cannot delete user: Invalid user ID.', 'Error');
       return;
     }
+    this.userIdToDelete = _id;
+  }
 
-    if (!confirm('Are you sure you want to delete this user?')) {
-      this.toastr.info('User deletion cancelled', 'Info');
+  confirmDeleteUser(): void {
+    if (!this.userIdToDelete) {
+      console.error('User ID is undefined');
+      this.toastr.error('Cannot delete user: Invalid user ID.', 'Error');
       return;
     }
 
     this.isLoading = true;
     this.backendError = '';
-    this.userService.deleteUser(_id).subscribe({
+    this.userService.deleteUser(this.userIdToDelete).subscribe({
       next: () => {
-        console.log('User deleted successfully:', _id);
-        this.users = this.users.filter((user) => user._id !== _id);
-        this.filteredUsers = this.filteredUsers.filter((user) => user._id !== _id);
+        console.log('User deleted successfully:', this.userIdToDelete);
+        this.users = this.users.filter((user) => user._id !== this.userIdToDelete);
+        this.filteredUsers = this.filteredUsers.filter((user) => user._id !== this.userIdToDelete);
         this.showPassword = new Array(this.filteredUsers.length).fill(false);
         this.isLoading = false;
         this.toastr.success('User deleted successfully!', 'Success');
+        this.userIdToDelete = undefined;
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error deleting user:', error);
         this.toastr.error(error.message || 'Failed to delete user. Please try again.', 'Error');
+        this.userIdToDelete = undefined;
       },
       complete: () => {
         console.log('Delete API call completed');
@@ -302,12 +306,10 @@ export class AllUsersComponent implements OnInit {
     this.activeTab = 'tab1';
     this.errors = {};
     this.backendError = '';
-    this.toastr.info('Form reset', 'Info');
   }
 
   togglePassword(index: number): void {
     this.showPassword[index] = !this.showPassword[index];
-    this.toastr.info('Password visibility toggled', 'Info');
   }
 
   copyToClipboard(text: string | undefined): void {
@@ -322,13 +324,11 @@ export class AllUsersComponent implements OnInit {
 
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
-    this.toastr.info(`Dropdown ${this.isDropdownOpen ? 'opened' : 'closed'}`, 'Info');
   }
 
   selectUserType(type: string): void {
     this.selectedUserType = type;
     this.isDropdownOpen = false;
     this.filterUsers();
-    this.toastr.success(`User type selected: ${type}`, 'Success');
   }
 }

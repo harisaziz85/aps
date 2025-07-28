@@ -168,45 +168,46 @@
             <td class="txt11 robotoregular">
               <span class="me-1">
               </span>
-             <span *ngFor="let note of getJobNotesBadges(project.jobNotes)" class="badge instance-badge robotoregular text-dark mb-2" style="border: 1px solid #E63C1A; background:#FCEBE8; cursor: pointer;" (click)="openNoteModal(note, project, $event)">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M7 17.666H5.66667C4.19333 17.666 3 16.4727 3 14.9993V4.33268C3 2.85935 4.19333 1.66602 5.66667 1.66602H12.3333C13.8067 1.66602 15 2.85935 15 4.33268V5.73535" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M7 18.9993V8.33268C7 6.85935 8.19333 5.66602 9.66667 5.66602H15.1147C15.468 5.66602 15.808 5.80602 16.0573 6.05668L19.9427 9.94202C20.1933 10.1927 20.3333 10.5313 20.3333 10.8847V18.9993C20.3333 20.4727 19.14 21.666 17.6667 21.666H9.66667C8.19333 21.666 7 20.4727 7 18.9993Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M20.3333 10.9993H16.3333C15.5973 10.9993 15 10.402 15 9.66602V5.66602" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.666 14.332H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.666 17.666H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.666 11H11.9993" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>{{ note.length > 12 ? note.substring(0, 12) : note }}</span>
-              <span style="border: 1px solid #E63C1A; background:#FCEBE8" *ngIf="!project.jobNotes || project.jobNotes === 'N/A'" class="badge instance-badge robotoregular text-dark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M7 17.666H5.66667C4.19333 17.666 3 16.4727 3 14.9993V4.33268C3 2.85935 4.19333 1.66602 5.66667 1.66602H12.3333C13.8067 1.66602 15 2.85935 15 4.33268V5.73535" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M7 18.9993V8.33268C7 6.85935 8.19333 5.66602 9.66667 5.66602H15.1147C15.468 5.66602 15.808 5.80602 16.0573 6.05668L19.9427 9.94202C20.1933 10.1927 20.3333 10.5313 20.3333 10.8847V18.9993C20.3333 20.4727 19.14 21.666 17.6667 21.666H9.66667C8.19333 21.666 7 20.4727 7 18.9993Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M20.3333 10.9993H16.3333C15.5973 10.9993 15 10.402 15 9.66602V5.66602" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.666 14.332H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.666 17.666H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.666 11H11.9993" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>No job notes</span>
+              <span *ngFor="let note of getJobNotesBadges(project.jobNotes)" class="badge instance-badge robotoregular text-dark mb-2" style="border: 1px solid #E63C1A; background:#FCEBE8; cursor: pointer;" (click)="openNoteModal(note, project, $event)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17.666H5.66667C4.19333 17.666 3 16.4727 3 14.9993V4.33268C3 2.85935 4.19333 1.66602 5.66667 1.66602H12.3333C13.8067 1.66602 15 2.85935 15 4.33268V5.73535" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 18.9993V8.33268C7 6.85935 8.19333 5.66602 9.66667 5.66602H15.1147C15.468 5.66602 15.808 5.80602 16.0573 6.05668L19.9427 9.94202C20.1933 10.1927 20.3333 10.5313 20.3333 10.8847V18.9993C20.3333 20.4727 19.14 21.666 17.6667 21.666H9.66667C8.19333 21.666 7 20.4727 7 18.9993Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.3333 10.9993H16.3333C15.5973 10.9993 15 10.402 15 9.66602V5.66602" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.666 14.332H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.666 17.666H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.666 11H11.9993" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>{{ note.length > 12 ? note.substring(0, 12) : note }}</span>
+              <span *ngIf="!project.jobNotes || project.jobNotes === 'N/A'" class="badge instance-badge robotoregular text-dark" style="border: 1px solid #E63C1A; background:#FCEBE8; cursor: pointer;" (click)="openNoteModal('No job notes', project, $event)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17.666H5.66667C4.19333 17.666 3 16.4727 3 14.9993V4.33268C3 2.85935 4.19333 1.66602 5.66667 1.66602H12.3333C13.8067 1.66602 15 2.85935 15 4.33268V5.73535" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 18.9993V8.33268C7 6.85935 8.19333 5.66602 9.66667 5.66602H15.1147C15.468 5.66602 15.808 5.80602 16.0573 6.05668L19.9427 9.94202C20.1933 10.1927 20.3333 10.5313 20.3333 10.8847V18.9993C20.3333 20.4727 19.14 21.666 17.6667 21.666H9.66667C8.19333 21.666 7 20.4727 7 18.9993Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.3333 10.9993H16.3333C15.5973 10.9993 15 10.402 15 9.66602V5.66602" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.666 14.332H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.666 17.666H16.3327" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.666 11H11.9993" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>No job notes</span>
             </td>
             <td class="txt11 robotoregular" (click)="$event.stopPropagation()">
-  <div class="dropdown d-flex">
-    <span class="me-1 mt-2">
-      <app-svg-icons icon="status" size="16" class="mt-4"></app-svg-icons>
-    </span>
-    <button class="btn btn12 robotoregular dropdown-toggle w-100 text-start border-0" type="button"
-      data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" (click)="toggleStatusDropdown(i, $event)"
-      [ngClass]="{
-        'custom-bg-success': project?.status === 'Completed',
-        'custom-bg-yellow': project?.status === 'Active',
-        'custom-bg-waiting': project?.status === 'Waiting For Approval'
-      }">
-      {{ project?.status || 'Active' }}
-    </button>
-    <ul class="dropdown-menu w-100" [ngClass]="{'show': showStatusDropdownIndex === i}">
-      <li *ngFor="let status of statusOptions">
-        <a class="dropdown-item" (click)="changeStatus(project, status, $event)">{{ status }}</a>
-      </li>
-    </ul>
-  </div>
-</td>
+              <div class="dropdown d-flex">
+                <span class="me-1 mt-2">
+                  <app-svg-icons icon="status" size="16" class="mt-4"></app-svg-icons>
+                </span>
+                <button class="btn btn12 robotoregular dropdown-toggle w-100 text-start border-0" type="button"
+                  data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" (click)="toggleStatusDropdown(i, $event)"
+                  [ngClass]="{
+                    'custom-bg-success': project?.status === 'Completed',
+                    'custom-bg-yellow': project?.status === 'Active',
+                    'custom-bg-waiting': project?.status === 'Waiting For Approval'
+                  }">
+                  {{ project?.status || 'Active' }}
+                </button>
+                <ul class="dropdown-menu w-100" [ngClass]="{'show': showStatusDropdownIndex === i}">
+                  <li *ngFor="let status of statusOptions">
+                    <a class="dropdown-item" (click)="changeStatus(project, status, $event)">{{ status }}</a>
+                  </li>
+                </ul>
+              </div>
+            </td>
             <td class="txt11 robotoregular">
               <div class="profile-group">
                 <ng-container *ngIf="project?.hasValidAssignees; else noAssignees">

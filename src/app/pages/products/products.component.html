@@ -51,7 +51,7 @@
       <div class="col-md-1-33 cards12" *ngFor="let product of filteredProducts">
         <div class="card cards12 text-center p-3" 
              [class.selected]="selectedProductIds.includes(product._id)"
-             (click)="toggleProductSelection(product._id)" 
+             (click)="downloadProductAsPDF(product)" 
              style="cursor: pointer;">
           <input type="checkbox" class="position-absolute cbox top-0 start-0 m-2"
                  [checked]="selectedProductIds.includes(product._id)"

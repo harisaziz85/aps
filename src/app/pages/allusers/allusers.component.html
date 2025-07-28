@@ -53,8 +53,8 @@
       </div>
     </div>
     <div class="row" *ngIf="!isLoading">
-      <div class="col-md-2 col-lg-3 col-xxl-2 mb-4"  style="padding-top: 16px !important;" *ngFor="let user of filteredUsers; let i = index">
-        <div class="card card3 shadow-sm " style="padding-top: 12px !important;">
+      <div class="col-md-2 col-lg-3 col-xxl-2 mb-4" style="padding-top: 16px !important;" *ngFor="let user of filteredUsers; let i = index">
+        <div class="card card3 shadow-sm" style="padding-top: 12px !important;">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center w-100">
               <span class="badge badge1 robotoregular bg-light text-dark d-flex align-items-center justify-content-center me-auto">
@@ -68,7 +68,7 @@
                 </span>
                 {{ user.userType }}
               </span>
-              <button class="btn btn-sm" (click)="deleteUser(user._id)" title="Delete User">
+              <button class="btn btn-sm" (click)="openDeleteModal(user._id)" title="Delete User" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
                 <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2.75 4.75H15.25" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M6.75 4.75V3.25C6.75 2.698 7.198 2.25 7.75 2.25H10.25C10.802 2.25 11.25 2.698 11.25 3.25V4.75" stroke="#EC1919" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -87,23 +87,22 @@
               <img class="rounded-circle mb-2" src="/images/pf4.png" alt="Default Profile Image" width="80" height="80">
             </ng-template>
             <h6 class="onestsemibold name1">{{ user.name || 'Unnamed User' }}</h6>
-            <div class="card card1 " style="padding: 14px;">
+            <div class="card card1" style="padding: 14px;">
               <div class="input-group" style="display: flex; align-items: center; gap: 5px;">
-  <span class="input-group-text" style="display: flex; align-items: center;">
-    <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7 6.25C8.51878 6.25 9.75 5.01878 9.75 3.5C9.75 1.98122 8.51878 0.75 7 0.75C5.48122 0.75 4.25 1.98122 4.25 3.5C4.25 5.01878 5.48122 6.25 7 6.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M11.7624 14.516C12.6224 14.245 13.0744 13.295 12.7094 12.471C11.7394 10.28 9.55035 8.75 7.00035 8.75C4.45035 8.75 2.26135 10.28 1.29135 12.471C0.926352 13.296 1.37835 14.245 2.23835 14.516C3.46335 14.902 5.08435 15.25 7.00035 15.25C8.91635 15.25 10.5374 14.902 11.7624 14.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-
-  </span>
-  <input type="text" class="form-control input1 brobotoregular" [value]="user.username" disabled style="margin: 0;" />
-  <button class="btn btn-outline mile" (click)="copyToClipboard(user.username)" style="display: flex; align-items: center;">
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M6 1.75L12.5 1.75C13.605 1.75 14.5 2.645 14.5 3.75L14.5 12.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M11.5 6.75L11.5 14.25C11.5 15.3546 10.6046 16.25 9.5 16.25L4 16.25C2.89543 16.25 2 15.3546 2 14.25L2 6.75C2 5.64543 2.89543 4.75 4 4.75L9.5 4.75C10.6046 4.75 11.5 5.64543 11.5 6.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
-</div>
+                <span class="input-group-text" style="display: flex; align-items: center;">
+                  <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 6.25C8.51878 6.25 9.75 5.01878 9.75 3.5C9.75 1.98122 8.51878 0.75 7 0.75C5.48122 0.75 4.25 1.98122 4.25 3.5C4.25 5.01878 5.48122 6.25 7 6.25Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.7624 14.516C12.6224 14.245 13.0744 13.295 12.7094 12.471C11.7394 10.28 9.55035 8.75 7.00035 8.75C4.45035 8.75 2.26135 10.28 1.29135 12.471C0.926352 13.296 1.37835 14.245 2.23835 14.516C3.46335 14.902 5.08435 15.25 7.00035 15.25C8.91635 15.25 10.5374 14.902 11.7624 14.516Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <input type="text" class="form-control input1 brobotoregular" [value]="user.username" disabled style="margin: 0;" />
+                <button class="btn btn-outline mile" (click)="copyToClipboard(user.username)" style="display: flex; align-items: center;">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 1.75L12.5 1.75C13.605 1.75 14.5 2.645 14.5 3.75L14.5 12.25" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.5 6.75L11.5 14.25C11.5 15.3546 10.6046 16.25 9.5 16.25L4 16.25C2.89543 16.25 2 15.3546 2 14.25L2 6.75C2 5.64543 2.89543 4.75 4 4.75L9.5 4.75C10.6046 4.75 11.5 5.64543 11.5 6.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
               <div class="input-group mt-1">
                 <span class="input-group-text">
                   <app-svg-icons icon="lock" size="16"></app-svg-icons>
@@ -124,7 +123,6 @@
                     <path d="M11.5 6.75L11.5 14.25C11.5 15.3546 10.6046 16.25 9.5 16.25L4 16.25C2.89543 16.25 2 15.3546 2 14.25L2 6.75C2 5.64543 2.89543 4.75 4 4.75L9.5 4.75C10.6046 4.75 11.5 5.64543 11.5 6.75Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
-                
               </div>
             </div>
           </div>
@@ -274,7 +272,24 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px; height: 150px !important;">
+      <div class="modal-content" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); padding: 24px;box-sizing:border-box ; height:300px !important">
+        <div class="" style="border-bottom: none;">
+          <h5 class="modal-title onestbold" id="deleteUserModalLabel" style="font-size: 18px; color: #000000;">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background: none; border: none;"></button>
+        </div>
+        <div class="modal-body onest regular" style="font-size: 18px; color: #030303;">
+          Are you sure you want to delete this user? This action cannot be undone.
+        </div>
+        <div class="modal-footer" style="border-top: none; display: flex; justify-content: end;">
+          <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #00000000; color: rgb(0, 0, 0); border-radius: 15px; border: 1px solid black; font-family: 'Roboto', sans-serif; font-weight: 500;">Cancel</button>
+          <button type="button" class="btn" (click)="confirmDeleteUser()" data-bs-dismiss="modal" style="background-color: #EC1919; color: white; padding: 10px 20px; border-radius: 15px; font-family: 'Roboto', sans-serif; font-weight: 500;">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-<div style="position: fixed; margin:auto;" class="foot12">
+<div style="position: fixed; margin: auto;" class="foot12">
   <app-foot></app-foot>
 </div>
