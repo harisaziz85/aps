@@ -86,7 +86,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     reportTitle: 'N/A',
     additionalInfo: 'N/A',
     clientName: 'Mehtab',
-    fileUrl: '/uploads/1752585290123-129536.jpg',
+    fileUrl: '/Uploads/1752585290123-129536.jpg',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -786,46 +786,59 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
+
+    const normalizeUrl = (url: string): string => {
+      if (!url || url === 'N/A' || url === '/assets/placeholder.png') {
+        console.warn('Invalid URL, using placeholder:', url);
+        return fallbackImageUrl;
+      }
+      if (url.startsWith('https://aps-app-frontend.vercel.app/')) {
+        return url;
+      }
+      if (url.startsWith('/images/') || url.startsWith('/assets/')) {
+        return url;
+      }
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl = isLocal ? 'http://localhost:4200' : 'https://aps-app-frontend.vercel.app';
+      if (url.startsWith('https://vps.allpassiveservices.com.au/') || url.startsWith('http://95.111.223.104:8000/')) {
+        return `${baseUrl}/api/proxy?url=${encodeURIComponent(url)}`;
+      }
+      const cleanPath = url.replace(/^\/*uploads\/*/i, '').replace(/^\/+/, '');
+      return `${baseUrl}/api/proxy?url=${encodeURIComponent(`https://vps.allpassiveservices.com.au/uploads/${cleanPath}`)}`;
+    };
+
     try {
-      // Validate URL
-      if (!url || url === '/assets/placeholder.png') {
-        console.warn(`Invalid or placeholder URL: ${url}`);
-        return this.getFallbackImage(fallbackImageUrl);
+      const normalizedUrl = normalizeUrl(url);
+      console.log(`Attempting to load image: ${normalizedUrl}`);
+
+      if (normalizedUrl === fallbackImageUrl) {
+        return await this.getFallbackImage(fallbackImageUrl);
       }
 
-      // Check if URL is valid
-      const isValidUrl = url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/assets/') || url.startsWith('/uploads/');
-      if (!isValidUrl) {
-        console.warn(`Invalid URL format: ${url}`);
-        return this.getFallbackImage(fallbackImageUrl);
-      }
-
-      // Fetch image as a blob with proper headers
-      const response = await this.http.get(url, {
-        headers: new HttpHeaders({
+      const response = await fetch(normalizedUrl, {
+        method: 'GET',
+        headers: {
           'Accept': 'image/png,image/jpeg',
           'Cache-Control': 'no-cache'
-        }),
-        responseType: 'blob'
-      }).toPromise();
+        },
+        mode: 'cors'
+      });
 
-      if (!response) {
-        throw new Error('No response received');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Verify MIME type
-      const mimeType = response.type;
-      if (!['image/png', 'image/jpeg'].includes(mimeType)) {
-        console.warn(`Unsupported image type: ${mimeType} for URL: ${url}`);
-        return this.getFallbackImage(fallbackImageUrl);
+      const mimeType = response.headers.get('content-type');
+      if (!['image/png', 'image/jpeg'].includes(mimeType || '')) {
+        console.warn(`Unsupported image type: ${mimeType} for URL: ${normalizedUrl}`);
+        return await this.getFallbackImage(fallbackImageUrl);
       }
 
-      // Convert blob to data URL
+      const blob = await response.blob();
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           const result = reader.result as string;
-          // Verify base64 data URL
           if (result.startsWith('data:image/png;base64,') || result.startsWith('data:image/jpeg;base64,')) {
             resolve(result);
           } else {
@@ -833,33 +846,35 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           }
         };
         reader.onerror = () => {
-          console.error(`Failed to read blob for ${url}`);
+          console.error(`Failed to read blob for ${normalizedUrl}`);
           reject(new Error('Failed to read blob'));
         };
-        reader.readAsDataURL(response);
+        reader.readAsDataURL(blob);
       });
 
       return dataUrl;
     } catch (error) {
       console.warn(`Error fetching image ${url}:`, error);
-      return this.getFallbackImage(fallbackImageUrl);
+      return await this.getFallbackImage(fallbackImageUrl);
     }
   }
 
   private async getFallbackImage(fallbackImageUrl: string): Promise<string | null> {
     try {
-      const response = await this.http.get(fallbackImageUrl, {
-        headers: new HttpHeaders({
+      const response = await fetch(fallbackImageUrl, {
+        method: 'GET',
+        headers: {
           'Accept': 'image/png,image/jpeg',
           'Cache-Control': 'no-cache'
-        }),
-        responseType: 'blob'
-      }).toPromise();
+        },
+        mode: 'cors'
+      });
 
-      if (!response) {
-        throw new Error('No response for fallback image');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      const blob = await response.blob();
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -874,7 +889,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
           reject(new Error('Failed to read fallback blob'));
         };
-        reader.readAsDataURL(response);
+        reader.readAsDataURL(blob);
       });
 
       return dataUrl;
