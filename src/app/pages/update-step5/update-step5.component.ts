@@ -112,7 +112,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || '687f2fe240564909e63c3e8e';
+      this.projectId = params['id'] || '6887287840564909e64091fd'; // Use provided projectId
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -159,7 +159,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           this.products = response;
-          const defaultProductId = '687a1ed4f2107c9877732170';
+          const defaultProductId = '6882a3f040564909e63f7772'; // From API response
           const defaultProduct = this.products.find(product => product._id === defaultProductId);
           this.selectedAttributes['Product Name'] = defaultProduct ? defaultProduct.name : '';
           this.updateApprovalDocuments();
@@ -192,6 +192,10 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
               if (this.coverLetterData?.fileUrl) {
                 this.coverLetterData.fileUrl = this.convertToProxyUrl(this.coverLetterData.fileUrl);
               }
+            }
+            // Set project image from API response
+            if (response.project?.imageUrl) {
+              this.coverLetterData.fileUrl = this.convertToProxyUrl(response.project.imageUrl);
             }
             this.subCategoryOptions = response.project?.subProjects || [];
             this.selectedSubCategories = response.project?.subProjects || [];
@@ -440,12 +444,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     const columnWidths = [20, 30, 40, 30, 30, 20, 20, 45, 42];
 
     if (this.selectedAttributes['Report Type'] === 'excel') {
-      const tableData: any[] = [];
+      const tableData: TableRow[] = [];
       let index = 1;
       if (this.projectData?.instances?.length > 0) {
         for (const instance of this.projectData.instances) {
-          const row = {
-            'Ref No': index,
+          const row: TableRow = {
+            'Ref No': index.toString(),
             'Location': instance.hierarchyName || this.projectData?.hierarchy?.levels?.[0]?.name || 'N/A',
             'Plan': 'N/A',
             'Type': instance.subProjectCategory || this.selectedSubCategories[0] || 'N/A',
@@ -465,7 +469,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         }
       } else {
         tableData.push({
-          'Ref No': 1,
+          'Ref No': '1',
           'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
           'Plan': 'N/A',
           'Type': this.selectedSubCategories[0] || this.getAttributeValue('Sub-category'),
@@ -496,6 +500,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       };
 
       try {
+        // Add logo
         const logoUrl = '/images/logo.png';
         const logoData = await this.getImageData(logoUrl);
         if (logoData) {
@@ -513,48 +518,53 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           yOffset += logoHeight + lineHeight;
         }
 
+        // Add project name
         checkPageBreak(lineHeight);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.text(`Project Name: ${this.projectData?.project?.projectName || 'N/A'}`, margin, yOffset);
         yOffset += lineHeight;
 
+        // Add client name
         checkPageBreak(lineHeight + clientNameMarginBottom);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.text(`Client Name: ${this.projectData?.project?.clientInfo?.name || this.coverLetterData?.clientName || 'N/A'}`, margin, yOffset);
         yOffset += lineHeight + clientNameMarginBottom;
 
+        // Add project image and details
         const textX = 105.6;
         checkPageBreak(lineHeight + imageHeight + lineHeight);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.text('Site Logo : ', margin, yOffset);
         yOffset += lineHeight;
-        if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
-          const imgData = await this.getImageData(this.coverLetterData.fileUrl);
-          if (imgData) {
-            doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
-          } else {
-            console.error(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
-            doc.setFontSize(10);
-            doc.setTextColor(255, 0, 0);
-            doc.text('Failed to load project image', margin, yOffset);
-            doc.setTextColor(0, 0, 0);
-          }
+
+        // Use dynamic project image from projectData or coverLetterData
+        const projectImageUrl = this.projectData?.project?.imageUrl
+          ? this.convertToProxyUrl(this.projectData.project.imageUrl)
+          : this.coverLetterData?.fileUrl || '/assets/placeholder.png';
+        
+        const imgData = await this.getImageData(projectImageUrl);
+        if (imgData) {
+          doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
         } else {
+          console.error(`Project image not loaded: ${projectImageUrl}`);
           doc.setFontSize(10);
-          doc.text('No project image available', margin, yOffset);
+          doc.setTextColor(255, 0, 0);
+          doc.text('Failed to load project image', margin, yOffset);
+          doc.setTextColor(0, 0, 0);
         }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.text(`Address: ${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
+        doc.text(`Address: ${this.coverLetterData?.address || this.projectData?.project?.address?.line1 || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
         doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
         doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
         yOffset += imageHeight + lineHeight;
 
         yOffset += 13.2;
 
+        // Add inspection overview and additional info
         const overviewX = margin;
         const additionalInfoX = 105.6;
         const columnWidth = (contentWidth - 10) / 2;
@@ -606,6 +616,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
         yOffset += Math.max(overviewHeight, lineHeight + boxHeight) + lineHeight * 3;
 
+        // Add document images
         if (this.projectData?.documents?.length > 0) {
           for (const docItem of this.projectData.documents) {
             if (docItem.files?.length > 0) {
@@ -637,6 +648,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           yOffset += lineHeight * 2;
         }
 
+        // Prepare table data
         const tableData: TableRow[] = [];
         let index = 1;
         if (this.projectData?.instances?.length > 0) {
@@ -666,14 +678,15 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
             'Location': this.projectData?.hierarchy?.levels?.[0]?.name || this.getAttributeValue('Location'),
             'Plan': 'N/A',
             'Type': this.selectedSubCategories[0] || this.getAttributeValue('Sub-category'),
-            'Substrate': this.getAttributeValue('Materials'),
+            'Substrate': this.getAttributeValue('Substrate Type') || 'N/A', // Updated to match API
             'FRL': this.selectedAttributes['FRL'] || this.getAttributeValue('FRL'),
-            'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Compliance'),
+            'Result': this.selectedAttributes['Compliance'] || this.getAttributeValue('Penetration Compliant') || 'N/A', // Updated to match API
             'Photos': [],
             'Comments': this.selectedAttributes['Comments'] || this.getAttributeValue('Comments')
           });
         }
 
+        // Add table
         checkPageBreak(lineHeight * 3 + headerHeight);
         yOffset += lineHeight * 3;
         const tableX = margin;
@@ -776,7 +789,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.setDrawColor(0, 0, 0);
         doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-        doc.save('ASP Report.pdf');
+        doc.save('ASP_Report.pdf');
       } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Check console for details.');
@@ -787,7 +800,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
     try {
-      // Fetch image as a blob with proper headers
       const response = await this.http.get(url, {
         headers: new HttpHeaders({
           'Accept': 'image/*',
@@ -800,7 +812,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         throw new Error('No response received');
       }
 
-      // Convert blob to data URL
       return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -814,7 +825,6 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       });
     } catch (error) {
       console.error(`Error fetching image ${url}:`, error);
-      // Try fetching the fallback image
       try {
         const fallbackResponse = await this.http.get(fallbackImageUrl, {
           headers: new HttpHeaders({
