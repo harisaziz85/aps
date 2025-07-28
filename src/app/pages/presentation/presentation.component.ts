@@ -643,40 +643,52 @@ export class PresentationComponent implements OnInit {
       if (!url) {
         return 'https://via.placeholder.com/200x200?text=No+Image';
       }
+      // Handle both possible base URLs
+      if (url.startsWith('https://aps-app-frontend.vercel.app/')) {
+        return url; // Return as-is if it's already a full URL from vercel
+      } else if (url.startsWith('https://vps.allpassiveservices.com.au/')) {
+        return url; // Return as-is if it's already a full URL from vps
+      }
+      // If it's a relative path, prepend the appropriate base URL
       const cleanPath = url
-        .replace(/^https?:\/\/vps\.allpassiveservices\.com\.au\/?/, '')
         .replace(/^\/*uploads\/*/i, '')
         .replace(/^\/+/, '');
-      return `/uploads/${cleanPath}`;
+      return `https://vps.allpassiveservices.com.au/uploads/${cleanPath}`;
     };
 
     const loadImage = async (url: string): Promise<string> => {
       const normalizedUrl = normalizeUrl(url);
-      return new Promise((resolve) => {
-        fetch(normalizedUrl, {
+      console.log(`Attempting to load image: ${normalizedUrl}`); // Debugging
+      try {
+        const response = await fetch(normalizedUrl, {
           method: 'GET',
           headers: { 'Accept': 'image/*' },
-          credentials: 'same-origin'
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error();
-            }
-            return response.blob();
-          })
-          .then(blob => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = () => resolve('https://via.placeholder.com/200x200?text=Read+Error');
-            reader.readAsDataURL(blob);
-          })
-          .catch(() => resolve('https://via.placeholder.com/200x200?text=Image+Error'));
-      });
+          mode: 'cors', // Ensure CORS mode
+          credentials: 'include' // Include credentials if needed
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => {
+            console.error(`Failed to read blob for image: ${normalizedUrl}`);
+            resolve('https://via.placeholder.com/200x200?text=Read+Error');
+          };
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error(`Failed to load image: ${normalizedUrl}`, error);
+        return 'https://via.placeholder.com/200x200?text=Image+Error';
+      }
     };
 
     const loadLocalImage = async (url: string): Promise<string> => {
       return new Promise((resolve) => {
         const img = new Image();
+        img.crossOrigin = 'Anonymous'; // Handle CORS for local images
         img.src = url;
         img.onload = () => {
           const canvas = document.createElement('canvas');
@@ -686,7 +698,10 @@ export class PresentationComponent implements OnInit {
           ctx.drawImage(img, 0, 0);
           resolve(canvas.toDataURL('image/png'));
         };
-        img.onerror = () => resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+        img.onerror = () => {
+          console.error(`Failed to load local image: ${url}`);
+          resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+        };
       });
     };
 
