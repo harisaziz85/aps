@@ -616,7 +616,7 @@ export class PresentationComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
- async generateReport(): Promise<void> {
+async generateReport(): Promise<void> {
     const margin = 10;
     const lineHeight = 10;
     const imageWidth = 52.92;
@@ -652,51 +652,17 @@ export class PresentationComponent implements OnInit {
             .replace(/^http?:\/\/localhost:3000\/?/, '')
             .replace(/^\/*uploads\/*/i, '')
             .replace(/^\/+/, '');
-        // Use proxy endpoint to fetch images
-        return `${baseUrl}/api/get-image/${cleanPath}`;
+        return `${baseUrl}/uploads/${cleanPath}`;
     };
 
     const loadImage = async (url: string): Promise<string> => {
         const normalizedUrl = normalizeUrl(url);
-        console.log(`Fetching image: ${normalizedUrl}`);
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
-            const response = await fetch(normalizedUrl, {
-                method: 'GET',
-                headers: { 'Accept': 'image/*' },
-                mode: 'cors',
-                credentials: 'include', // Include credentials for authenticated requests
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-                console.error(`Failed to fetch image: ${normalizedUrl}, Status: ${response.status} ${response.statusText}`);
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const blob = await response.blob();
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = () => {
-                    console.error(`Failed to read image blob: ${normalizedUrl}`);
-                    reject(new Error('Failed to read image blob'));
-                };
-                reader.readAsDataURL(blob);
-            });
-        } catch (error: any) {
-            console.error(`Error loading image: ${normalizedUrl}`, error.message);
-            return 'https://via.placeholder.com/200x200?text=Image+Error';
-        }
-    };
-
-    const loadLocalImage = async (url: string): Promise<string> => {
-        const localUrl = isLocal ? url : normalizeUrl(url);
-        console.log(`Fetching local image: ${localUrl}`);
+        console.log(`Loading image: ${normalizedUrl}`);
         return new Promise((resolve) => {
             const img = new Image();
-            img.src = localUrl;
-            img.crossOrigin = 'Anonymous';
+            img.src = normalizedUrl;
+            img.crossOrigin = 'anonymous'; // Handle CORS
+            img.referrerPolicy = 'no-referrer'; // Bypass strict-origin-when-cross-origin
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
@@ -706,9 +672,16 @@ export class PresentationComponent implements OnInit {
                 resolve(canvas.toDataURL('image/png'));
             };
             img.onerror = () => {
-                console.error(`Failed to load local image: ${localUrl}`);
-                resolve('https://via.placeholder.com/200x200?text=Local+Image+Error');
+                console.error(`Failed to load image: ${normalizedUrl}`);
+                resolve('https://via.placeholder.com/200x200?text=Image+Error');
             };
+            // Fallback timeout
+            setTimeout(() => {
+                if (!img.complete) {
+                    console.error(`Image load timed out: ${normalizedUrl}`);
+                    resolve('https://via.placeholder.com/200x200?text=Image+Timeout');
+                }
+            }, 10000); // 10-second timeout
         });
     };
 
@@ -770,7 +743,7 @@ export class PresentationComponent implements OnInit {
 
     try {
         const logoUrl = 'images/logo.png';
-        const logoData = await loadLocalImage(logoUrl);
+        const logoData = await loadImage(logoUrl);
         const logoX = pageWidth - margin - logoWidth;
         checkPageBreak(logoHeight + lineHeight);
         doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
@@ -920,7 +893,7 @@ export class PresentationComponent implements OnInit {
             const row: TableRow = {
                 'Ref No': (instance.instanceNumber || index).toString(),
                 Location: instance.hierarchyName || projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-                Plan: this.floorPlanImage || 'N/A',
+                Plan: this.floorPlanImage || 'https://via.placeholder.com/200x200?text=No+Plan',
                 Type: instance.subProjectCategory || projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
                 Substrate: instance.attributes?.find(attr => attr.name === 'Materils')?.selectedValue || this.getAttributeDisplayValue('Materils'),
                 FRL: this.selectedFieldValues['frl'] || 'N/A',
@@ -935,7 +908,7 @@ export class PresentationComponent implements OnInit {
         tableData.push({
             'Ref No': '1',
             Location: projectDetails.subProjects?.[0]?.hierarchyName || 'N/A',
-            Plan: this.floorPlanImage || 'N/A',
+            Plan: this.floorPlanImage || 'https://via.placeholder.com/200x200?text=No+Plan',
             Type: projectDetails.subProjects?.map(sp => sp.hierarchyName).join(', ') || 'N/A',
             Substrate: this.getAttributeDisplayValue('Materils'),
             FRL: this.selectedFieldValues['frl'] || 'N/A',
