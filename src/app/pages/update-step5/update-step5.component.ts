@@ -140,7 +140,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
-    this.selectedAttributes['Report Type'] = 'standard'; // Default to standard
+    this.selectedAttributes['Report Type'] = 'standard';
   }
 
   ngAfterViewInit() {
@@ -504,7 +504,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           doc.addImage(logoData, 'PNG', logoX, yOffset, logoWidth, logoHeight);
           yOffset += logoHeight + lineHeight;
         } else {
-          console.error('Logo image not loaded:', logoUrl);
+          console.warn('Logo image not loaded, using placeholder text');
           checkPageBreak(lineHeight * 2);
           doc.setFontSize(10);
           doc.setTextColor(255, 0, 0);
@@ -531,12 +531,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.setFontSize(12);
         doc.text('Site Logo : ', margin, yOffset);
         yOffset += lineHeight;
-        if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
+        if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== '/assets/placeholder.png') {
           const imgData = await this.getImageData(this.coverLetterData.fileUrl);
           if (imgData) {
             doc.addImage(imgData, 'PNG', margin, yOffset, imageWidth, imageHeight);
           } else {
-            console.error(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
+            console.warn(`Project image not loaded: ${this.coverLetterData.fileUrl}`);
             doc.setFontSize(10);
             doc.setTextColor(255, 0, 0);
             doc.text('Failed to load project image', margin, yOffset);
@@ -620,7 +620,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                   doc.addImage(imgData, 'PNG', margin, yOffset, contentWidth, docImageHeight);
                   yOffset += docImageHeight + lineHeight;
                 } else {
-                  console.error(`Document image not loaded: ${file.documentUrl}`);
+                  console.warn(`Document image not loaded: ${file.documentUrl}`);
                   doc.setFontSize(10);
                   doc.setTextColor(255, 0, 0);
                   doc.text(`Failed to load document image: ${file.documentName || 'N/A'}`, margin, yOffset);
@@ -718,7 +718,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
                 doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
               } else {
-                console.error(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
+                console.warn(`Plan image not loaded: ${this.projectData.documents[0].files[0].documentUrl}`);
                 doc.setTextColor(255, 0, 0);
                 doc.text('Failed to load plan image', xOffset + 2, yOffset + 8);
                 doc.setTextColor(0, 0, 0);
@@ -730,7 +730,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 const imgHeight = Math.min(photoImageHeight - 4, rowHeight - 4);
                 doc.addImage(imgData, 'PNG', xOffset + 2, yOffset + 2, imgWidth, imgHeight);
               } else {
-                console.error(`Photo not loaded: ${row['Photos'][0]}`);
+                console.warn(`Photo not loaded: ${row['Photos'][0]}`);
                 doc.setTextColor(255, 0, 0);
                 doc.text('Failed to load photo', xOffset + 2, yOffset + 8);
                 doc.setTextColor(0, 0, 0);
@@ -776,7 +776,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         doc.setDrawColor(0, 0, 0);
         doc.rect(tableX, tableStartY, contentWidth, tableEndY - tableStartY);
 
-        doc.save('ASP Report.pdf');
+        doc.save('ASP_Report.pdf');
       } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Check console for details.');
@@ -787,10 +787,23 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   private async getImageData(url: string): Promise<string | null> {
     const fallbackImageUrl = '/assets/placeholder.png';
     try {
+      // Validate URL
+      if (!url || url === '/assets/placeholder.png') {
+        console.warn(`Invalid or placeholder URL: ${url}`);
+        return this.getFallbackImage(fallbackImageUrl);
+      }
+
+      // Check if URL is valid
+      const isValidUrl = url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/assets/') || url.startsWith('/uploads/');
+      if (!isValidUrl) {
+        console.warn(`Invalid URL format: ${url}`);
+        return this.getFallbackImage(fallbackImageUrl);
+      }
+
       // Fetch image as a blob with proper headers
       const response = await this.http.get(url, {
         headers: new HttpHeaders({
-          'Accept': 'image/*',
+          'Accept': 'image/png,image/jpeg',
           'Cache-Control': 'no-cache'
         }),
         responseType: 'blob'
@@ -800,49 +813,74 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         throw new Error('No response received');
       }
 
+      // Verify MIME type
+      const mimeType = response.type;
+      if (!['image/png', 'image/jpeg'].includes(mimeType)) {
+        console.warn(`Unsupported image type: ${mimeType} for URL: ${url}`);
+        return this.getFallbackImage(fallbackImageUrl);
+      }
+
       // Convert blob to data URL
-      return await new Promise<string>((resolve, reject) => {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-          resolve(reader.result as string);
+          const result = reader.result as string;
+          // Verify base64 data URL
+          if (result.startsWith('data:image/png;base64,') || result.startsWith('data:image/jpeg;base64,')) {
+            resolve(result);
+          } else {
+            reject(new Error('Invalid base64 data URL'));
+          }
         };
         reader.onerror = () => {
           console.error(`Failed to read blob for ${url}`);
-          reject('Failed to read blob');
+          reject(new Error('Failed to read blob'));
         };
         reader.readAsDataURL(response);
       });
+
+      return dataUrl;
     } catch (error) {
-      console.error(`Error fetching image ${url}:`, error);
-      // Try fetching the fallback image
-      try {
-        const fallbackResponse = await this.http.get(fallbackImageUrl, {
-          headers: new HttpHeaders({
-            'Accept': 'image/*',
-            'Cache-Control': 'no-cache'
-          }),
-          responseType: 'blob'
-        }).toPromise();
+      console.warn(`Error fetching image ${url}:`, error);
+      return this.getFallbackImage(fallbackImageUrl);
+    }
+  }
 
-        if (!fallbackResponse) {
-          throw new Error('No response for fallback image');
-        }
+  private async getFallbackImage(fallbackImageUrl: string): Promise<string | null> {
+    try {
+      const response = await this.http.get(fallbackImageUrl, {
+        headers: new HttpHeaders({
+          'Accept': 'image/png,image/jpeg',
+          'Cache-Control': 'no-cache'
+        }),
+        responseType: 'blob'
+      }).toPromise();
 
-        return await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            resolve(reader.result as string);
-          };
-          reader.onerror = () => {
-            console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
-            reject('Failed to read fallback blob');
-          };
-          reader.readAsDataURL(fallbackResponse);
-        });
-      } catch (fallbackError) {
-        console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackError);
-        return null;
+      if (!response) {
+        throw new Error('No response for fallback image');
       }
+
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          if (result.startsWith('data:image/png;base64,') || result.startsWith('data:image/jpeg;base64,')) {
+            resolve(result);
+          } else {
+            reject(new Error('Invalid fallback base64 data URL'));
+          }
+        };
+        reader.onerror = () => {
+          console.error(`Failed to read fallback blob for ${fallbackImageUrl}`);
+          reject(new Error('Failed to read fallback blob'));
+        };
+        reader.readAsDataURL(response);
+      });
+
+      return dataUrl;
+    } catch (fallbackError) {
+      console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackError);
+      return null;
     }
   }
 }
