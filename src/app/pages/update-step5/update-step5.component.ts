@@ -785,36 +785,33 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   private async getImageData(url: string): Promise<string | null> {
-    const fallbackImageUrl = '/assets/placeholder.png';
-
     const normalizeUrl = (url: string): string => {
-      if (!url || url === 'N/A' || url === '/assets/placeholder.png') {
+      if (!url || url === 'N/A' || url.trim() === '') {
         console.warn('Invalid URL, using placeholder:', url);
-        return fallbackImageUrl;
+        return '/assets/placeholder.png';
       }
-      if (url.startsWith('https://aps-app-frontend.vercel.app/')) {
+      if (url.startsWith('https://aps-app-frontend.vercel.app/') || url.startsWith('/assets/') || url.startsWith('/images/')) {
         return url;
       }
-      if (url.startsWith('/images/') || url.startsWith('/assets/')) {
-        return url;
-      }
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const baseUrl = isLocal ? 'http://localhost:4200' : 'https://aps-app-frontend.vercel.app';
-      if (url.startsWith('https://vps.allpassiveservices.com.au/') || url.startsWith('http://95.111.223.104:8000/')) {
+      if (url.startsWith('https://vps.allpassiveservices.com.au/')) {
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocal ? 'http://localhost:4200' : 'https://aps-app-frontend.vercel.app';
         return `${baseUrl}/api/proxy?url=${encodeURIComponent(url)}`;
       }
       const cleanPath = url.replace(/^\/*uploads\/*/i, '').replace(/^\/+/, '');
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl = isLocal ? 'http://localhost:4200' : 'https://aps-app-frontend.vercel.app';
       return `${baseUrl}/api/proxy?url=${encodeURIComponent(`https://vps.allpassiveservices.com.au/uploads/${cleanPath}`)}`;
     };
 
+    const normalizedUrl = normalizeUrl(url);
+    console.log(`Attempting to load image: ${normalizedUrl}`);
+
+    if (normalizedUrl === '/assets/placeholder.png') {
+      return await this.getFallbackImage(normalizedUrl);
+    }
+
     try {
-      const normalizedUrl = normalizeUrl(url);
-      console.log(`Attempting to load image: ${normalizedUrl}`);
-
-      if (normalizedUrl === fallbackImageUrl) {
-        return await this.getFallbackImage(fallbackImageUrl);
-      }
-
       const response = await fetch(normalizedUrl, {
         method: 'GET',
         headers: {
@@ -831,7 +828,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       const mimeType = response.headers.get('content-type');
       if (!['image/png', 'image/jpeg'].includes(mimeType || '')) {
         console.warn(`Unsupported image type: ${mimeType} for URL: ${normalizedUrl}`);
-        return await this.getFallbackImage(fallbackImageUrl);
+        return await this.getFallbackImage('/assets/placeholder.png');
       }
 
       const blob = await response.blob();
@@ -854,8 +851,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
       return dataUrl;
     } catch (error) {
-      console.warn(`Error fetching image ${url}:`, error);
-      return await this.getFallbackImage(fallbackImageUrl);
+      console.warn(`Error fetching image ${normalizedUrl}:`, error);
+      return await this.getFallbackImage('/assets/placeholder.png');
     }
   }
 
@@ -872,6 +869,12 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const mimeType = response.headers.get('content-type');
+      if (!['image/png', 'image/jpeg'].includes(mimeType || '')) {
+        console.warn(`Unsupported image type: ${mimeType} for URL: ${fallbackImageUrl}`);
+        return null;
       }
 
       const blob = await response.blob();
@@ -893,8 +896,8 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
       });
 
       return dataUrl;
-    } catch (fallbackError) {
-      console.error(`Failed to load fallback image ${fallbackImageUrl}:`, fallbackError);
+    } catch (error) {
+      console.error(`Failed to load fallback image ${fallbackImageUrl}:`, error);
       return null;
     }
   }
