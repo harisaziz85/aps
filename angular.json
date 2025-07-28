@@ -26,9 +26,7 @@
             "outputPath": "dist/asp",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -38,23 +36,31 @@
               },
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "src/assets/scripts",
+                "output": "assets/scripts"
+              },
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
               }
             ],
             "styles": [
               "node_modules/@syncfusion/ej2-base/styles/material.css",
-  "node_modules/@syncfusion/ej2-buttons/styles/material.css",
-  "node_modules/@syncfusion/ej2-popups/styles/material.css",
-  "node_modules/@syncfusion/ej2-splitbuttons/styles/material.css",
-  "node_modules/@syncfusion/ej2-inputs/styles/material.css",
-  "node_modules/@syncfusion/ej2-navigations/styles/material.css",
-  "node_modules/@syncfusion/ej2-image-editor/styles/material.css",
+              "node_modules/@syncfusion/ej2-buttons/styles/material.css",
+              "node_modules/@syncfusion/ej2-popups/styles/material.css",
+              "node_modules/@syncfusion/ej2-splitbuttons/styles/material.css",
+              "node_modules/@syncfusion/ej2-inputs/styles/material.css",
+              "node_modules/@syncfusion/ej2-navigations/styles/material.css",
+              "node_modules/@syncfusion/ej2-image-editor/styles/material.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-             "node_modules/ngx-toastr/toastr.css",
+              "node_modules/ngx-toastr/toastr.css",
               "src/styles.css",
               "node_modules/font-awesome/css/font-awesome.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/scripts/tab.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -70,7 +76,14 @@
                   "maximumError": "5000MB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "subresourceIntegrity": true
             },
             "development": {
               "optimization": false,
@@ -80,19 +93,19 @@
           },
           "defaultConfiguration": "production"
         },
-       "serve": {
-  "builder": "@angular-devkit/build-angular:dev-server",
-  "configurations": {
-    "production": {
-      "buildTarget": "asp:build:production"
-    },
-    "development": {
-      "buildTarget": "asp:build:development",
-      "proxyConfig": "proxy.conf.json"
-    }
-  },
-  "defaultConfiguration": "development"
-},
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "asp:build:production"
+            },
+            "development": {
+              "buildTarget": "asp:build:development",
+              "proxyConfig": "proxy.conf.json"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
         },
@@ -112,13 +125,21 @@
               },
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "src/assets/scripts",
+                "output": "assets/scripts"
+              },
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
               }
             ],
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/scripts/tab.js"
+            ]
           }
         }
       }
