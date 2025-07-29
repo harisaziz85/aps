@@ -9,6 +9,7 @@ import { ActivityComponent } from './components/activity/activity.component';
 import { ProjectListComponent } from './components/project-list/project-list.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProjectbuildingComponent } from './projectbuilding/projectbuilding.component';
+
 import * as fabric from 'fabric';
 import { CreateprojectComponent } from './createproject/createproject.component';
 import { PresentationComponent } from './presentation/presentation.component';
@@ -33,6 +34,7 @@ import { UpdateStep3Component } from './update-step3/update-step3.component';
 import { UpdateStep4Component } from './update-step4/update-step4.component';
 import { UpdateStep5Component } from './update-step5/update-step5.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { ImageEditorComponent } from './image-editor/image-editor.component';
 
 @NgModule({
   declarations: [
@@ -47,10 +49,11 @@ import { NavbarComponent } from './components/navbar/navbar.component';
   ],
   imports: [
     UpdateStep1Component,
+    ImageEditorComponent,
+
     UpdateStep2Component,
     UpdateStep4Component,
     NavbarComponent,
-
     UpdateStep3Component,
     UpdateStep5Component,
     CoverletterComponent,

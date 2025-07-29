@@ -450,6 +450,13 @@
             <div class="project-header d-flex align-items-center">
               <input type="checkbox" class="cb1" [checked]="selectedProjects.includes(project.projectId)"
                      (change)="toggleProjectSelection(project.projectId); $event.stopPropagation()" />
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.33398 11.6667C4.22865 12.4881 7.62198 13.6707 12.0007 13.6707C16.3793 13.6707 19.7727 12.4881 21.6673 11.6667" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 12.3335V15.3335" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.33398 6.33341V3.00008C8.33398 2.26408 8.93132 1.66675 9.66732 1.66675H14.334C15.07 1.66675 15.6673 2.26408 15.6673 3.00008V6.33341" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M19.0007 6.3335H5.00065C3.52789 6.3335 2.33398 7.5274 2.33398 9.00016V17.6668C2.33398 19.1396 3.52789 20.3335 5.00065 20.3335H19.0007C20.4734 20.3335 21.6673 19.1396 21.6673 17.6668V9.00016C21.6673 7.5274 20.4734 6.3335 19.0007 6.3335Z" stroke="#0F0F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
               <span class="project-title robotoregular">{{ project.projectName || 'Unnamed Project' }}</span>
               <span class="dropdown-icon">
                 <ng-container *ngIf="projectDropdownStates[project.projectId]; else downArrow">
@@ -466,20 +473,20 @@
             </div>
             <div class="instance-list" *ngIf="projectDropdownStates[project.projectId]">
               <div class="hierarchy-level" *ngFor="let level of project.hierarchyLevels">
-                <div class="level-header">
+                <!-- <div class="level-header">
                   <span class="robotoregular txt">{{ level.levelName || 'Unnamed Level' }}</span>
-                </div>
+                </div> -->
                 <div class="instance-item" *ngFor="let instance of level.instances; let i = index">
                   <input type="checkbox" class="cbb1" [checked]="isInstanceSelected(project.projectId, instance.instanceId)"
                          (change)="toggleInstanceSelection(project.projectId, instance.instanceId); $event.stopPropagation()" />
                   <span class="robotoregular txt">{{ instance.subProjectCategory || 'No Category' }} ({{ i + 1 }})</span>
                 </div>
                 <div class="instance-item" *ngIf="!level.instances?.length">
-                  <span class="robotoregular txt">No instances available</span>
+                  <!-- <span class="robotoregular txt">No instances available</span> -->
                 </div>
               </div>
               <div class="instance-item" *ngIf="!project.hierarchyLevels?.length">
-                <span class="robotoregular txt">No hierarchy levels available</span>
+                <!-- <span class="robotoregular txt">No hierarchy levels available</span> -->
               </div>
             </div>
           </div>

@@ -39,7 +39,6 @@ export class ProjectbuildingComponent implements OnInit {
   showDropdownIndex: number | null = null;
   showStatusDropdownIndex: number | null = null;
   showNoteModal: boolean = false;
-  selectedNote: string | null = null;
   selectedProject: any = null;
   statusOptions: string[] = ['Active', 'Waiting For Approval', 'Completed'];
 
@@ -75,6 +74,8 @@ export class ProjectbuildingComponent implements OnInit {
           status: this.normalizeStatus(project.status),
           instances: project.subProjects || 'No subprojects',
           jobNotes: 'N/A',
+          jobNotesDates: {},
+          jobNotesUsers: {}, // Initialize jobNotesUsers
           assignees: project.assignedEmployees
             ?.filter(emp => emp !== null && typeof emp === 'string')
             .map(emp => ({
@@ -88,12 +89,22 @@ export class ProjectbuildingComponent implements OnInit {
         const jobNotesRequests = this.projects.map(project =>
           this.http.get(`https://vps.allpassiveservices.com.au/api/jobNotes/project/${project.id}`).toPromise()
             .then((response: any) => {
-              const notes = response?.data?.map((note: any) => note.title).join(', ') || 'N/A';
-              project.jobNotes = notes;
+              const notes = response?.data?.map((note: any) => note.title) || [];
+              project.jobNotes = notes.length > 0 ? notes.join(', ') : 'N/A';
+              project.jobNotesDates = response?.data?.reduce((acc: any, note: any) => {
+                acc[note.title] = note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'N/A';
+                return acc;
+              }, {}) || {};
+              project.jobNotesUsers = response?.data?.reduce((acc: any, note: any) => {
+                acc[note.title] = note.employeeId?.name || 'Unknown';
+                return acc;
+              }, {}) || {};
             })
             .catch(error => {
               console.error(`Error fetching job notes for project ${project.id}:`, error);
               project.jobNotes = 'N/A';
+              project.jobNotesDates = {};
+              project.jobNotesUsers = {};
             })
         );
 
@@ -136,24 +147,20 @@ export class ProjectbuildingComponent implements OnInit {
       this.filteredProjects = [...this.projects];
     }
     
-    // Update selectAll state based on current filtered projects
     this.updateSelectAllState();
     this.cdr.detectChanges();
   }
 
-  // New method to properly manage selectAll state
   updateSelectAllState(): void {
     if (this.filteredProjects.length === 0) {
       this.selectAll = false;
       return;
     }
     
-    // Check if all filtered projects are selected
     this.selectAll = this.filteredProjects.every(project => 
       this.selectedProjects.has(project.id) || project.selected
     );
     
-    // Update individual project selected state based on selectedProjects Set
     this.filteredProjects.forEach(project => {
       project.selected = this.selectedProjects.has(project.id);
     });
@@ -241,9 +248,8 @@ export class ProjectbuildingComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  openNoteModal(note: string, project: any, event: Event): void {
+  openNoteModal(project: any, event: Event): void {
     event.stopPropagation();
-    this.selectedNote = note;
     this.selectedProject = project;
     this.showNoteModal = true;
     this.closeAllDropdowns();
@@ -252,7 +258,6 @@ export class ProjectbuildingComponent implements OnInit {
 
   closeNoteModal(): void {
     this.showNoteModal = false;
-    this.selectedNote = null;
     this.selectedProject = null;
     this.closeAllDropdowns();
     this.cdr.detectChanges();
@@ -279,16 +284,9 @@ export class ProjectbuildingComponent implements OnInit {
 
     action$.subscribe({
       next: () => {
-        // Remove from selectedProjects Set
         this.selectedProjects.delete(this.modalProject.id);
-        
-        // Remove from projects array
         this.projects = this.projects.filter(p => p.id !== this.modalProject.id);
-        
-        // Update filtered projects and selectAll state
         this.applySearch();
-        
-        // Clear modal
         this.modalProject = null;
         this.modalAction = '';
         this.closeAllDropdowns();
@@ -317,11 +315,8 @@ export class ProjectbuildingComponent implements OnInit {
     if (this.modalAction === 'Delete') {
       this.projectService.deleteProject(projectIds).subscribe({
         next: () => {
-          // Remove deleted projects from the arrays and Set
           this.projects = this.projects.filter(p => !projectIds.includes(p.id));
           projectIds.forEach(id => this.selectedProjects.delete(id));
-          
-          // Update UI state
           this.applySearch();
           this.selectAll = false;
           this.showBulkModal = false;
@@ -341,11 +336,8 @@ export class ProjectbuildingComponent implements OnInit {
       const archiveRequests = projectIds.map(id => this.projectService.archiveProject(id).toPromise());
       Promise.all(archiveRequests)
         .then(() => {
-          // Remove archived projects from the arrays and Set
           this.projects = this.projects.filter(p => !projectIds.includes(p.id));
           projectIds.forEach(id => this.selectedProjects.delete(id));
-          
-          // Update UI state
           this.applySearch();
           this.selectAll = false;
           this.showBulkModal = false;
@@ -364,52 +356,38 @@ export class ProjectbuildingComponent implements OnInit {
   }
 
   cancelSelection(): void {
-    // Clear all selections
     this.selectedProjects.clear();
     this.selectAll = false;
-    
-    // Update all project selected states
     this.projects.forEach(p => p.selected = false);
     this.filteredProjects.forEach(p => p.selected = false);
-    
     this.closeAllDropdowns();
     this.cdr.detectChanges();
   }
 
   toggleSelectAll(): void {
-    // Toggle the selectAll state
     this.selectAll = !this.selectAll;
-    
     if (this.selectAll) {
-      // Select all filtered projects
       this.filteredProjects.forEach(project => {
         project.selected = true;
         this.selectedProjects.add(project.id);
       });
     } else {
-      // Deselect all filtered projects
       this.filteredProjects.forEach(project => {
         project.selected = false;
         this.selectedProjects.delete(project.id);
       });
     }
-    
     this.cdr.detectChanges();
   }
 
   toggleProjectSelection(project: any, event: Event): void {
     event.stopPropagation();
-    
-    // Toggle project selection
     project.selected = !project.selected;
-    
     if (project.selected) {
       this.selectedProjects.add(project.id);
     } else {
       this.selectedProjects.delete(project.id);
     }
-    
-    // Update selectAll state
     this.updateSelectAllState();
     this.cdr.detectChanges();
   }

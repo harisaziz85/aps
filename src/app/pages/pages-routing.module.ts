@@ -15,6 +15,7 @@ import { UpdateStep2Component } from './update-step2/update-step2.component';
 import { UpdateStep3Component } from './update-step3/update-step3.component';
 import { UpdateStep4Component } from './update-step4/update-step4.component';
 import { UpdateStep5Component } from './update-step5/update-step5.component';
+import { ImageEditorComponent } from './image-editor/image-editor.component';
 
 
 const routes: Routes = [
@@ -33,6 +34,7 @@ const routes: Routes = [
 { path: 'updateproject4/:id', component: UpdateStep4Component, data: { title: 'Update Project' } },
 
 { path: 'updateproject5/:id', component: UpdateStep5Component, data: { title: 'Update Project' } },
+{ path: 'imageeditor', component: ImageEditorComponent, data: { title: 'Update Project' } },
 
 
 

@@ -120,7 +120,6 @@ export class ProjectListComponent implements OnInit {
       next: () => {
         console.log(`Status updated for project ${project.id} to ${project.status}`);
         this.updatingProjects.delete(project.id);
-        this.showStatusDropdown.delete(project.id);
       },
       error: (error) => {
         console.error('Error updating status:', error);
@@ -129,7 +128,6 @@ export class ProjectListComponent implements OnInit {
           : 'Failed to update project status. Please try again.';
         project.status = originalStatus;
         this.updatingProjects.delete(project.id);
-        this.showStatusDropdown.delete(project.id);
         this.fetchProjects();
       }
     });
@@ -175,6 +173,7 @@ export class ProjectListComponent implements OnInit {
   selectStatus(project: ProjectDisplay, status: string, event: Event): void {
     event.stopPropagation();
     project.status = status;
+    this.showStatusDropdown.delete(project.id); // Close dropdown immediately
     this.updateStatus(project);
   }
 
