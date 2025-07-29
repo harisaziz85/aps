@@ -75,7 +75,7 @@ export class ProjectbuildingComponent implements OnInit {
           instances: project.subProjects || 'No subprojects',
           jobNotes: 'N/A',
           jobNotesDates: {},
-          jobNotesUsers: {}, // Initialize jobNotesUsers
+          jobNotesUsers: {},
           assignees: project.assignedEmployees
             ?.filter(emp => emp !== null && typeof emp === 'string')
             .map(emp => ({
@@ -92,7 +92,7 @@ export class ProjectbuildingComponent implements OnInit {
               const notes = response?.data?.map((note: any) => note.title) || [];
               project.jobNotes = notes.length > 0 ? notes.join(', ') : 'N/A';
               project.jobNotesDates = response?.data?.reduce((acc: any, note: any) => {
-                acc[note.title] = note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'N/A';
+                acc[note.title] = note.createdAt ? this.formatDate(note.createdAt) : 'N/A';
                 return acc;
               }, {}) || {};
               project.jobNotesUsers = response?.data?.reduce((acc: any, note: any) => {
@@ -128,6 +128,21 @@ export class ProjectbuildingComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  formatDate(isoDate: string): string {
+    if (!isoDate) return 'N/A';
+    const date = new Date(isoDate);
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12 || 12; // Convert to 12-hour format
+    return `${day} ${month}, ${year} - ${hours}:${minutes}${ampm}`;
   }
 
   searchProjects(): void {
