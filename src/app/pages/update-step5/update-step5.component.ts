@@ -80,13 +80,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   products: Product[] = [];
   selectedApprovalDocuments: { name: string; fileUrl: string }[] = [];
   coverLetterData: ProjectReport['coverLetter'] = {
-    address: '123 Main St, Suite 200, New York, NY, 10001',
-    date: new Date().toISOString().split('T')[0],
-    buildingName: 'Tower A',
-    reportTitle: 'N/A',
-    additionalInfo: 'N/A',
-    clientName: 'Mehtab',
-    fileUrl: '/Uploads/1752585290123-129536.jpg',
+    address: '',
+    date: '',
+    buildingName: '',
+    reportTitle: '',
+    additionalInfo: '',
+    clientName: '',
+    fileUrl: '',
     inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
   };
   isModalOpen: boolean = false;
@@ -112,7 +112,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.projectId = params['id'] || '687f2fe240564909e63c3e8e';
+      this.projectId = params['id'] || null;
       this.serviceProjectId = this.projectId;
 
       if (this.projectId) {
@@ -247,6 +247,9 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
                 }))
               }));
             }
+            if (response.project?.imageUrl) {
+              this.coverLetterData.fileUrl = this.convertToProxyUrl(response.project.imageUrl);
+            }
           }
         },
         error: (err) => {
@@ -263,7 +266,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
           if (response?.data) {
             this.reports = response.data;
             if (this.reports.length > 0) {
-              this.coverLetterData = this.reports[this.reports.length - 1].coverLetter || this.coverLetterData;
+              this.coverLetterData = response.data[response.data.length - 1].coverLetter || this.coverLetterData;
               if (this.coverLetterData?.fileUrl) {
                 this.coverLetterData.fileUrl = this.convertToProxyUrl(this.coverLetterData.fileUrl);
               }
@@ -298,13 +301,13 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         next: (response) => {
           if (response?.data?.coverLetter) {
             this.coverLetterData = {
-              address: response.data.coverLetter.address || '123 Main St, Suite 200, New York, NY, 10001',
-              date: response.data.coverLetter.date || new Date().toISOString().split('T')[0],
-              buildingName: response.data.coverLetter.buildingName || 'Tower A',
+              address: response.data.coverLetter.address || 'N/A',
+              date: response.data.coverLetter.date || 'N/A',
+              buildingName: response.data.coverLetter.buildingName || 'N/A',
               reportTitle: response.data.coverLetter.reportTitle || 'N/A',
               additionalInfo: response.data.coverLetter.additionalInfo || 'N/A',
-              clientName: response.data.coverLetter.clientName || 'Mehtab',
-              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || '/Uploads/1752585290123-129536.jpg'),
+              clientName: response.data.coverLetter.clientName || 'N/A',
+              fileUrl: this.convertToProxyUrl(response.data.coverLetter.fileUrl || ''),
               inspectionOverview: {
                 totalItems: response.data.coverLetter.inspectionOverview?.totalItems || '0',
                 passedItems: response.data.coverLetter.inspectionOverview?.passedItems || '0',
@@ -316,6 +319,16 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         },
         error: (err) => {
           console.error('Error fetching cover letter data:', err);
+          this.coverLetterData = {
+            address: 'N/A',
+            date: 'N/A',
+            buildingName: 'N/A',
+            reportTitle: 'N/A',
+            additionalInfo: 'N/A',
+            clientName: 'N/A',
+            fileUrl: '',
+            inspectionOverview: { totalItems: '0', passedItems: '0', failedItems: '0', tbcItems: '0' }
+          };
         }
       });
   }
@@ -530,7 +543,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
         }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.text(`Address: ${this.coverLetterData?.address || '123 Main St, Suite 200, New York, NY, 10001'}`, textX, yOffset + 10);
+        doc.text(`Address: ${this.coverLetterData?.address || 'N/A'}`, textX, yOffset + 10);
         doc.text(`Building Name: ${this.projectData?.project?.buildingName || this.coverLetterData?.buildingName || 'N/A'}`, textX, yOffset + 20);
         doc.text(`Report Title: ${this.coverLetterData?.reportTitle || 'N/A'}`, textX, yOffset + 30);
         yOffset += imageHeight + lineHeight;
