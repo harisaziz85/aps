@@ -140,7 +140,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
      'Penetration', 'Joints', 'Fire Dampers', 'Fire Doors', 'Fire Windows', 'Service Penetration'].forEach(field => {
       this.selectedAttributes[field] = field === 'Separate Report' || field === 'Email Notification' ? false : '';
     });
-    this.selectedAttributes['Report Type'] = 'standard';
+    this.selectedAttributes['Report Type'] = 'standard'; // Default to standard
   }
 
   ngAfterViewInit() {
@@ -321,44 +321,20 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   private convertToProxyUrl(url: string): string {
-    if (!url || url === 'N/A') {
+    if (!url || url === 'N/A' || url.trim() === '') {
       return 'https://via.placeholder.com/200x200?text=No+Image';
     }
 
-    // Check if running locally or on production
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocal
-      ? 'http://localhost:4200'
-      : window.location.origin; // Use current domain for production
-
-    const serverDomains = [
-      'https://vps.allpassiveservices.com.au',
-      'http://95.111.223.104:8000'
-    ];
-
-    // Check if URL starts with server domains
-    for (const domain of serverDomains) {
-      if (url.startsWith(domain)) {
-        return `${baseUrl}/api/proxy?url=${encodeURIComponent(url)}`;
-      }
-    }
-
-    // Handle relative URLs
-    if (url.startsWith('/uploads/') || url.startsWith('/Uploads/')) {
-      return `https://vps.allpassiveservices.com.au${url}`;
-    }
-
-    // Handle assets and placeholder URLs
-    if (url.startsWith('/assets/') || url.startsWith('https://via.placeholder.com')) {
+    if (url.startsWith('https://aps-app-frontend.vercel.app/')) {
       return url;
     }
 
-    // If URL doesn't match any pattern, treat as server URL
-    if (!url.startsWith('http')) {
-      return `${baseUrl}/api/proxy?url=${encodeURIComponent('https://vps.allpassiveservices.com.au' + url)}`;
+    if (url.startsWith('https://vps.allpassiveservices.com.au/')) {
+      return `https://aps-app-frontend.vercel.app/api/proxy?url=${encodeURIComponent(url)}`;
     }
 
-    return 'https://via.placeholder.com/200x200?text=No+Image';
+    const cleanPath = url.replace(/^\/*uploads\/*/i, '').replace(/^\/+/, '');
+    return `https://aps-app-frontend.vercel.app/api/proxy?url=${encodeURIComponent(`https://vps.allpassiveservices.com.au/uploads/${cleanPath}`)}`;
   }
 
   getAttributeValue(attributeName: string): string {
@@ -791,153 +767,80 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
   }
 
   private async getImageData(url: string): Promise<string | null> {
-    if (!url || url === 'N/A') {
-      return null;
+    const normalizedUrl = this.convertToProxyUrl(url);
+    console.log(`Attempting to load image: ${normalizedUrl}`);
+    
+    if (normalizedUrl.includes('via.placeholder.com')) {
+      try {
+        const response = await fetch(normalizedUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'image/*' },
+          mode: 'cors',
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => {
+            console.error(`Failed to read blob for image: ${normalizedUrl}`);
+            resolve('https://via.placeholder.com/200x200?text=Read+Error');
+          };
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error(`Failed to load placeholder image: ${normalizedUrl}`, error);
+        return null;
+      }
     }
 
     try {
-      // Convert URL to use proxy if needed
-      const proxyUrl = this.convertToProxyUrl(url);
-      
-      // First try to fetch the image
-      const response = await this.http.get(proxyUrl, {
-        headers: new HttpHeaders({
-          'Accept': 'image/*',
-          'Cache-Control': 'no-cache',
-          'Access-Control-Allow-Origin': '*'
-        }),
-        responseType: 'blob'
-      }).toPromise();
-
-      if (!response) {
-        console.warn(`No response received for ${proxyUrl}`);
+      const response = await fetch(normalizedUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'image/*' },
+        mode: 'cors',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => {
+          console.error(`Failed to read blob for image: ${normalizedUrl}`);
+          resolve('https://via.placeholder.com/200x200?text=Read+Error');
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error(`Failed to load image: ${normalizedUrl}`, error);
+      try {
+        const fallbackUrl = 'https://via.placeholder.com/200x200?text=No+Image';
+        const fallbackResponse = await fetch(fallbackUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'image/*' },
+          mode: 'cors',
+        });
+        if (!fallbackResponse.ok) {
+          throw new Error(`HTTP error! status: ${fallbackResponse.status}`);
+        }
+        const fallbackBlob = await fallbackResponse.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => {
+            console.error(`Failed to read fallback blob for ${fallbackUrl}`);
+            resolve(null);
+          };
+          reader.readAsDataURL(fallbackBlob);
+        });
+      } catch (fallbackError) {
+        console.error(`Failed to load fallback image: https://via.placeholder.com/200x200?text=No+Image`, fallbackError);
         return null;
       }
-
-      // Convert blob to base64 data URL
-      return await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          resolve(result);
-        };
-        reader.onerror = (error) => {
-          console.error(`Failed to read blob for ${proxyUrl}:`, error);
-          reject(error);
-        };
-        reader.readAsDataURL(response);
-      });
-
-    } catch (error: any) {
-      console.error(`Error fetching image ${url}:`, error.message || error);
-      
-      // Try direct URL if proxy fails
-      if (url.startsWith('https://vps.allpassiveservices.com.au')) {
-        try {
-          const directResponse = await this.http.get(url, {
-            headers: new HttpHeaders({
-              'Accept': 'image/*',
-              'Cache-Control': 'no-cache'
-            }),
-            responseType: 'blob'
-          }).toPromise();
-
-          if (directResponse) {
-            return await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = reject;
-              reader.readAsDataURL(directResponse);
-            });
-          }
-        } catch (directError) {
-          console.error(`Direct fetch also failed for ${url}:`, directError);
-        }
-      }
-
-      // Try alternative approaches for local assets
-      if (url.startsWith('/images/') || url.startsWith('/assets/')) {
-        try {
-          const assetResponse = await this.http.get(url, {
-            responseType: 'blob'
-          }).toPromise();
-
-          if (assetResponse) {
-            return await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = reject;
-              reader.readAsDataURL(assetResponse);
-            });
-          }
-        } catch (assetError) {
-          console.error(`Asset fetch failed for ${url}:`, assetError);
-        }
-      }
-
-      return null;
     }
-  }
-
-  // Helper method to create a fallback image
-  private createFallbackImage(): string {
-    // Create a simple 1x1 transparent PNG as base64
-    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-  }
-
-  // Method to preload images before PDF generation
-  private async preloadImages(): Promise<boolean> {
-    const imagesToLoad: string[] = [];
-    
-    // Add logo
-    imagesToLoad.push('/images/logo.png');
-    
-    // Add cover letter image
-    if (this.coverLetterData?.fileUrl && this.coverLetterData.fileUrl !== 'N/A') {
-      imagesToLoad.push(this.coverLetterData.fileUrl);
-    }
-    
-    // Add document images
-    if (this.projectData?.documents?.length > 0) {
-      this.projectData.documents.forEach((doc: any) => {
-        if (doc.files?.length > 0) {
-          doc.files.forEach((file: any) => {
-            if (file.documentUrl) {
-              imagesToLoad.push(file.documentUrl);
-            }
-          });
-        }
-      });
-    }
-    
-    // Add instance photos
-    if (this.projectData?.instances?.length > 0) {
-      this.projectData.instances.forEach((instance: any) => {
-        if (instance.photos?.length > 0) {
-          instance.photos.forEach((photo: any) => {
-            if (photo.url) {
-              imagesToLoad.push(photo.url);
-            }
-          });
-        }
-      });
-    }
-
-    // Try to load all images
-    const loadPromises = imagesToLoad.map(async (url) => {
-      try {
-        const data = await this.getImageData(url);
-        return { url, success: !!data };
-      } catch (error) {
-        console.warn(`Failed to preload image: ${url}`);
-        return { url, success: false };
-      }
-    });
-
-    const results = await Promise.all(loadPromises);
-    const successCount = results.filter(r => r.success).length;
-    
-    console.log(`Preloaded ${successCount}/${imagesToLoad.length} images`);
-    return successCount > 0; // Return true if at least some images loaded
   }
 }
