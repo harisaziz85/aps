@@ -59,7 +59,6 @@ export class AllUsersComponent implements OnInit {
         this.filteredUsers = this.users;
         this.showPassword = new Array(users.length).fill(false);
         this.isLoading = false;
-        this.toastr.success('Users loaded successfully', 'Success');
       },
       error: (error) => {
         console.error('Error loading users:', error);

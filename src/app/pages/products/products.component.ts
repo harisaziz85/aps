@@ -26,6 +26,7 @@ export class ProductsComponent implements OnInit {
   filteredProducts: Product[] = [];
   documents: Document[] = [];
   isModalOpen = false;
+  isDeleteModalOpen = false;
   isDropdownOpen = false;
   selectedDocuments: string[] = [];
   productName: string = '';
@@ -63,7 +64,6 @@ export class ProductsComponent implements OnInit {
         this.products = products;
         this.filteredProducts = products;
         console.log('Loaded products:', products);
-        this.toastr.success('Products loaded successfully', 'Success');
         this.checkLoadingComplete();
       },
       error: (error) => {
@@ -125,10 +125,25 @@ export class ProductsComponent implements OnInit {
     this.isDropdownOpen = false;
   }
 
+  openDeleteModal() {
+    if (this.selectedProductIds.length === 0) {
+      this.toastr.error('No products selected for deletion', 'Error');
+      console.log('No products selected for deletion');
+      return;
+    }
+    this.isDeleteModalOpen = true;
+    console.log('Delete modal opened');
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+    this.toastr.info('Product deletion cancelled', 'Info');
+    console.log('Delete modal closed');
+  }
+
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
     console.log('Dropdown toggled, isDropdownOpen:', this.isDropdownOpen);
-    // Removed toastr notification for dropdown toggle
   }
 
   toggleDocumentSelection(docId: string) {
@@ -234,22 +249,10 @@ export class ProductsComponent implements OnInit {
   clearSelection() {
     this.selectedProductIds = [];
     console.log('Selection cleared, selectedProductIds:', this.selectedProductIds);
-    this.toastr.info('Selection cleared', 'Info');
   }
 
   confirmDeleteProducts() {
-    if (this.selectedProductIds.length === 0) {
-      this.toastr.error('No products selected for deletion', 'Error');
-      console.log('No products selected for deletion');
-      return;
-    }
-
-    if (!confirm('Are you sure you want to delete the selected product(s)? This action cannot be undone.')) {
-      this.toastr.info('Product deletion cancelled', 'Info');
-      return;
-    }
-
-    this.deleteProducts();
+    this.openDeleteModal();
   }
 
   deleteProducts() {
@@ -261,11 +264,13 @@ export class ProductsComponent implements OnInit {
         this.products = this.products.filter(p => !this.selectedProductIds.includes(p._id));
         this.filteredProducts = this.filteredProducts.filter(p => !this.selectedProductIds.includes(p._id));
         this.selectedProductIds = [];
+        this.isDeleteModalOpen = false;
         this.toastr.success('Product(s) deleted successfully', 'Success');
         console.log('Products deleted successfully');
         window.location.reload();
       },
       error: (error) => {
+        this.isDeleteModalOpen = false;
         console.error('Failed to delete products', error);
         this.toastr.error(error.message || 'Failed to delete product(s). Please try again.', 'Error');
       }
@@ -290,11 +295,10 @@ export class ProductsComponent implements OnInit {
         const docName = document.name || 'Unnamed Document';
         const docUrl = document.fileUrl || 'No URL Available';
         doc.text(`${index + 1}. ${docName}`, 10, yPosition);
-        // Split URL if it's too long to avoid overflow
-        const maxWidth = 180; // Max width for text in PDF
+        const maxWidth = 180;
         const urlLines = doc.splitTextToSize(`URL: ${docUrl}`, maxWidth);
         doc.text(urlLines, 10, yPosition + 5);
-        yPosition += 10 + (urlLines.length * 5); // Adjust yPosition based on number of lines
+        yPosition += 10 + (urlLines.length * 5);
       });
     }
 

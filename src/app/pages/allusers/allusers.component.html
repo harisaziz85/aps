@@ -273,18 +273,18 @@
     </div>
   </div>
   <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px; height: 150px !important;">
-      <div class="modal-content" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); padding: 24px;box-sizing:border-box ; height:300px !important">
-        <div class="" style="border-bottom: none;">
-          <h5 class="modal-title onestbold" id="deleteUserModalLabel" style="font-size: 18px; color: #000000;">Confirm Deletion</h5>
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+      <div class="modal-content" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); padding: 24px; box-sizing: border-box; height:250px;display:flex; flex-direction:column; justify-content:space-between">
+        <div class="" style="border-bottom: none; padding-bottom: 8px;">
+          <h5 class=" onestbold" id="deleteUserModalLabel" style="font-size: 18px; color: #000000; margin: 0; padding-left:0px !important">Confirm Deletion</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background: none; border: none;"></button>
         </div>
-        <div class="modal-body onest regular" style="font-size: 18px; color: #030303;">
+        <div class=" onestbold" style="font-size: 16px; color: #030303; padding: 8px 0;">
           Are you sure you want to delete this user? This action cannot be undone.
         </div>
-        <div class="modal-footer" style="border-top: none; display: flex; justify-content: end;">
-          <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #00000000; color: rgb(0, 0, 0); border-radius: 15px; border: 1px solid black; font-family: 'Roboto', sans-serif; font-weight: 500;">Cancel</button>
-          <button type="button" class="btn" (click)="confirmDeleteUser()" data-bs-dismiss="modal" style="background-color: #EC1919; color: white; padding: 10px 20px; border-radius: 15px; font-family: 'Roboto', sans-serif; font-weight: 500;">Delete</button>
+        <div class="modal-footer" style="border-top: none; display: flex; justify-content: end; padding-top: 8px;">
+          <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #00000000; color: rgb(0, 0, 0); border-radius: 15px; border: 1px solid black; font-family: 'Roboto', sans-serif; font-weight: 500; padding: 8px 20px;">Cancel</button>
+          <button type="button" class="btn" (click)="confirmDeleteUser()" data-bs-dismiss="modal" style="background-color: #EC1919; color: white; border-radius: 15px; border: none; font-family: 'Roboto', sans-serif; font-weight: 500; padding: 8px 20px;">Delete</button>
         </div>
       </div>
     </div>
