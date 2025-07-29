@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Product } from '../models/product';
@@ -20,6 +20,17 @@ export class ProductService {
 
   createProduct(product: { name: string; approvalDocumentIds: string[] }): Observable<Product> {
     return this.http.post<Product>(`${this.baseUrl}/create`, product).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  updateProduct(id: string, product: { name: string; approvalDocumentIds: string[] }): Observable<Product> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token || ''}`
+    });
+    return this.http.put<Product>(`${this.baseUrl}/update/${id}`, product, { headers }).pipe(
       catchError(this.handleError)
     );
   }

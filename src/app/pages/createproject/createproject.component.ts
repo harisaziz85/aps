@@ -15,6 +15,7 @@ import jsPDF from 'jspdf';
 import { AttributeTemplateResponse, ProjectResponse } from '../../core/models/presentation';
 import html2canvas from 'html2canvas';
 import { SvgIconsComponent } from '../../shared/svg-icons/svg-icons.component';
+import { ToastrService } from 'ngx-toastr';
 
 type Attribute = {
   name: string;
@@ -176,8 +177,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Additional Requirnments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-    ],
-    'Annual Inspection': [
+    ], 'Annual Inspection': [
       { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },{ name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -271,7 +271,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     private clientService: ClientService,
     private http: HttpClient,
     private route: ActivatedRoute,
-    private presentationService: PresentationService
+    private presentationService: PresentationService,
+    private toastr: ToastrService
   ) {
     this.svgIcon1 = this.sanitizer.bypassSecurityTrustHtml('[SVG Icon]');
 
@@ -368,6 +369,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   existingAttributes: Attribute[] = [];
 
   ngOnInit(): void {
+    this.selectedOption6 = 'Yes';
+    this.hierarchyLevelsChange = true;
     this.filteredEmployees = [...this.employees];
     this.twoDFiles = [];
     this.technicalFiles = [];
@@ -426,7 +429,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       },
       error: (error) => {
         console.error('Failed to fetch employees:', error);
-        alert('Failed to load employees. Please try again later.');
       }
     });
 
@@ -441,7 +443,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       },
       error: (error) => {
         console.error('Failed to fetch products:', error);
-        alert('Failed to load products. Please try again later.');
       }
     });
 
@@ -456,7 +457,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       },
       error: (error) => {
         console.error('Failed to fetch approval documents:', error);
-        alert('Failed to load approval documents.');
       }
     });
 
@@ -487,7 +487,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       }
     });
 
-    // Initialize dropdown states for additional attributes
     this.additionalAttributes.forEach(() => {
       this.isDropdownOpenAttrType.push(false);
       this.isDropdownOpenAttrProduct.push(false);
@@ -541,6 +540,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       next: (response) => {
         this.reports = response.data || [];
         console.log('Fetched project reports:', this.reports);
+        this.toastr.success('Project reports fetched successfully', 'Success');
       },
       error: (error) => {
         if (error.error && error.error.message === "No reports found for this project.") {
@@ -549,6 +549,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         } else {
           console.error('Failed to fetch project reports:', error);
           this.reports = [];
+          this.toastr.error('Failed to fetch project reports', 'Error');
         }
       }
     });
@@ -586,13 +587,14 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         console.log('Updated 2D Files:', this.twoDFiles);
         console.log('Updated Technical Files:', this.technicalFiles);
         console.log('Updated Additional Files:', this.additionalFiles);
+        this.toastr.success('Documents fetched successfully', 'Success');
       },
       error: (error) => {
         if (error.error && error.error.message === "No documents found for this project.") {
           console.log('No documents found for this project');
         } else {
           console.error('Failed to fetch documents:', error);
-          console.log('Failed to load documents.');
+          this.toastr.error('Failed to fetch documents', 'Error');
         }
         this.twoDFiles = [];
         this.technicalFiles = [];
@@ -619,7 +621,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     }
 
     console.log(`Deleted document with ID: ${documentId} of type ${documentType}`);
-    alert('Document deleted successfully!');
   }
 
   toggleDropdown(event?: Event) {
@@ -677,15 +678,15 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   }
 
   toggleDropdown5(event: Event): void {
-  event.stopPropagation();
-  this.isDropdownOpen5 = !this.isDropdownOpen5;
-  this.closeOtherDropdowns('dropdown-toggle-5');
-  if (this.isDropdownOpen5) {
-    this.searchQuery = '';
-    this.filteredEmployees = [...this.employees];
+    event.stopPropagation();
+    this.isDropdownOpen5 = !this.isDropdownOpen5;
+    this.closeOtherDropdowns('dropdown-toggle-5');
+    if (this.isDropdownOpen5) {
+      this.searchQuery = '';
+      this.filteredEmployees = [...this.employees];
+    }
+    console.log('Toggling Assign Employees dropdown, new state:', this.isDropdownOpen5);
   }
-  console.log('Toggling Assign Employees dropdown, new state:', this.isDropdownOpen5);
-}
 
   toggleDropdown6(event?: Event) {
     if (event) {
@@ -698,11 +699,12 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   }
 
   toggleDropdown7(event: Event): void {
-  event.stopPropagation();
-  this.isDropdownOpen7 = !this.isDropdownOpen7;
-  this.closeOtherDropdowns('dropdown-toggle-7');
-  console.log('Toggling Client Name dropdown, new state:', this.isDropdownOpen7);
-}
+    event.stopPropagation();
+    this.isDropdownOpen7 = !this.isDropdownOpen7;
+    this.closeOtherDropdowns('dropdown-toggle-7');
+    console.log('Toggling Client Name dropdown, new state:', this.isDropdownOpen7);
+  }
+
   toggleDropdown12(event?: Event) {
     if (event) {
       event.stopPropagation();
@@ -712,26 +714,26 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     console.log('Toggling dropdown8, new state:', this.dropdown8.isOpen);
   }
 
- toggleDropdown30(event: Event): void {
-  event.stopPropagation();
-  this.isDropdownOpen30 = !this.isDropdownOpen30;
-  this.closeOtherDropdowns('dropdown-toggle-30');
-  console.log('Toggling Product ID dropdown, new state:', this.isDropdownOpen30);
-}
+  toggleDropdown30(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen30 = !this.isDropdownOpen30;
+    this.closeOtherDropdowns('dropdown-toggle-30');
+    console.log('Toggling Product ID dropdown, new state:', this.isDropdownOpen30);
+  }
 
   toggleDropdown31(event: Event): void {
-  event.stopPropagation();
-  this.isDropdownOpen31 = !this.isDropdownOpen31;
-  this.closeOtherDropdowns('dropdown-toggle-31');
-  console.log('Toggling Approval Documents dropdown, new state:', this.isDropdownOpen31);
-}
+    event.stopPropagation();
+    this.isDropdownOpen31 = !this.isDropdownOpen31;
+    this.closeOtherDropdowns('dropdown-toggle-31');
+    console.log('Toggling Approval Documents dropdown, new state:', this.isDropdownOpen31);
+  }
 
   toggleDropdownli(event: Event): void {
-  event.stopPropagation();
-  this.isDropdownOpenli = !this.isDropdownOpenli;
-  this.closeOtherDropdowns('dropdown-toggle-li');
-  console.log('Toggling Template Name dropdown, new state:', this.isDropdownOpenli);
-}
+    event.stopPropagation();
+    this.isDropdownOpenli = !this.isDropdownOpenli;
+    this.closeOtherDropdowns('dropdown-toggle-li');
+    console.log('Toggling Template Name dropdown, new state:', this.isDropdownOpenli);
+  }
 
   toggleDropdownMainType(event: Event): void {
     event.stopPropagation();
@@ -935,13 +937,13 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   }
 
   selectProduct(productId: string, event: Event): void {
-  event.stopPropagation();
-  this.productId = productId;
-  this.isDropdownOpen30 = false;
-  this.onProductChange();
-  console.log('Selected Product ID:', productId);
-  this.saveFormData();
-}
+    event.stopPropagation();
+    this.productId = productId;
+    this.isDropdownOpen30 = false;
+    this.onProductChange();
+    console.log('Selected Product ID:', productId);
+    this.saveFormData();
+  }
 
   selectApprovalDocument(docId: string, event: Event): void {
     event.stopPropagation();
@@ -1252,15 +1254,15 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       .map(level => ({ name: level.name.trim() }))
       .filter(level => level.name);
     if (levels.length === 0) {
-      alert('Please provide at least one valid hierarchy level name.');
       console.error('No valid hierarchy levels provided:', this.hierarchyLevelsInput);
+      this.toastr.error('No valid hierarchy levels provided', 'Error');
       return;
     }
 
     let projectId = this.projectId || localStorage.getItem('projectId');
     if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
-      alert('Invalid or missing Project ID.');
       console.error('Invalid projectId:', projectId);
+      this.toastr.error('Invalid project ID', 'Error');
       return;
     }
 
@@ -1277,6 +1279,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         this.hierarchyLevelsInput = [{ name: '' }];
         this.projectId = projectId;
         localStorage.setItem('projectId', projectId);
+        this.toastr.success('Hierarchy levels created successfully', 'Success');
         setTimeout(() => {
           this.loadHierarchyLevels();
         }, 500);
@@ -1290,7 +1293,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       error: (error) => {
         console.error('createBuildingHierarchy API Error:', error);
         console.error('Response Body:', error.error);
-        alert(`Failed to create hierarchy: ${error.error?.message || error.message || 'Unknown error'}`);
+        this.toastr.error('Failed to create hierarchy levels', 'Error');
       }
     });
   }
@@ -1317,7 +1320,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     let projectId = this.projectId || localStorage.getItem('projectId');
     if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
       console.error('Invalid or missing projectId for loading hierarchy levels:', projectId);
-      alert('Invalid or missing Project ID.');
       this.hierarchyLevels = [];
       return;
     }
@@ -1350,7 +1352,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       },
       error: (error: any) => {
         console.error('Project Details API Error:', error, 'Response:', error.error);
-        alert('Failed to load hierarchy levels: ' + (error.error?.message || error.message || 'Unknown error'));
         this.hierarchyLevels = [];
         this.selectedHierarchyLevel = '';
         this.twoDFiles = [];
@@ -1386,7 +1387,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
 
   saveBulkFiles(documentType: string) {
     if (this.bulkFiles.length === 0) {
-      alert('Please select at least one file to upload.');
+      console.error('No files selected for upload');
+      this.toastr.error('No files selected for upload', 'Error');
       return;
     }
 
@@ -1402,7 +1404,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         mappedDocumentType = 'Additional';
         break;
       default:
-        alert('Invalid document type');
+        console.error('Invalid document type');
+        this.toastr.error('Invalid document type', 'Error');
         return;
     }
 
@@ -1414,14 +1417,14 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
 
     let projectId = this.projectId || localStorage.getItem('projectId');
     if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
-      alert('Invalid or missing Project ID.');
       console.error('Invalid projectId for uploading documents:', projectId);
+      this.toastr.error('Invalid project ID', 'Error');
       return;
     }
 
     if (!this.selectedHierarchyLevel) {
-      alert('Please select a hierarchy level.');
       console.error('No hierarchy level selected for uploading documents');
+      this.toastr.error('No hierarchy level selected', 'Error');
       return;
     }
 
@@ -1442,7 +1445,6 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       this.documentNames
     ).subscribe({
       next: (response) => {
-        alert('Documents uploaded successfully!');
         console.log('Bulk upload response:', response);
         this.bulkFiles = [];
         if (this.bulkFileInput) {
@@ -1451,10 +1453,11 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         this.documentNames = [];
         this.closeModal();
         this.fetchDocuments();
+        this.toastr.success('Bulk files uploaded successfully', 'Success');
       },
       error: (error) => {
-        alert('Failed to upload documents: ' + (error.error?.message || error.message || 'Unknown error'));
         console.error('API Error:', error);
+        this.toastr.error('Failed to upload bulk files', 'Error');
       }
     });
   }
@@ -1477,25 +1480,27 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         mappedDocumentType = 'Additional';
         break;
       default:
-        alert('Invalid document type');
+        console.error('Invalid document type');
+        this.toastr.error('Invalid document type', 'Error');
         return;
     }
 
     if (!file) {
-      alert('Please select a file to upload.');
+      console.error('No file selected for upload');
+      this.toastr.error('No file selected for upload', 'Error');
       return;
     }
 
     let projectId = this.projectId || localStorage.getItem('projectId');
     if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
-      alert('Invalid or missing Project ID.');
       console.error('Invalid projectId for uploading document:', projectId);
+      this.toastr.error('Invalid project ID', 'Error');
       return;
     }
 
     if (!this.selectedHierarchyLevel) {
-      alert('Please select a hierarchy level.');
       console.error('No hierarchy level selected for uploading document');
+      this.toastr.error('No hierarchy level selected', 'Error');
       return;
     }
 
@@ -1514,17 +1519,17 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       file.name
     ).subscribe({
       next: (response) => {
-        alert('Document uploaded successfully!');
         console.log('Single file upload response:', response);
         this.singleFile2D = null;
         this.singleFileTechnical = null;
         this.singleFileAdditional = null;
         this.closeModal();
         this.fetchDocuments();
+        this.toastr.success('File uploaded successfully', 'Success');
       },
       error: (error) => {
-        alert('Failed to upload document: ' + (error.error?.message || error.message || 'Unknown error'));
         console.error('API Error:', error);
+        this.toastr.error('Failed to upload file', 'Error');
       }
     });
   }
@@ -1547,7 +1552,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         console.log('Selected image file:', file.name);
         this.saveFormData();
       } else {
-        alert('Please upload a valid image file.');
+        console.error('Invalid file type: Please upload an image file');
+        this.toastr.error('Invalid file type: Please upload an image file', 'Error');
       }
     }
   }
@@ -1593,7 +1599,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         console.log('Dropped image file:', file.name);
         this.saveFormData();
       } else {
-        alert('Please upload a valid image file.');
+        console.error('Invalid file type: Please upload an image file');
+        this.toastr.error('Invalid file type: Please upload an image file', 'Error');
       }
     }
   }
@@ -1640,11 +1647,13 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     this.clientPhone = (document.querySelectorAll('.col-12 .input-container input')[4] as HTMLInputElement)?.value || '';
 
     if (!this.projectName) {
-      alert('Project Name is required.');
+      console.error('Project Name is required');
+      this.toastr.error('Project Name is required', 'Error');
       return;
     }
     if (!this.clientId && !this.clientName) {
-      alert('Please select a client.');
+      console.error('Please select a client');
+      this.toastr.error('Please select a client', 'Error');
       return;
     }
 
@@ -1692,6 +1701,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
           localStorage.setItem('projectId', response.project._id);
           this.projectId = response.project._id;
           localStorage.removeItem('projectFormData');
+          this.toastr.success('Project attributes submitted successfully', 'Success');
           setTimeout(() => {
             const standardsTab = document.getElementById('standards-tab');
             if (standardsTab) {
@@ -1700,12 +1710,12 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
           }, 0);
         } else {
           console.error('Project ID not found in response');
-          alert('Failed to create project: Project ID not found');
+          this.toastr.error('Project ID not found in response', 'Error');
         }
       },
       error: (error) => {
         console.error('API Error:', error);
-        alert('Failed to create project: ' + (error.error?.message || error.message || 'Server error'));
+        this.toastr.error('Failed to submit project attributes', 'Error');
       }
     });
   }
@@ -1825,24 +1835,27 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     });
 
     if (standardAttributes.length === 0) {
-      alert('Please add at least one attribute with values');
+      console.error('No valid attributes provided');
+      this.toastr.error('No valid attributes provided', 'Error');
       return;
     }
 
     if (!this.productId) {
-      alert('Please select a product.');
+      console.error('No product selected');
+      this.toastr.error('No product selected', 'Error');
       return;
     }
 
     if (this.selectedApprovalDocuments.length === 0) {
-      alert('Please select at least one approval document.');
+      console.error('No approval documents selected');
+      this.toastr.error('No approval documents selected', 'Error');
       return;
     }
 
     let projectId = this.projectId || localStorage.getItem('projectId');
     if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
-      alert('Invalid or missing Project ID.');
       console.error('Invalid projectId for submitting standard attributes:', projectId);
+      this.toastr.error('Invalid project ID', 'Error');
       return;
     }
 
@@ -1892,6 +1905,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         this.filteredApprovalDocuments = [];
         this.templateName = 'Installation/Penetration Register';
         this.selectedOptionli = { label: 'Installation/Penetration Register', value: 'option4' };
+        this.toastr.success('Standard attributes submitted successfully', 'Success');
 
         setTimeout(() => {
           const buildingHierarchyTab = document.getElementById('building-hierarchy-tab');
@@ -1901,8 +1915,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         }, 0);
       },
       error: (error) => {
-        alert('Failed to create standard attributes: ' + (error.error?.message || error.message));
         console.error('API Error:', error);
+        this.toastr.error('Failed to submit standard attributes', 'Error');
       }
     });
   }
@@ -2025,6 +2039,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     };
     localStorage.setItem('createProjectFormData', JSON.stringify(formData));
   }
+
 
   restoreFormData() {
     const savedData = localStorage.getItem('createProjectFormData');

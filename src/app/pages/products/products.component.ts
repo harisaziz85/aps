@@ -35,6 +35,7 @@ export class ProductsComponent implements OnInit {
   isSaving: boolean = false;
   private pendingRequests: number = 0;
   selectedProductIds: string[] = [];
+  selectedProduct: Product | null = null;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -113,16 +114,29 @@ export class ProductsComponent implements OnInit {
   }
 
   openModal() {
-    this.isModalOpen = true;
+    this.selectedProduct = null;
     this.productName = '';
     this.selectedDocuments = [];
+    this.isModalOpen = true;
     this.isDropdownOpen = false;
-    console.log('Modal opened, selectedDocuments reset:', this.selectedDocuments);
+    console.log('Create modal opened, selectedDocuments reset:', this.selectedDocuments);
+  }
+
+  openUpdateModal(product: Product) {
+    this.selectedProduct = product;
+    this.productName = product.name;
+    this.selectedDocuments = product.approvalDocuments.map(doc => doc._id);
+    this.isModalOpen = true;
+    this.isDropdownOpen = false;
+    console.log('Update modal opened for product:', product);
   }
 
   closeModal() {
     this.isModalOpen = false;
     this.isDropdownOpen = false;
+    this.selectedProduct = null;
+    this.productName = '';
+    this.selectedDocuments = [];
   }
 
   openDeleteModal() {
@@ -198,7 +212,7 @@ export class ProductsComponent implements OnInit {
     this.toastr.success(`Downloaded document: ${doc.name}`, 'Success');
   }
 
-  createProduct() {
+  saveProduct() {
     if (!this.productName.trim()) {
       this.toastr.error('Product name is required', 'Validation Error');
       console.log('Validation failed: Product name is empty');
@@ -217,24 +231,48 @@ export class ProductsComponent implements OnInit {
       approvalDocumentIds: this.selectedDocuments
     };
 
-    console.log('Creating product with data:', productData);
-
-    this.productService.createProduct(productData).subscribe({
-      next: (newProduct) => {
-        this.products.push(newProduct);
-        this.filteredProducts = this.products;
-        this.isSaving = false;
-        this.closeModal();
-        this.toastr.success('Product created successfully', 'Success');
-        console.log('Product created:', newProduct);
-        window.location.reload();
-      },
-      error: (error) => {
-        this.isSaving = false;
-        console.error('Failed to create product', error);
-        this.toastr.error(error.message || 'Failed to create product. Please try again.', 'Error');
-      }
-    });
+    if (this.selectedProduct) {
+      // Update existing product
+      console.log('Updating product with data:', productData);
+      this.productService.updateProduct(this.selectedProduct._id, productData).subscribe({
+        next: (updatedProduct) => {
+          const index = this.products.findIndex(p => p._id === updatedProduct._id);
+          if (index !== -1) {
+            this.products[index] = updatedProduct;
+            this.filteredProducts = this.products;
+          }
+          this.isSaving = false;
+          this.closeModal();
+          this.toastr.success('Product updated successfully', 'Success');
+          console.log('Product updated:', updatedProduct);
+          window.location.reload();
+        },
+        error: (error) => {
+          this.isSaving = false;
+          console.error('Failed to update product', error);
+          this.toastr.error(error.message || 'Failed to update product. Please try again.', 'Error');
+        }
+      });
+    } else {
+      // Create new product
+      console.log('Creating product with data:', productData);
+      this.productService.createProduct(productData).subscribe({
+        next: (newProduct) => {
+          this.products.push(newProduct);
+          this.filteredProducts = this.products;
+          this.isSaving = false;
+          this.closeModal();
+          this.toastr.success('Product created successfully', 'Success');
+          console.log('Product created:', newProduct);
+          window.location.reload();
+        },
+        error: (error) => {
+          this.isSaving = false;
+          console.error('Failed to create product', error);
+          this.toastr.error(error.message || 'Failed to create product. Please try again.', 'Error');
+        }
+      });
+    }
   }
 
   toggleProductSelection(productId: string) {
