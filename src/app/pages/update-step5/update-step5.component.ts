@@ -492,7 +492,7 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
 
       try {
         const logoUrl = '/images/logo.png';
-        const logoData = await this.getImageData(logoUrl);
+        const logoData = await this.getImageData(logoUrl, true); // Pass true to indicate static asset
         if (logoData) {
           const logoX = pageWidth - margin - logoWidth;
           checkPageBreak(logoHeight + lineHeight);
@@ -779,8 +779,14 @@ export class UpdateStep5Component implements OnInit, AfterViewInit {
     }
   }
 
-  private async getImageData(url: string): Promise<string | null> {
-    const normalizedUrl = this.convertToProxyUrl(url);
+  private async getImageData(url: string, isStatic: boolean = false): Promise<string | null> {
+    let normalizedUrl = url;
+    if (!isStatic) {
+      normalizedUrl = this.convertToProxyUrl(url);
+    } else {
+      // Assume static assets are served from the app's base URL
+      normalizedUrl = `https://aps-app-frontend.vercel.app${url.startsWith('/') ? '' : '/'}${url}`;
+    }
     console.log(`Attempting to load image: ${normalizedUrl}`);
     
     if (normalizedUrl.includes('via.placeholder.com')) {
