@@ -127,7 +127,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   clientName: string = '';
   clientContactPerson: string = '';
   clientPhone: string = '';
-  clients: { id: string, name: string }[] = [];
+  clients: { id: string, name: string, phone: string }[] = []; // Modified to include phone
 
   employees: { id: string, name: string, userType: string }[] = [];
   filteredEmployees: { id: string, name: string, userType: string }[] = [];
@@ -177,7 +177,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       { name: 'Time', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Price', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Additional Requirnments', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
-    ], 'Annual Inspection': [
+    ],
+     'Annual Inspection': [
       { name: 'Services', type: 'list', barrierInput: '', barrierValues: ['2 Pex Pipes', '1 PVC Pipes', '3 Copper Pipes'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },{ name: 'Materials', type: 'string', barrierInput: '', barrierValues: [], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'Barrier', type: 'list', barrierInput: '', barrierValues: ['Bulkhead','Ceiling','Floor','Wall','Riser'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
       { name: 'FRL', type: 'list', barrierInput: '', barrierValues: ['-/120-','-/120/120','-180/180','-/60/60','-/240/240','-/60/60','-90/90','Smoke'], editableInBackOffice: false, hideForMobile: false, isConditional: false, productId: '', approvalDocumentId: '', filteredApprovalDocuments: [], selectedApprovalDocuments: [] },
@@ -405,7 +406,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
       next: (response) => {
         this.clients = response.clients.map(client => ({
           id: client._id,
-          name: client.name
+          name: client.name,
+          phone: client.phone // Include phone in the clients array
         }));
         this.options7 = this.clients.map(client => client.name);
       },
@@ -916,9 +918,15 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     if (selectedClient) {
       this.clientId = selectedClient.id;
       this.clientName = selectedClient.name;
+      this.clientPhone = selectedClient.phone || ''; // Set clientPhone to the selected client's phone number
+    } else {
+      this.clientId = '';
+      this.clientName = '';
+      this.clientPhone = ''; // Clear clientPhone if no client is found
     }
     this.isDropdownOpen7 = false;
-    this.saveFormData();
+    this.saveFormData(); // Save updated form data including clientPhone
+    console.log('Selected client:', option, 'clientPhone set to:', this.clientPhone);
   }
 
   selectOption8(dropdown: any, option: string, event: Event) {
@@ -1462,77 +1470,77 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     });
   }
 
-  saveSingleFile(documentType: string) {
-    let file: File | null = null;
+saveSingleFile(documentType: string) {
+  let file: File | null = null;
+  let mappedDocumentType: string;
 
-    let mappedDocumentType: string;
-    switch (documentType) {
-      case '2D Plan':
-        file = this.singleFile2D;
-        mappedDocumentType = '2D Plan';
-        break;
-      case 'Technical Document':
-        file = this.singleFileTechnical;
-        mappedDocumentType = 'Technical';
-        break;
-      case 'Additional Document':
-        file = this.singleFileAdditional;
-        mappedDocumentType = 'Additional';
-        break;
-      default:
-        console.error('Invalid document type');
-        this.toastr.error('Invalid document type', 'Error');
-        return;
-    }
-
-    if (!file) {
-      console.error('No file selected for upload');
-      this.toastr.error('No file selected for upload', 'Error');
+  switch (documentType) {
+    case '2D Plan':
+      file = this.singleFile2D;
+      mappedDocumentType = '2D Plan';
+      break;
+    case 'Technical Document':
+      file = this.singleFileTechnical;
+      mappedDocumentType = 'Technical';
+      break;
+    case 'Additional Document':
+      file = this.singleFileAdditional;
+      mappedDocumentType = 'Additional';
+      break;
+    default:
+      console.error('Invalid document type');
+      this.toastr.error('Invalid document type', 'Error');
       return;
-    }
-
-    let projectId = this.projectId || localStorage.getItem('projectId');
-    if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
-      console.error('Invalid projectId for uploading document:', projectId);
-      this.toastr.error('Invalid project ID', 'Error');
-      return;
-    }
-
-    if (!this.selectedHierarchyLevel) {
-      console.error('No hierarchy level selected for uploading document');
-      this.toastr.error('No hierarchy level selected', 'Error');
-      return;
-    }
-
-    console.log('Uploading single document:', {
-      projectId: projectId,
-      documentType: mappedDocumentType,
-      hierarchyLevel: this.selectedHierarchyLevel,
-      fileName: file.name
-    });
-
-    this.createprojectService.uploadSingleDocument(
-      projectId,
-      mappedDocumentType,
-      this.selectedHierarchyLevel,
-      file,
-      file.name
-    ).subscribe({
-      next: (response) => {
-        console.log('Single file upload response:', response);
-        this.singleFile2D = null;
-        this.singleFileTechnical = null;
-        this.singleFileAdditional = null;
-        this.closeModal();
-        this.fetchDocuments();
-        this.toastr.success('File uploaded successfully', 'Success');
-      },
-      error: (error) => {
-        console.error('API Error:', error);
-        this.toastr.error('Failed to upload file', 'Error');
-      }
-    });
   }
+
+  if (!file) {
+    console.error('No file selected for upload');
+    this.toastr.error('No file selected for upload', 'Error');
+    return;
+  }
+
+  const projectId = this.projectId || localStorage.getItem('projectId');
+  if (!projectId || !/^[0-9a-fA-F]{24}$/.test(projectId)) {
+    console.error('Invalid projectId for uploading document:', projectId);
+    this.toastr.error('Invalid project ID', 'Error');
+    return;
+  }
+
+  if (!this.selectedHierarchyLevel) {
+    console.error('No hierarchy level selected for uploading document');
+    this.toastr.error('No hierarchy level selected', 'Error');
+    return;
+  }
+
+  console.log('Uploading single document:', {
+    projectId,
+    documentType: mappedDocumentType,
+    hierarchyLevel: this.selectedHierarchyLevel,
+    fileName: file.name
+  });
+
+  this.createprojectService.uploadSingleDocument(
+    projectId,
+    mappedDocumentType,
+    this.selectedHierarchyLevel,
+    file,
+    file.name
+  ).subscribe({
+    next: (response) => {
+      console.log('Single file upload response:', response);
+      this.singleFile2D = null;
+      this.singleFileTechnical = null;
+      this.singleFileAdditional = null;
+      this.closeModal();
+      this.fetchDocuments();
+      this.toastr.success('File uploaded successfully', 'Success');
+    },
+    error: (error) => {
+      console.error('API Error:', error);
+      this.toastr.error('Failed to upload file', 'Error');
+    }
+  });
+}
 
   openFileInput() {
     document.getElementById('fileInput')?.click();

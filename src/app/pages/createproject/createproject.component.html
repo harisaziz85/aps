@@ -293,58 +293,57 @@
             </div>
           </div>
           <div class="card card1">
-            <p class="onestbold head">Client Info</p>
-            <div class="col-12 mb-3 p-0 w-100">
-              <div class="">
-                <p for="exampleInputEmail1" class="robotoregular txt d-block mb-1">Client Name</p>
-              <div class="custom-dropdown" (click)="toggleDropdown7($event)" id="dropdown-toggle-7">
-  <app-svg-icons icon="user1" size="16"></app-svg-icons>
-  <input type="text" [value]="selectedOption7" placeholder="Select an option" readonly />
-  <span class="arrow">
-    <app-svg-icons icon="down" size="16"></app-svg-icons>
-  </span>
-  <div class="dropdown-menu" *ngIf="isDropdownOpen7">
-    <div *ngFor="let option of options7" 
-     (click)="selectOption7(option); $event.stopPropagation()">
-  {{ option }}
-</div>
+  <p class="onestbold head">Client Info</p>
+  <div class="col-12 mb-3 p-0 w-100">
+    <div class="">
+      <p for="exampleInputEmail1" class="robotoregular txt d-block mb-1">Client Name</p>
+      <div class="custom-dropdown" (click)="toggleDropdown7($event)" id="dropdown-toggle-7">
+        <app-svg-icons icon="user1" size="16"></app-svg-icons>
+        <input type="text" [value]="selectedOption7" placeholder="Select an option" readonly />
+        <span class="arrow">
+          <app-svg-icons icon="down" size="16"></app-svg-icons>
+        </span>
+        <div class="dropdown-menu" *ngIf="isDropdownOpen7">
+          <div *ngFor="let option of options7" 
+               (click)="selectOption7(option); $event.stopPropagation()">
+            {{ option }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mb-3">
+    <div class="">
+      <p for="exampleInputEmail1" class="robotoregular txt d-block mb-1">Client (contact person)</p>
+      <div class="input-container">
+        <app-svg-icons icon="user1" size="16"></app-svg-icons>
+        <input type="text" [(ngModel)]="clientContactPerson">
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mb-3">
+    <div class="">
+      <p for="exampleInputEmail1" class="robotoregular txt d-block mb-1">Client (phone number)</p>
+      <div class="input-container">
+        <app-svg-icons icon="phone" size="16"></app-svg-icons>
+        <input
+          type="number"
+          id="clientPhone"
+          name="clientPhone"
+          [(ngModel)]="clientPhone"
+          pattern="[0-9]{11}"
+          maxlength="11"
+          minlength="11"
+          required
+          placeholder="Enter 11-digit phone number"
+          class="form-control1"
+          title="Phone number must be exactly 11 digits."
+          #clientPhoneControl="ngModel"
+        />
+      </div>
+    </div>
   </div>
 </div>
-              </div>
-            </div>
-            <div class="col-12 mb-3">
-              <div class="">
-                <p for="exampleInputEmail1" class="robotoregular txt d-block mb-1">Client (contact person)</p>
-                <div class="input-container">
-                  <app-svg-icons icon="user1" size="16"></app-svg-icons>
-                  <input type="text" [(ngModel)]="clientContactPerson">
-                </div>
-              </div>
-            </div>
-            <div class="col-12 mb-3">
-              <div class="">
-                <p for="exampleInputEmail1" class="robotoregular txt d-block mb-1">Client (phone number)</p>
-                <div class="input-container">
-                  <app-svg-icons icon="phone" size="16"></app-svg-icons>
-                  <input
-  type="number"
-  id="clientPhone"
-  name="clientPhone"
-  [(ngModel)]="clientPhone"
-  pattern="[0-9]{11}"
-  maxlength="11"
-  minlength="11"
-  required
-  placeholder="Enter 11-digit phone number"
-  class="form-control1"
-  title="Phone number must be exactly 11 digits."
-  #clientPhoneControl="ngModel"
-/>
-
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -709,7 +708,7 @@
 </div>
 
       <!-- Submit Button -->
-      <div class="text-center mt-3" style="position:fixed; top:200px;right:24px">
+      <div class="text-center mt-3" style="position:absolute; top:200px;right:24px">
         
 <button class="btn onestsemibold " style="border:1px solid black; color:rgb(0, 0, 0);border-radius:20px; height:56px; width:128px;" onclick="document.getElementById('project-attributes-tab').click()">
   <span class="me-2">
