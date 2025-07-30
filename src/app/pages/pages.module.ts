@@ -35,6 +35,7 @@ import { UpdateStep4Component } from './update-step4/update-step4.component';
 import { UpdateStep5Component } from './update-step5/update-step5.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ImageEditorComponent } from './image-editor/image-editor.component';
+import { ImageModalComponent } from './components/imagemodal/imagemodal.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { ImageEditorComponent } from './image-editor/image-editor.component';
   imports: [
     UpdateStep1Component,
     ImageEditorComponent,
+    ImageModalComponent,
 
     UpdateStep2Component,
     UpdateStep4Component,

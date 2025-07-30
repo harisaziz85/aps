@@ -1,4 +1,3 @@
-
 <div class="container-fluid main">
   <p class="back">
     <a routerLink="/pages/project-building">
@@ -78,15 +77,13 @@
           <div *ngFor="let report of reports" class="report-item card m-2" style="width: 33%; height: 200px; flex: 1 1 calc(33.33% - 1rem);">
             <div class="card-body d-flex flex-column align-items-center justify-content-center">
               <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15.334 18H20.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15.334 26H32.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15.334 34H32.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M7.33398 38.0003V10.0003C7.33398 7.05366 9.72065 4.66699 12.6673 4.66699H27.5633C28.27 4.66699 28.95 4.94699 29.4487 5.44833L39.886 15.8857C40.3873 16.387 40.6673 17.0643 40.6673 17.771V38.0003C40.6673 40.947 38.2806 43.3337 35.334 43.3337H12.6673C9.72065 43.3337 7.33398 40.947 7.33398 38.0003Z" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M40.428 16.6675H31.3346C29.8626 16.6675 28.668 15.4728 28.668 14.0008V4.93945" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-
+                <path d="M15.334 18H20.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15.334 26H32.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15.334 34H32.6673" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.33398 38.0003V10.0003C7.33398 7.05366 9.72065 4.66699 12.6673 4.66699H27.5633C28.27 4.66699 28.95 4.94699 29.4487 5.44833L39.886 15.8857C40.3873 16.387 40.6673 17.0643 40.6673 17.771V38.0003C40.6673 40.947 38.2806 43.3337 35.334 43.3337H12.6673C9.72065 43.3337 7.33398 40.947 7.33398 38.0003Z" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M40.428 16.6675H31.3346C29.8626 16.6675 28.668 15.4728 28.668 14.0008V4.93945" stroke="#212121" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               <a (click)="downloadReport(report.fileUrl)" class="report-link mt-2 text-center cursor-pointer">
-                
                 {{ project?.projectName || 'Unnamed Project' }}
                 <ng-container *ngIf="getReportCount(report.projectId) > 1">
                   ({{ getReportIndex(report) + 1 }})
@@ -212,7 +209,7 @@
   </div>
 
   <!-- Report Modal -->
- <div class="modal-overlay" *ngIf="isReportModalOpen">
+  <div class="modal-overlay" *ngIf="isReportModalOpen">
     <div class="modal-content4 modal-content">
       <div class="modal-header d-flex justify-content-between">
         <p class="head1 onestbold">Report</p>
@@ -361,23 +358,12 @@
     </div>
   </div>
 
-
-
-
-
-
- <div class="modal-overlay3" *ngIf="isImageModalOpen">
-    <div class="modal-content3">
-      <div class="modal-header3 text-end">
-        <button class="close-btn3" (click)="closeImageModal()">×</button>
-      </div>
-      <div class="modal-body3">
-        <div class="image-container">
-          <img [src]="selectedImage" alt="Selected Image" class="modal-img3" />
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Image Modal Component -->
+  <app-imagemodal
+    [isOpen]="isImageModalOpen"
+    [imageUrl]="selectedImage"
+    (close)="closeImageModal()">
+  </app-imagemodal>
 
   <!-- Marker Modal -->
   <div class="modalmarker marker" [class.show]="isMarkerModalOpen">
