@@ -260,7 +260,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
     this.selectedSubProject = subProject;
     this.isSubProjectDropdownOpen = false;
   }
-
+currentDate: string = '';
   removeSubProject(): void {
     this.selectedSubProject = null;
   }
@@ -370,6 +370,8 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
   existingAttributes: Attribute[] = [];
 
   ngOnInit(): void {
+    const today = new Date();
+  this.currentDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
     this.selectedOption6 = 'Yes';
     this.hierarchyLevelsChange = true;
     this.filteredEmployees = [...this.employees];
@@ -475,6 +477,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
 
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
+
         setTimeout(() => {
           this.switchTab(params['tab']);
           if (params['drawer'] === 'open' && params['tab'] === 'reports') {
@@ -551,7 +554,7 @@ export class CreateprojectComponent implements AfterViewInit, OnInit {
         } else {
           console.error('Failed to fetch project reports:', error);
           this.reports = [];
-          this.toastr.error('Failed to fetch project reports', 'Error');
+          // this.toastr.error('Failed to fetch project reports', 'Error');
         }
       }
     });
@@ -2069,27 +2072,43 @@ saveSingleFile(documentType: string) {
 
   loadTemplateAttributes() {
     this.existingAttributes = [...this.predefinedTemplates[this.templateName] || []];
+    const today = new Date();
+  const formattedDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`; // MM/DD/YYYY
+  
+  this.existingAttributes = this.existingAttributes.map(attr => {
+    if (['Date', 'Date Inspected', 'Inspection Date', 'Date of Repairs'].includes(attr.name)) {
+      return {
+        ...attr,
+        barrierInput: formattedDate, // Set current date as input
+        barrierValues: attr.type === 'string' ? [formattedDate] : attr.barrierValues // Set for string type
+      };
+    }
+    return attr;
+  });
     this.attributeName = this.existingAttributes[0]?.name || '';
     this.attributeType = this.existingAttributes[0]?.type || 'string';
     this.barrierValues = [...(this.existingAttributes[0]?.barrierValues || [])];
     this.mainAttribute = {
       name: this.attributeName,
       type: this.attributeType,
-      barrierInput: '',
-      barrierValues: this.barrierValues,
-      editableInBackOffice: this.existingAttributes[0]?.editableInBackOffice || false,
-      hideForMobile: this.existingAttributes[0]?.hideForMobile || false,
-      isConditional: this.existingAttributes[0]?.isConditional || false,
-      productId: this.existingAttributes[0]?.productId || '',
-      approvalDocumentId: this.existingAttributes[0]?.approvalDocumentId || '',
-      filteredApprovalDocuments: [],
-      selectedApprovalDocuments: []
-    };
-    this.additionalAttributes = this.existingAttributes.slice(1).map(attr => ({
-      ...attr,
-      filteredApprovalDocuments: [],
-      selectedApprovalDocuments: []
-    }));
+     barrierInput: ['Date', 'Date Inspected', 'Inspection Date', 'Date of Repairs'].includes(this.attributeName) ? formattedDate : '',
+    barrierValues: this.barrierValues,
+    editableInBackOffice: this.existingAttributes[0]?.editableInBackOffice || false,
+    hideForMobile: this.existingAttributes[0]?.hideForMobile || false,
+    isConditional: this.existingAttributes[0]?.isConditional || false,
+    productId: this.existingAttributes[0]?.productId || '',
+    approvalDocumentId: this.existingAttributes[0]?.approvalDocumentId || '',
+    filteredApprovalDocuments: [],
+    selectedApprovalDocuments: []
+  };
+
+  // Set additional attributes
+  this.additionalAttributes = this.existingAttributes.slice(1).map(attr => ({
+    ...attr,
+    barrierInput: ['Date', 'Date Inspected', 'Inspection Date', 'Date of Repairs'].includes(attr.name) ? formattedDate : attr.barrierInput,
+    filteredApprovalDocuments: [],
+    selectedApprovalDocuments: []
+  }));
     if (this.mainAttribute.isConditional && this.mainAttribute.productId) {
       this.onConditionalProductChange(-1);
     }
@@ -2100,4 +2119,5 @@ saveSingleFile(documentType: string) {
     });
     console.log('Loaded template attributes for:', this.templateName, this.existingAttributes);
   }
+  
 }

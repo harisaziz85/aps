@@ -539,9 +539,15 @@
                   </svg>
                 </span>
               </button>
-              <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainProduct}">
-                <a class="attributedropdown-item" *ngFor="let product of products" (click)="selectMainProduct(product.id, $event)">{{ product.name }}</a>
-              </div>
+             <!-- HTML -->
+<div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainProduct}">
+  <a class="attributedropdown-item" 
+     *ngFor="let product of products" 
+     (click)="selectMainProduct(product.id, $event)">
+    {{ product.name }}<br>
+  </a>
+</div>
+
             </div>
           </div>
         </div>
@@ -558,9 +564,10 @@
                 </span>
               </button>
               <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenMainApproval}">
-                <a class="attributedropdown-item" *ngFor="let doc of mainAttribute.filteredApprovalDocuments" (click)="addMainConditionalApprovalDocumentCustom(doc.id, $event)">{{ doc.name }}</a>
+                <a class="attributedropdown-item" *ngFor="let doc of mainAttribute.filteredApprovalDocuments" (click)="addMainConditionalApprovalDocumentCustom(doc.id, $event)">{{ doc.name }}<br></a>
               </div>
             </div>
+            
             <div class="mt-2 d-flex flex-wrap gap-2">
               <span *ngFor="let docId of mainAttribute.selectedApprovalDocuments; let i = index" class="bg12 d-inline-block position-relative">
                 {{ getApprovalDocumentName(docId) }}
@@ -668,7 +675,7 @@
                 </span>
               </button>
               <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenAttrProduct[i]}">
-                <a class="attributedropdown-item" *ngFor="let product of products" (click)="selectAttrProduct(i, product.id, $event)">{{ product.name }}</a>
+                <a class="attributedropdown-item" *ngFor="let product of products" (click)="selectAttrProduct(i, product.id, $event)">{{ product.name }}<br></a>
               </div>
             </div>
           </div>
@@ -686,7 +693,7 @@
                 </span>
               </button>
               <div class="attributedropdown-menu" [ngClass]="{'show': isDropdownOpenAttrApproval[i]}">
-                <a class="attributedropdown-item" *ngFor="let doc of attr.filteredApprovalDocuments" (click)="addAdditionalConditionalApprovalDocumentCustom(i, doc.id, $event)">{{ doc.name }}</a>
+                <a class="attributedropdown-item" *ngFor="let doc of attr.filteredApprovalDocuments" (click)="addAdditionalConditionalApprovalDocumentCustom(i, doc.id, $event)">{{ doc.name }}<br></a>
               </div>
             </div>
             <div class="mt-2 d-flex flex-wrap gap-2">

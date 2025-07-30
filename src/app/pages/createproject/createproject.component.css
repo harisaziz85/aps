@@ -1514,11 +1514,7 @@ width: 100%;
 
 
 
-/* Dropdown container */
-.dropdown11 {
-  position: relative;
-  display: inline-block;
-}
+
 
 /* Dropdown menu */
 .dropdown-menu11 {
@@ -2122,3 +2118,5 @@ a{
   color: black;
   text-decoration: none;
 }
+
+
