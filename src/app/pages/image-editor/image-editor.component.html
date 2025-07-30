@@ -1,1 +1,52 @@
-<p>image-editor works!</p>
+<div class="image-editor-container">
+  <input type="file" accept="image/*" (change)="onFileSelected($event)">
+  <div class="canvas-container">
+    <img *ngIf="imageSrc" [src]="imageSrc" (click)="openModal()" class="preview-image">
+  </div>
+
+  <!-- Modal for editing -->
+  <div *ngIf="showModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" (click)="closeModal()">×</span>
+      <div class="canvas-container">
+        <canvas #imageCanvas></canvas>
+      </div>
+      <div class="controls">
+        <button (click)="rotate(90)">Rotate 90°</button>
+        <button (click)="crop()">Crop Selection</button>
+        <button (click)="undo()" [disabled]="!canUndo">Undo</button>
+        <button (click)="saveChanges()">Save</button>
+        <label>Brightness:
+          <input type="range" min="0" max="2" step="0.1" value="1"
+                 (input)="adjustBrightness($event)">
+        </label>
+      </div>
+      <div class="drawing-controls">
+        <label>Tool:
+          <select [(ngModel)]="drawingMode" (change)="changeDrawingMode()">
+            <option value="none">None (Crop)</option>
+            <option value="circle">Circle</option>
+            <option value="line">Line</option>
+            <option value="text">Text</option>
+          </select>
+        </label>
+        <label>Color:
+          <input type="color" [(ngModel)]="strokeColor">
+        </label>
+        <label>Line Width:
+          <input type="number" min="1" max="20" [(ngModel)]="lineWidth">
+        </label>
+        <label *ngIf="drawingMode === 'none'">Square Crop:
+          <input type="checkbox" [(ngModel)]="constrainToSquare">
+        </label>
+        <label *ngIf="drawingMode === 'text'">Font Size:
+          <input type="number" min="10" max="100" [(ngModel)]="fontSize">
+        </label>
+        <label *ngIf="drawingMode === 'text'">Text:
+          <input type="text" [(ngModel)]="textInput" placeholder="Enter text">
+        </label>
+        <button *ngIf="drawingMode === 'text'" (click)="addText()">Add Text</button>
+      </div>
+    </div>
+  </div>
+</div>
