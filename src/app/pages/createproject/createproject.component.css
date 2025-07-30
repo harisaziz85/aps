@@ -1513,7 +1513,35 @@ width: 100%;
 }
 
 
+/* Disable pointer events on all tab buttons to prevent clicking */
+.nav-tabs .nav-link {
+  pointer-events: none; /* Makes tabs non-clickable */
+  cursor: default; /* Changes cursor to default to indicate non-interactivity */
+}
 
+/* Ensure the active tab retains its visual style */
+.nav-tabs .nav-link.active {
+  background-color: #007bff; /* Bootstrap primary color for active tab */
+  color: white !important; /* Ensure active tab text is white */
+  border-color: #007bff; /* Match border to active state */
+}
+
+/* Ensure non-active tabs keep their default appearance */
+.nav-tabs .nav-link:not(.active) {
+  color: #495057; /* Default Bootstrap tab color */
+  background-color: transparent; /* Default background */
+}
+
+/* Disabled tab (Project Reports) styling */
+.nav-tabs .nav-link[disabled] {
+  color: #A4A3A2 !important; /* Keep the disabled color */
+  opacity: 0.65; /* Bootstrap's default disabled opacity */
+}
+
+/* Optional: Ensure the Next button remains clickable and styled */
+.btn-primary123 {
+  color: white;
+}
 
 
 /* Dropdown menu */
