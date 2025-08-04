@@ -1,342 +1,244 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
+
+interface Drawing {
+  type: 'circle' | 'line' | 'text' | 'arrow';
+  startX: number;
+  startY: number;
+  endX?: number;
+  endY?: number;
+  radius?: number;
+  text?: string;
+  color: string;
+  lineWidth: number;
+}
 
 @Component({
   selector: 'app-image-editor',
-  templateUrl: './image-editor.component.html',
-  styleUrls: ['./image-editor.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
+  templateUrl: './image-editor.component.html',
+  styleUrls: ['./image-editor.component.css']
 })
-export class ImageEditorComponent {
-  @ViewChild('imageCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+export class ImageEditorComponent implements AfterViewInit {
+  @Input() isOpen: boolean = false;
+  @Input() imageUrl: string = '';
+  @Input() instanceId: string = '';
+  @Input() photoId: string = '';
+  @Input() category: string = '';
+  @Output() close = new EventEmitter<void>();
+
+  @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('image') imageRef!: ElementRef<HTMLImageElement>;
+
   private ctx!: CanvasRenderingContext2D;
-  private image = new Image();
-  private rotation = 0;
-  private isDragging = false;
+  private isDrawing = false;
   private startX = 0;
   private startY = 0;
-  private endX = 0;
-  private endY = 0;
-  drawingMode: 'none' | 'circle' | 'line' | 'text' | 'arrow' = 'none';
-  strokeColor = '#ff0000';
-  fontSize = 20;
-  currentText = '';
-  lineWidth = 2;
-  showModal = false;
-  showDropdown = false;
-  private textPosition: { x: number; y: number } | null = null;
-  private shapes: any[] = [];
+  private currentX = 0;
+  private currentY = 0;
+  private drawings: Drawing[] = [];
+  currentTool: 'circle' | 'line' | 'text' | 'arrow' = 'circle';
+  color: string = '#000000';
+  lineWidth: number = 2;
+  textInput: string = '';
+  isDropdownOpen: boolean = false;
+  isToolSelected: boolean = false;
 
-  get imageSrc(): string {
-    return this.image.src;
-  }
+  private apiUrl = 'https://vps.allpassiveservices.com.au/api/project-instance/update-photo';
+
+  constructor(
+    private http: HttpClient,
+    private toastr: ToastrService
+  ) {}
 
   ngAfterViewInit() {
-    this.initializeCanvas();
+    this.initCanvas();
   }
 
-  private initializeCanvas() {
-    if (this.canvasRef && this.canvasRef.nativeElement) {
-      this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
-      if (!this.ctx) {
-        console.error('Failed to get 2D context for canvas');
-        return;
-      }
-      this.setupCanvasEvents();
-      if (this.image.src) {
-        this.resizeCanvas();
-        this.drawImage();
-      }
-    }
-  }
-
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.image.src = e.target!.result as string;
-        this.image.onload = () => {
-          console.log('Image loaded:', this.image.src);
-          this.shapes = [];
-          this.rotation = 0;
-          this.drawingMode = 'none';
-          this.currentText = '';
-          this.textPosition = null;
-          this.showDropdown = false;
-          this.resizeCanvas();
-          this.drawImage();
-        };
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-
-  openModal() {
-    if (this.image.src) {
-      console.log('Opening modal, imageSrc:', this.image.src);
-      this.showModal = true;
-      setTimeout(() => {
-        this.initializeCanvas();
-      }, 100);
-    } else {
-      console.warn('No image source available to open modal');
-    }
-  }
-
-  handleEditOption(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const value = selectElement.value;
-    if (value === 'rotate') {
-      this.rotate(90);
-      selectElement.value = ''; // Reset dropdown to default
-      this.showDropdown = false;
-    } else if (value === 'circle' || value === 'line' || value === 'text' || value === 'arrow') {
-      this.setDrawingMode(value as 'circle' | 'line' | 'text' | 'arrow');
-      this.showDropdown = true;
-    }
-  }
-
-  closeModal() {
-    console.log('Closing modal');
-    this.showModal = false;
-    this.showDropdown = false;
-    this.drawingMode = 'none';
-    this.currentText = '';
-    this.textPosition = null;
-    this.drawImage();
-  }
-
-  saveChanges() {
-    console.log('Saving changes');
-    this.closeModal();
-  }
-
-  private resizeCanvas() {
+  initCanvas() {
     const canvas = this.canvasRef.nativeElement;
-    if (this.image.width && this.image.height) {
-      canvas.width = this.image.width;
-      canvas.height = this.image.height;
-      console.log('Canvas resized:', canvas.width, canvas.height);
-    } else {
-      console.warn('Image dimensions not available for resizing');
+    const image = this.imageRef.nativeElement;
+    canvas.width = image.width;
+    canvas.height = image.height;
+    this.ctx = canvas.getContext('2d')!;
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+    this.redrawCanvas();
+  }
+
+  redrawCanvas() {
+    this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+    this.ctx.drawImage(this.imageRef.nativeElement, 0, 0);
+
+    this.drawings.forEach(drawing => {
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = drawing.color;
+      this.ctx.fillStyle = drawing.color;
+      this.ctx.lineWidth = drawing.lineWidth;
+
+      if (drawing.type === 'circle' && drawing.radius) {
+        this.ctx.arc(drawing.startX, drawing.startY, drawing.radius, 0, 2 * Math.PI);
+        this.ctx.stroke();
+      } else if (drawing.type === 'line' && drawing.endX && drawing.endY) {
+        this.ctx.moveTo(drawing.startX, drawing.startY);
+        this.ctx.lineTo(drawing.endX, drawing.endY);
+        this.ctx.stroke();
+      } else if (drawing.type === 'text' && drawing.text) {
+        this.ctx.font = '20px Arial';
+        this.ctx.fillText(drawing.text, drawing.startX, drawing.startY);
+      } else if (drawing.type === 'arrow' && drawing.endX && drawing.endY) {
+        this.drawArrow(drawing.startX, drawing.startY, drawing.endX, drawing.endY);
+      }
+      this.ctx.closePath();
+    });
+  }
+
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  setTool(tool: 'circle' | 'line' | 'text' | 'arrow') {
+    this.currentTool = tool;
+    this.isToolSelected = true;
+    this.isDropdownOpen = false;
+    if (tool === 'text') {
+      this.textInput = prompt('Enter text:') || '';
     }
   }
 
-  setDrawingMode(mode: 'none' | 'circle' | 'line' | 'text' | 'arrow') {
-    this.drawingMode = mode;
-    this.isDragging = false;
-    this.textPosition = null;
-    this.currentText = '';
+  updateColor() {
+    this.ctx.strokeStyle = this.color;
+    this.ctx.fillStyle = this.color;
   }
 
-  private getCanvasCoordinates(x: number, y: number): { x: number; y: number } {
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const rad = (this.rotation * Math.PI) / 180;
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    let canvasX = (x - rect.left) * scaleX;
-    let canvasY = (y - rect.top) * scaleY;
-
-    const tx = canvasX - centerX;
-    const ty = canvasY - centerY;
-    const rotatedX = tx * Math.cos(-rad) - ty * Math.sin(-rad);
-    const rotatedY = tx * Math.sin(-rad) + ty * Math.cos(-rad);
-    return {
-      x: rotatedX + centerX,
-      y: rotatedY + centerY
-    };
+  startDrawing(event: MouseEvent) {
+    this.isDrawing = true;
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    this.startX = event.clientX - rect.left;
+    this.startY = event.clientY - rect.top;
+    this.currentX = this.startX;
+    this.currentY = this.startY;
+    if (this.currentTool === 'text') {
+      this.drawings.push({
+        type: 'text',
+        startX: this.startX,
+        startY: this.startY,
+        text: this.textInput,
+        color: this.color,
+        lineWidth: this.lineWidth
+      });
+      this.redrawCanvas();
+      this.isDrawing = false;
+    }
   }
 
-  private drawArrowHead(x: number, y: number, angle: number) {
-    const arrowSize = 10;
+  draw(event: MouseEvent) {
+    if (!this.isDrawing) return;
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    this.currentX = event.clientX - rect.left;
+    this.currentY = event.clientY - rect.top;
+
+    this.redrawCanvas();
     this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
-    this.ctx.lineTo(
-      x - arrowSize * Math.cos(angle - Math.PI / 6),
-      y - arrowSize * Math.sin(angle - Math.PI / 6)
-    );
-    this.ctx.moveTo(x, y);
-    this.ctx.lineTo(
-      x - arrowSize * Math.cos(angle + Math.PI / 6),
-      y - arrowSize * Math.sin(angle + Math.PI / 6)
-    );
+    this.ctx.strokeStyle = this.color;
+    this.ctx.lineWidth = this.lineWidth;
+
+    if (this.currentTool === 'circle') {
+      const radius = Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2));
+      this.ctx.arc(this.startX, this.startY, radius, 0, 2 * Math.PI);
+      this.ctx.stroke();
+    } else if (this.currentTool === 'line') {
+      this.ctx.moveTo(this.startX, this.startY);
+      this.ctx.lineTo(this.currentX, this.currentY);
+      this.ctx.stroke();
+    } else if (this.currentTool === 'arrow') {
+      this.drawArrow(this.startX, this.startY, this.currentX, this.currentY);
+    }
+    this.ctx.closePath();
+  }
+
+  drawArrow(fromX: number, fromY: number, toX: number, toY: number) {
+    const headLength = 10;
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const angle = Math.atan2(dy, dx);
+    this.ctx.moveTo(fromX, fromY);
+    this.ctx.lineTo(toX, toY);
+    this.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    this.ctx.moveTo(toX, toY);
+    this.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
     this.ctx.stroke();
   }
 
-  drawImage() {
-    if (!this.ctx) {
-      console.error('Canvas context not available');
-      return;
+  stopDrawing() {
+    if (this.isDrawing && this.currentTool !== 'text') {
+      this.drawings.push({
+        type: this.currentTool,
+        startX: this.startX,
+        startY: this.startY,
+        endX: this.currentX,
+        endY: this.currentY,
+        radius: this.currentTool === 'circle' ? Math.sqrt(Math.pow(this.currentX - this.startX, 2) + Math.pow(this.currentY - this.startY, 2)) : undefined,
+        color: this.color,
+        lineWidth: this.lineWidth
+      });
+      this.isDrawing = false;
+      this.redrawCanvas();
     }
-    const canvas = this.canvasRef.nativeElement;
-    this.ctx.save();
-    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    this.ctx.translate(canvas.width / 2, canvas.height / 2);
-    this.ctx.rotate((this.rotation * Math.PI) / 180);
-    this.ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
-    if (this.image.complete && this.image.src) {
-      this.ctx.drawImage(this.image, 0, 0);
-      console.log('Image drawn on canvas');
-    } else {
-      console.warn('Image not ready for drawing');
-    }
-
-    this.shapes.forEach(shape => {
-      this.ctx.save();
-      this.ctx.strokeStyle = shape.color;
-      this.ctx.lineWidth = shape.lineWidth;
-      if (shape.type === 'circle') {
-        this.ctx.beginPath();
-        const radius = Math.sqrt(
-          Math.pow(shape.endX - shape.startX, 2) + Math.pow(shape.endY - shape.startY, 2)
-        );
-        this.ctx.arc(shape.startX, shape.startY, radius, 0, 2 * Math.PI);
-        this.ctx.stroke();
-      } else if (shape.type === 'line') {
-        this.ctx.beginPath();
-        this.ctx.moveTo(shape.startX, shape.startY);
-        this.ctx.lineTo(shape.endX, shape.endY);
-        this.ctx.stroke();
-      } else if (shape.type === 'arrow') {
-        this.ctx.beginPath();
-        this.ctx.moveTo(shape.startX, shape.startY);
-        this.ctx.lineTo(shape.endX, shape.endY);
-        this.ctx.stroke();
-        const angle = Math.atan2(shape.endY - shape.startY, shape.endX - shape.startX);
-        this.drawArrowHead(shape.endX, shape.endY, angle);
-      } else if (shape.type === 'text') {
-        this.ctx.font = `${shape.fontSize}px Arial`;
-        this.ctx.fillStyle = shape.color;
-        this.ctx.fillText(shape.text, shape.x, shape.y);
-      }
-      this.ctx.restore();
-    });
-
-    if (this.textPosition && this.drawingMode === 'text') {
-      this.ctx.save();
-      this.ctx.font = `${this.fontSize}px Arial`;
-      this.ctx.fillStyle = this.strokeColor;
-      this.ctx.fillText(this.currentText, this.textPosition.x, this.textPosition.y);
-      this.ctx.restore();
-    }
-
-    this.ctx.restore();
   }
 
-  rotate(degrees: number) {
-    this.rotation = (this.rotation + degrees) % 360;
-    this.drawImage();
+  undo() {
+    this.drawings.pop();
+    this.redrawCanvas();
   }
 
-  private setupCanvasEvents() {
-    const canvas = this.canvasRef.nativeElement;
+  saveImage() {
+    // Get the edited image as a data URL and convert to Blob
+    const dataUrl = this.canvasRef.nativeElement.toDataURL('image/png');
+    const byteString = atob(dataUrl.split(',')[1]);
+    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeString });
 
-    canvas.addEventListener('mousedown', (e) => {
-      this.isDragging = true;
-      const transformed = this.getCanvasCoordinates(e.clientX, e.clientY);
-      this.startX = transformed.x;
-      this.startY = transformed.y;
+    // Extract the original filename from imageUrl
+    const urlParts = this.imageUrl.split('/');
+    const originalFileName = urlParts[urlParts.length - 1] || 'edited-image.png'; // Fallback to 'edited-image.png' if no filename is found
 
-      if (this.drawingMode === 'text') {
-        this.textPosition = { x: this.startX, y: this.startY };
-        this.currentText = '';
-        this.isDragging = false;
-        canvas.focus();
+    // Prepare FormData for API call
+    const formData = new FormData();
+    formData.append('instanceId', this.instanceId);
+    formData.append('photoId', this.photoId);
+    formData.append('category', this.category);
+    formData.append('photo', blob, originalFileName); // Use original filename
+
+    // Make API call to update photo
+    this.http.post(this.apiUrl, formData).subscribe({
+      next: (response: any) => {
+        this.toastr.success('Image updated successfully!', 'Success');
+        // Optionally download the image locally
+        const link = document.createElement('a');
+        link.download = originalFileName; // Use original filename for download
+        link.href = dataUrl;
+        link.click();
+        this.closeModal(); // Close modal after successful save
+      },
+      error: (error) => {
+        console.error('Error updating image:', error);
+        this.toastr.error(`Failed to update image: ${error.error?.message || error.message}`, 'Error');
       }
     });
+  }
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (this.isDragging && (this.drawingMode === 'circle' || this.drawingMode === 'line' || this.drawingMode === 'arrow')) {
-        const transformed = this.getCanvasCoordinates(e.clientX, e.clientY);
-        this.endX = transformed.x;
-        this.endY = transformed.y;
-
-        this.drawImage();
-
-        this.ctx.save();
-        this.ctx.strokeStyle = this.strokeColor;
-        this.ctx.lineWidth = this.lineWidth;
-
-        this.ctx.translate(canvas.width / 2, canvas.height / 2);
-        this.ctx.rotate((this.rotation * Math.PI) / 180);
-        this.ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
-        if (this.drawingMode === 'circle') {
-          this.ctx.beginPath();
-          const radius = Math.sqrt(
-            Math.pow(this.endX - this.startX, 2) + Math.pow(this.endY - this.startY, 2)
-          );
-          this.ctx.arc(this.startX, this.startY, radius, 0, 2 * Math.PI);
-          this.ctx.stroke();
-        } else if (this.drawingMode === 'line') {
-          this.ctx.beginPath();
-          this.ctx.moveTo(this.startX, this.startY);
-          this.ctx.lineTo(this.endX, this.endY);
-          this.ctx.stroke();
-        } else if (this.drawingMode === 'arrow') {
-          this.ctx.beginPath();
-          this.ctx.moveTo(this.startX, this.startY);
-          this.ctx.lineTo(this.endX, this.endY);
-          this.ctx.stroke();
-          const angle = Math.atan2(this.endY - this.startY, this.endX - this.startX);
-          this.drawArrowHead(this.endX, this.endY, angle);
-        }
-        this.ctx.restore();
-      }
-    });
-
-    canvas.addEventListener('mouseup', () => {
-      if (this.isDragging && (this.drawingMode === 'circle' || this.drawingMode === 'line' || this.drawingMode === 'arrow')) {
-        this.shapes.push({
-          type: this.drawingMode,
-          startX: this.startX,
-          startY: this.startY,
-          endX: this.endX,
-          endY: this.endY,
-          color: this.strokeColor,
-          lineWidth: this.lineWidth
-        });
-        this.isDragging = false;
-        this.drawImage();
-      }
-    });
-
-    canvas.addEventListener('keydown', (e) => {
-      if (this.drawingMode === 'text' && this.textPosition) {
-        if (e.key === 'Enter') {
-          if (this.currentText) {
-            this.shapes.push({
-              type: 'text',
-              text: this.currentText,
-              x: this.textPosition.x,
-              y: this.textPosition.y,
-              color: this.strokeColor,
-              fontSize: this.fontSize
-            });
-            this.currentText = '';
-            this.textPosition = null;
-            this.drawingMode = 'none';
-            this.showDropdown = false;
-          }
-          this.drawImage();
-        } else if (e.key === 'Backspace') {
-          this.currentText = this.currentText.slice(0, -1);
-          this.drawImage();
-        } else if (e.key.length === 1) {
-          this.currentText += e.key;
-          this.drawImage();
-        }
-        e.preventDefault();
-      }
-    });
+  closeModal() {
+    this.close.emit();
+    document.body.style.overflow = 'auto';
   }
 }

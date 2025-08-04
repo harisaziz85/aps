@@ -151,40 +151,39 @@
 
           <div *ngIf="activeTab === 'pictures'" class="pictures">
             <!-- Pre-installation Section -->
-            <div class="section">
-              <p class="onestsemibold txt3">Pre-installation</p>
-              <div *ngIf="preInstallPhotos && preInstallPhotos.length > 0; else noPreInstall">
-                <div class="image-row">
-                  <img *ngFor="let photo of preInstallPhotos"
-                    [src]="photo.url"
-                    style="width:250px; height:250px"
-                    [alt]="photo.category"
-                    class="pic"
-                    (click)="openImageModal(photo.url)" />
-                </div>
-              </div>
-              <ng-template #noPreInstall>
-                <p class="robotoregular txt">No Image</p>
-              </ng-template>
-            </div>
-
+          <div class="section">
+  <p class="onestsemibold txt3">Pre-installation</p>
+  <div *ngIf="preInstallPhotos && preInstallPhotos.length > 0; else noPreInstall">
+    <div class="image-row">
+      <img *ngFor="let photo of preInstallPhotos"
+        [src]="photo.url"
+        style="width:250px; height:250px"
+        [alt]="photo.category"
+        class="pic"
+        (click)="openImageModal(photo.url, photo._id, photo.category)" />
+    </div>
+  </div>
+  <ng-template #noPreInstall>
+    <p class="robotoregular txt">No Image</p>
+  </ng-template>
+</div>
             <!-- Post-installation Section -->
-            <div class="section">
-              <p class="onestsemibold txt3">Post-installation</p>
-              <div *ngIf="postInstallPhotos && postInstallPhotos.length > 0; else noPostInstall">
-                <div class="image-row">
-                  <img *ngFor="let photo of postInstallPhotos"
-                    [src]="photo.url"
-                    style="width:250px; height:250px"
-                    [alt]="photo.category"
-                    class="pic"
-                    (click)="openImageModal(photo.url)" />
-                </div>
-              </div>
-              <ng-template #noPostInstall>
-                <p class="robotoregular txt">No Image</p>
-              </ng-template>
-            </div>
+           <div class="section">
+  <p class="onestsemibold txt3">Post-installation</p>
+  <div *ngIf="postInstallPhotos && postInstallPhotos.length > 0; else noPostInstall">
+    <div class="image-row">
+      <img *ngFor="let photo of postInstallPhotos"
+        [src]="photo.url"
+        style="width:250px; height:250px"
+        [alt]="photo.category"
+        class="pic"
+        (click)="openImageModal(photo.url, photo._id, photo.category)" />
+    </div>
+  </div>
+  <ng-template #noPostInstall>
+    <p class="robotoregular txt">No Image</p>
+  </ng-template>
+</div>
           </div>
 
           <div *ngIf="activeTab === 'markers'" class="markers card" style="padding: 16px;">
@@ -359,11 +358,14 @@
   </div>
 
   <!-- Image Modal Component -->
-  <app-imagemodal
-    [isOpen]="isImageModalOpen"
-    [imageUrl]="selectedImage"
-    (close)="closeImageModal()">
-  </app-imagemodal>
+<app-imagemodal
+  [isOpen]="isImageModalOpen"
+  [imageUrl]="selectedImage"
+  [instanceId]="instanceId"
+  [photoId]="selectedPhotoId"
+  [category]="selectedPhotoCategory"
+  (close)="handleImageModalClose($event)">
+</app-imagemodal>
 
   <!-- Marker Modal -->
   <div class="modalmarker marker" [class.show]="isMarkerModalOpen">

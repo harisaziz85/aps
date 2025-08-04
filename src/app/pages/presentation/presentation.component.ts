@@ -10,6 +10,7 @@ import { FootComponent } from '../components/foot/foot.component';
 import { ImageModalComponent } from '../components/imagemodal/imagemodal.component';
 import { ProjectResponse, InstanceResponse, Marker, Document } from '../../core/models/presentation';
 import { HttpClient } from '@angular/common/http';
+import { PhotoUpdateResponse } from '../../core/models/photo-update-response';
 
 interface TableRow {
   'Ref No': string;
@@ -48,6 +49,8 @@ export class PresentationComponent implements OnInit {
   selectedImage: string = '';
   activeTab: string = 'attributes';
   expandedSection: string | null = null;
+  selectedPhotoId: string = '';
+selectedPhotoCategory: string = '';
   project: ProjectResponse | null = null;
   selectedHierarchy: any = null;
   selectedInstance: InstanceResponse | null = null;
@@ -347,70 +350,71 @@ export class PresentationComponent implements OnInit {
     return checkedCount > 0 && checkedCount < this.reportFields.length;
   }
 
-  selectInstance(instanceId: string): void {
-    if (!instanceId) {
+selectInstance(instanceId: string): void {
+  if (!instanceId) {
+    this.selectedInstance = null;
+    this.preInstallPhotos = [];
+    this.postInstallPhotos = [];
+    this.tablePhotos = [];
+    this.isLoadingInstance = false;
+    this.cdr.detectChanges();
+    return;
+  }
+  this.instanceId = instanceId;
+  localStorage.setItem('instanceId', this.instanceId);
+  this.isLoadingInstance = true;
+
+  this.presentationService.getInstanceDetails(instanceId).subscribe({
+    next: (instance: InstanceResponse) => {
+      this.selectedInstance = instance || null;
+      if (instance?.projectId) {
+        this.projectId = instance.projectId;
+      }
+      this.preInstallPhotos = [];
+      this.postInstallPhotos = [];
+      this.tablePhotos = [];
+      if (this.selectedInstance?.photos && Array.isArray(this.selectedInstance.photos)) {
+        this.preInstallPhotos = this.selectedInstance.photos.filter(
+          photo => photo.category.toLowerCase() === 'pre-installation'
+        );
+        this.postInstallPhotos = this.selectedInstance.photos.filter(
+          photo => photo.category.toLowerCase() === 'post-installation'
+        );
+      }
+
+      this.http.get<{ message: string; data: { url: string; category: string; _id: string }[] }>(
+        `https://vps.allpassiveservices.com.au/api/project-instance/photos/${instanceId}`
+      ).subscribe({
+        next: (response) => {
+          this.tablePhotos = response.data || [];
+          this.isLoadingInstance = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.tablePhotos = [];
+          this.isLoadingInstance = false;
+          this.cdr.detectChanges();
+        }
+      });
+
+      if (this.projectId && this.hierarchyLevelId) {
+        this.fetchMarkers(this.projectId, this.hierarchyLevelId, instanceId);
+        this.fetchAttributes(this.projectId);
+      }
+      this.isLoadingInstance = false;
+      this.cdr.detectChanges();
+      this.fetchReports();
+    },
+    error: () => {
       this.selectedInstance = null;
       this.preInstallPhotos = [];
       this.postInstallPhotos = [];
       this.tablePhotos = [];
       this.isLoadingInstance = false;
       this.cdr.detectChanges();
-      return;
     }
-    this.instanceId = instanceId;
-    localStorage.setItem('instanceId', this.instanceId);
-    this.isLoadingInstance = true;
-
-    this.presentationService.getInstanceDetails(instanceId).subscribe({
-      next: (instance: InstanceResponse) => {
-        this.selectedInstance = instance || null;
-        if (instance?.projectId) {
-          this.projectId = instance.projectId;
-        }
-        this.preInstallPhotos = [];
-        this.postInstallPhotos = [];
-        if (this.selectedInstance?.photos && Array.isArray(this.selectedInstance.photos)) {
-          this.preInstallPhotos = this.selectedInstance.photos.filter(
-            photo => photo.category.toLowerCase() === 'pre-installation'
-          );
-          this.postInstallPhotos = this.selectedInstance.photos.filter(
-            photo => photo.category.toLowerCase() === 'post-installation'
-          );
-        }
-
-        this.http.get<{ message: string; data: { url: string; category: string; _id: string }[] }>(
-          `https://vps.allpassiveservices.com.au/api/project-instance/photos/${instanceId}`
-        ).subscribe({
-          next: (response) => {
-            this.tablePhotos = response.data || [];
-            this.isLoadingInstance = false;
-            this.cdr.detectChanges();
-          },
-          error: () => {
-            this.tablePhotos = [];
-            this.isLoadingInstance = false;
-            this.cdr.detectChanges();
-          }
-        });
-
-        if (this.projectId && this.hierarchyLevelId) {
-          this.fetchMarkers(this.projectId, this.hierarchyLevelId, instanceId);
-          this.fetchAttributes(this.projectId);
-        }
-        this.isLoadingInstance = false;
-        this.cdr.detectChanges();
-        this.fetchReports();
-      },
-      error: () => {
-        this.selectedInstance = null;
-        this.preInstallPhotos = [];
-        this.postInstallPhotos = [];
-        this.tablePhotos = [];
-        this.isLoadingInstance = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
+  });
+}
 
   fetchMarkers(projectId: string, hierarchyLevelId: string, instanceId: string): void {
     if (!projectId || !hierarchyLevelId || !instanceId) {
@@ -515,11 +519,36 @@ export class PresentationComponent implements OnInit {
     this.closeAllFieldDropdowns();
   }
 
-  openImageModal(imageUrl: string): void {
-    this.selectedImage = imageUrl;
-    this.isImageModalOpen = true;
-    document.body.style.overflow = 'hidden';
+openImageModal(imageUrl: string, photoId: string, category: string): void {
+  this.selectedImage = imageUrl;
+  this.selectedPhotoId = photoId;
+  this.selectedPhotoCategory = category;
+  this.isImageModalOpen = true;
+  document.body.style.overflow = 'hidden';
+}
+handleImageModalClose(response: PhotoUpdateResponse | null): void {
+  this.closeImageModal();
+  if (response && response.url && response.photoId) {
+    // Update the photo arrays with the new URL
+    const updatePhotoArray = (photos: { url: string; category: string; _id: string }[]) => {
+      const index = photos.findIndex(photo => photo._id === response.photoId);
+      if (index !== -1) {
+        photos[index].url = response.url;
+      }
+    };
+
+    updatePhotoArray(this.preInstallPhotos);
+    updatePhotoArray(this.postInstallPhotos);
+    updatePhotoArray(this.tablePhotos);
+
+    // Refresh instance details to ensure consistency
+    if (this.instanceId) {
+      this.selectInstance(this.instanceId);
+    }
+
+    this.cdr.detectChanges();
   }
+}
 
   closeImageModal(): void {
     this.isImageModalOpen = false;

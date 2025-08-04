@@ -49,13 +49,12 @@
     <div class="side-card" style="flex: 1; background:#ffffff; border-radius: 20px; padding: 24px;">
       <p style="font-size:21px;" class="onestbold">Configuration</p>
       <p style="font-size: 16px;" class="onestbold">Standard Configuration</p>
-      <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
-      <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
-      <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
-      <p style="font-size: 16px;" class="onestbold">Advanced Configuration for Advanced Users</p>
-      <p style="font-size: 14px;" class="onestregular">Hierarchy 1: Building</p>
-      <p style="font-size: 14px;" class="onestregular">Hierarchy 2: Floor</p>
-      <p style="font-size: 14px;" class="onestregular">Hierarchy 3: Room</p>
+      <div *ngIf="getHierarchyLevels().length > 0">
+        <p *ngFor="let level of getHierarchyLevels(); let i = index" style="font-size: 14px;" class="onestregular">Hierarchy {{ i + 1 }}: {{ level.name }}</p>
+      </div>
+      <div *ngIf="getHierarchyLevels().length === 0">
+        <p style="font-size: 14px;" class="onestregular">No hierarchy levels defined.</p>
+      </div>
     </div>
   </div>
   <button type="button" class="btn btn-dark bts1" style="border-radius: 10px; background:black" (click)="saveAndNext()">Save and Next <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">

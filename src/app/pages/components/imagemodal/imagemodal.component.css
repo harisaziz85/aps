@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.697);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,33 +12,29 @@
 }
 
 .modal-content {
-  background: white;
+  background: rgba(255, 255, 255, 0);
   border-radius: 8px;
-  width: 800px;
-  height: 700px;
+  width: 83%;
+  max-width: 680px;
+  max-height: 90vh;
   overflow: auto;
 }
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 0px;
 }
 
-.edit-tools {
+.edit-controls {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
 }
 
-.custom-dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-toggle {
+.edit-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -49,38 +45,55 @@
   cursor: pointer;
   min-width: 100px;
   text-align: left;
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: white;
-  border: 1px solid #ccc;
   border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
-  min-width: 100px;
 }
 
-.dropdown-menu.show {
-  display: block;
+.edit-tools-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 15px;
+  border: 1px solid #ddd;
 }
 
-.dropdown-menu li {
-  padding: 8px 12px;
+.tool-btn {
+  background: rgba(255, 255, 255, 0);
+  border: 0px ;
+  padding: 8px;
   cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  transition: all 0.2s;
 }
 
-.dropdown-menu li:hover {
-  background: #007bff;
+
+
+.tool-btn.active {
+  background: #FCEBE8;
+  border-radius: 12px;
+}
+
+.color-picker {
+  width: 20px;
+  height: 20px;
+  border: 0px;
+  border-radius: 100%;
+  cursor: pointer;
+  padding: 0;
+  background: white;
+}
+
+.save-btn {
+  background: #000000;
   color: white;
-}
-
-.edit-tools input[type="color"],
-.edit-tools input[type="number"] {
-  width: 60px;
+  border-color: #000000;
+  font-weight: bold;
 }
 
 .close-btn {
@@ -92,21 +105,30 @@
 
 .modal-body {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .image-container {
   position: relative;
-  display: inline-block;
+  width: 100%;
+  height: 600px;
+  border-radius: 20px;
+  margin: 0 auto;
 }
 
 .modal-img {
-  max-width: 100%;
-  max-height: 760px;
   display: block;
+  border-radius: 20px;
 }
 
 canvas {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  border-radius: 20px;
 }
